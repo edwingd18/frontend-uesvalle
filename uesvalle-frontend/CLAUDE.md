@@ -240,21 +240,86 @@ interface Activo {
 ## 🚀 COMANDOS ÚTILES
 
 ```bash
-# Desarrollo
-pnpm dev
+# Desarrollo (cambiar al directorio uesvalle-frontend primero)
+cd uesvalle-frontend
+npm run dev
 
 # Build
-pnpm build
+npm run build
 
-# Agregar componente shadcn
-pnpm dlx shadcn-ui@latest add [component]
+# Start production
+npm start
 
 # Linting
-pnpm lint
+npm run lint
 
-# Type check
-pnpm type-check
+# Agregar componente shadcn
+npx shadcn-ui@latest add [component]
 ```
+
+## 📂 ESTRUCTURA DE CARPETAS ACTUAL
+
+```
+uesvalle-frontend/
+├── app/                        # Next.js App Router
+│   ├── (auth)/                # Grupo de rutas públicas (login)
+│   ├── (dashboard)/           # Grupo de rutas protegidas
+│   │   ├── dashboard/         # Dashboard principal
+│   │   └── layout.tsx        # Layout con sidebar
+│   ├── globals.css           # Estilos globales
+│   ├── layout.tsx           # Root layout
+│   └── page.tsx             # Página principal (redirect a dashboard)
+│
+├── components/ui/             # shadcn/ui components
+│   ├── button.tsx
+│   ├── card.tsx
+│   ├── dialog.tsx
+│   └── ... (otros componentes UI)
+│
+├── shared/                   # Componentes compartidos
+│   └── components/
+│       └── layout/
+│           └── sidebar.tsx  # Componente Sidebar principal
+│
+├── lib/
+│   └── utils.ts            # Utilidades (cn function, etc.)
+│
+└── mocks/                  # Datos de prueba (pendiente)
+```
+
+## 🔧 CONFIGURACIÓN TÉCNICA
+
+### Package Manager
+- **Usar**: `npm` (no pnpm como está documentado)
+- El proyecto tiene `package-lock.json` en lugar de `pnpm-lock.yaml`
+
+### Scripts disponibles
+- `npm run dev` - Servidor de desarrollo
+- `npm run build` - Build de producción
+- `npm start` - Servidor de producción
+- `npm run lint` - Linting con ESLint
+
+### Componentes UI
+- Instalado: shadcn/ui con múltiples componentes
+- Configuración en `components.json`
+- Tema y utilidades en `lib/utils.ts`
+
+## 🏗️ PATRONES DE DESARROLLO
+
+### Routing
+- Next.js App Router con grupos de rutas:
+  - `(auth)` - Login sin sidebar
+  - `(dashboard)` - Rutas protegidas con sidebar
+
+### Layout System
+- Root layout: `app/layout.tsx` (fuentes Geist, metadata)
+- Dashboard layout: `app/(dashboard)/layout.tsx` (sidebar responsive)
+- Sidebar colapsible con estado local y mobile sheet
+
+### Estado y datos
+- Configurado Zustand para estado global (pendiente implementar)
+- Datos mock en desarrollo (localStorage)
+- Axios configurado para futuras llamadas API
 
 ---
 

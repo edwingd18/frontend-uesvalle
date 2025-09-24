@@ -75,7 +75,7 @@ export function Sidebar({ className, isCollapsed = false, onToggle }: SidebarPro
 
   return (
     <div className={cn(
-      "bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out min-h-screen relative",
+      "bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out h-screen relative overflow-y-auto",
       isCollapsed ? "w-16" : "w-64",
       className
     )}>
@@ -84,7 +84,8 @@ export function Sidebar({ className, isCollapsed = false, onToggle }: SidebarPro
         onClick={onToggle}
         variant="ghost"
         size="icon"
-        className="absolute -right-3 top-6 z-50 h-6 w-6 rounded-full bg-white shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
+        className="fixed -right-3 top-6 z-[60] h-6 w-6 rounded-full bg-white shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
+        style={{ left: isCollapsed ? '52px' : '244px' }}
       >
         {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
       </Button>

@@ -15,10 +15,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex bg-gray-50">
       {/* Sidebar Desktop */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <Sidebar 
+      <div className="hidden lg:flex lg:flex-shrink-0 lg:sticky lg:top-0 lg:h-screen">
+        <Sidebar
           isCollapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
@@ -44,8 +44,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <main className="h-full relative overflow-y-auto focus:outline-none p-6">
+      <div className="flex-1 min-h-screen">
+        <main className="focus:outline-none p-6">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

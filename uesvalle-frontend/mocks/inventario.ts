@@ -118,7 +118,7 @@ export const activos: Activo[] = [
     usuario_sysman_id: 2,
     usuario_uso_id: 4,
     estado: 'bueno',
-    proceso: 'en_traslado',
+    proceso: 'sistemas',
     fechaAdquisicion: '2024-04-18',
     valor: 900000
   },

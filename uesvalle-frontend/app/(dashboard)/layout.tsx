@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Sidebar } from '@/shared/components/layout/sidebar'
+import { AuthGuard } from '@/shared/components/auth/auth-guard'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu } from 'lucide-react'
@@ -15,7 +16,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
-    <div className="flex bg-gray-50">
+    <AuthGuard>
+      <div className="flex bg-gray-50">
       {/* Sidebar Desktop */}
       <div className="hidden lg:flex lg:flex-shrink-0 lg:sticky lg:top-0 lg:h-screen">
         <Sidebar
@@ -52,5 +54,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </main>
       </div>
     </div>
+    </AuthGuard>
   )
 }

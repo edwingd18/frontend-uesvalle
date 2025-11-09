@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Activo } from '@/shared/types/inventario'
-
-const API_BASE_URL = 'http://localhost:3000'
+import { authService } from '@/shared/services/auth-service'
+import { API_BASE_URL } from '@/shared/config/api'
 
 export function useInventario() {
   const [data, setData] = useState<Activo[]>([])
@@ -19,7 +19,9 @@ export function useInventario() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          ...authService.getAuthHeader(),
         },
+        credentials: 'include', // ✅ Enviar cookies automáticamente
       })
 
       if (!response.ok) {

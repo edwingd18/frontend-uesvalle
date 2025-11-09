@@ -1,0 +1,405 @@
+"use client"
+
+import { useState } from 'react'
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { Loader2, Package, X } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { activosService, CreateActivoData, UpdateActivoData } from '../services/activos-service'
+import { Activo } from '@/shared/types/inventario'
+import { toast } from '@/shared/lib/toast'
+
+// Schema de validación adaptado al backend
+const activoFormSchema = z.object({
+  serial: z.string().min(3, "El serial debe tener al menos 3 caracteres"),
+  placa: z.string().min(1, "La placa es obligatoria")
+    .regex(/^UESV-[A-Z]+-\d{4}-\d+$/, "Formato: UESV-TIPO-AÑO-CONSECUTIVO"),
+  tipo: z.enum([
+    'computador', 'portatil', 'tablet', 'impresora',
+    'router', 'switch', 'servidor', 'ups', 'monitor'
+  ], { message: "Selecciona un tipo de activo" }),
+  marca: z.string().min(2, "La marca debe tener al menos 2 caracteres"),
+  modelo: z.string().min(2, "El modelo debe tener al menos 2 caracteres"),
+  sede_id: z.number().min(1, "Selecciona una sede"),
+  estado: z.enum(['bueno', 'regular', 'malo', 'mantenimiento', 'baja'], {
+    message: "Selecciona un estado"
+  }),
+  proceso: z.enum([
+    'sistemas', 'contabilidad', 'administracion',
+    'gerencia', 'juridica', 'financiera', 'tecnica'
+  ], { message: "Selecciona un proceso" }),
+})
+
+type ActivoFormValues = z.infer<typeof activoFormSchema>
+
+interface ActivoFormModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  activo?: Activo | null
+  onSuccess: () => void
+}
+
+export function ActivoFormModal({
+  open,
+  onOpenChange,
+  activo,
+  onSuccess,
+}: ActivoFormModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const isEditing = !!activo
+
+  const form = useForm<ActivoFormValues>({
+    resolver: zodResolver(activoFormSchema),
+    defaultValues: activo ? {
+      serial: activo.serial,
+      placa: activo.placa,
+      tipo: activo.tipo,
+      marca: activo.marca,
+      modelo: activo.modelo,
+      sede_id: activo.sede_id,
+      estado: activo.estado,
+      proceso: activo.proceso,
+    } : {
+      serial: "",
+      placa: "",
+      tipo: 'computador',
+      marca: "",
+      modelo: "",
+      sede_id: 1, // Sede Principal por defecto
+      estado: 'bueno',
+      proceso: 'sistemas',
+    },
+  })
+
+  const handleSubmit = async (data: ActivoFormValues) => {
+    setIsSubmitting(true)
+    try {
+      if (isEditing && activo) {
+        await activosService.updateActivo(activo.id, data as UpdateActivoData)
+        toast.success('Activo actualizado correctamente')
+      } else {
+        await activosService.createActivo(data as CreateActivoData)
+        toast.success('Activo creado exitosamente')
+      }
+
+      form.reset()
+      onOpenChange(false)
+      onSuccess()
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Error al guardar el activo'
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const generatePlaca = () => {
+    const tipo = form.getValues('tipo')
+    if (!tipo) return
+
+    const year = new Date().getFullYear()
+    const consecutive = Math.floor(Math.random() * 999) + 1
+    const tipoMap: Record<string, string> = {
+      computador: 'PC',
+      portatil: 'LAP',
+      tablet: 'TAB',
+      impresora: 'IMP',
+      router: 'RTR',
+      switch: 'SW',
+      servidor: 'SRV',
+      ups: 'UPS',
+      monitor: 'MON'
+    }
+    const newPlaca = `UESV-${tipoMap[tipo] || 'GEN'}-${year}-${consecutive.toString().padStart(3, '0')}`
+    form.setValue('placa', newPlaca)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5 text-orange-600" />
+            {isEditing ? "Editar Activo" : "Crear Nuevo Activo"}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditing
+              ? "Modifica los datos del activo tecnológico"
+              : "Completa la información del nuevo activo"
+            }
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Información Básica */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-900">Información Básica</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="tipo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de Activo *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un tipo" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="computador">Computador de Escritorio</SelectItem>
+                          <SelectItem value="portatil">Portátil</SelectItem>
+                          <SelectItem value="tablet">Tablet</SelectItem>
+                          <SelectItem value="impresora">Impresora</SelectItem>
+                          <SelectItem value="router">Router</SelectItem>
+                          <SelectItem value="switch">Switch</SelectItem>
+                          <SelectItem value="servidor">Servidor</SelectItem>
+                          <SelectItem value="ups">UPS</SelectItem>
+                          <SelectItem value="monitor">Monitor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="placa"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Placa *</FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <Input
+                            placeholder="UESV-PC-2025-001"
+                            {...field}
+                          />
+                        </FormControl>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={generatePlaca}
+                          disabled={isEditing}
+                        >
+                          Generar
+                        </Button>
+                      </div>
+                      <FormDescription>
+                        Formato: UESV-TIPO-AÑO-CONSECUTIVO
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="marca"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Marca *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="HP, Dell, Lenovo..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="modelo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Modelo *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="ProDesk 600, ThinkPad E14..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="serial"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número de Serie *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="ABC123456789"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Serial único del fabricante
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="estado"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estado *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un estado" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="bueno">Bueno</SelectItem>
+                          <SelectItem value="regular">Regular</SelectItem>
+                          <SelectItem value="malo">Malo</SelectItem>
+                          <SelectItem value="mantenimiento">En Mantenimiento</SelectItem>
+                          <SelectItem value="baja">Baja</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Asignación y Ubicación */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-gray-900">Asignación y Ubicación</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sede_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sede *</FormLabel>
+                      <Select
+                        onValueChange={(value) => field.onChange(Number(value))}
+                        defaultValue={String(field.value)}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una sede" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1">Sede Principal</SelectItem>
+                          <SelectItem value="2">Aro Sur</SelectItem>
+                          <SelectItem value="3">Aro Cartago</SelectItem>
+                          <SelectItem value="4">Aro Tulua</SelectItem>
+                          <SelectItem value="5">Sede Yumbo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="proceso"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Proceso *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un proceso" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="sistemas">Sistemas</SelectItem>
+                          <SelectItem value="contabilidad">Contabilidad</SelectItem>
+                          <SelectItem value="administracion">Administración</SelectItem>
+                          <SelectItem value="gerencia">Gerencia</SelectItem>
+                          <SelectItem value="juridica">Jurídica</SelectItem>
+                          <SelectItem value="financiera">Financiera</SelectItem>
+                          <SelectItem value="tecnica">Técnica</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-3 justify-end pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEditing ? "Actualizar" : "Crear"} Activo
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  )
+}

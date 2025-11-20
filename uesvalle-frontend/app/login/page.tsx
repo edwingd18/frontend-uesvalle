@@ -1,31 +1,38 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { useAuthStore } from '@/shared/store/auth-store'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertCircle } from 'lucide-react'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useAuthStore } from "@/shared/store/auth-store";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertCircle } from "lucide-react";
 
 const loginSchema = z.object({
-  nombre: z.string().min(1, 'El nombre es requerido'),
-  correo: z.string().email('Correo electrónico inválido'),
-  contrasena: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-})
+  correo: z.string().email("Correo electrónico inválido"),
+  contrasena: z
+    .string()
+    .min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter()
-  const login = useAuthStore((state) => state.login)
-  const isLoading = useAuthStore((state) => state.isLoading)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const login = useAuthStore((state) => state.login);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -33,29 +40,34 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-  })
+  });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      setError(null)
-      await login(data)
-      router.push('/dashboard')
+      setError(null);
+      await login(data);
+      router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-100 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+      <Card className="w-full max-w-md shadow-xl animate-scale-in">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="flex justify-center mb-4 animate-fade-in">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300">
               <span className="text-white font-bold text-2xl">U</span>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">UESVALLE</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold animate-slide-in">
+            UESVALLE
+          </CardTitle>
+          <CardDescription
+            className="animate-slide-in"
+            style={{ animationDelay: "0.1s" }}
+          >
             Sistema de Gestión de Activos
           </CardDescription>
         </CardHeader>
@@ -69,26 +81,12 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre</Label>
-              <Input
-                id="nombre"
-                type="text"
-                placeholder="Ingrese su nombre"
-                {...register('nombre')}
-                disabled={isLoading}
-              />
-              {errors.nombre && (
-                <p className="text-sm text-red-600">{errors.nombre.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="correo">Correo Electrónico</Label>
               <Input
                 id="correo"
                 type="email"
                 placeholder="correo@ejemplo.com"
-                {...register('correo')}
+                {...register("correo")}
                 disabled={isLoading}
               />
               {errors.correo && (
@@ -102,11 +100,13 @@ export default function LoginPage() {
                 id="contrasena"
                 type="password"
                 placeholder="••••••••"
-                {...register('contrasena')}
+                {...register("contrasena")}
                 disabled={isLoading}
               />
               {errors.contrasena && (
-                <p className="text-sm text-red-600">{errors.contrasena.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.contrasena.message}
+                </p>
               )}
             </div>
 
@@ -121,7 +121,7 @@ export default function LoginPage() {
                   Iniciando sesión...
                 </>
               ) : (
-                'Iniciar Sesión'
+                "Iniciar Sesión"
               )}
             </Button>
           </form>
@@ -132,5 +132,5 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

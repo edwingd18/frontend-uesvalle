@@ -1,38 +1,57 @@
-"use client"
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Activo } from "@/shared/types/inventario"
-import { Calendar, MapPin, User, Package, DollarSign, AlertCircle } from "lucide-react"
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Activo } from "@/shared/types/inventario";
+import {
+  Calendar,
+  MapPin,
+  User,
+  Package,
+  DollarSign,
+  AlertCircle,
+  Cpu,
+  HardDrive,
+  MemoryStick,
+} from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface ActivoDetailsModalProps {
-  activo: Activo | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  activo: Activo | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const getEstadoBadgeVariant = (estado: string) => {
   switch (estado.toLowerCase()) {
-    case 'bueno':
-      return 'default'
-    case 'regular':
-      return 'secondary'
-    case 'malo':
-    case 'baja':
-      return 'destructive'
-    case 'mantenimiento':
-      return 'outline'
+    case "bueno":
+      return "default";
+    case "regular":
+      return "secondary";
+    case "malo":
+    case "baja":
+      return "destructive";
+    case "mantenimiento":
+      return "outline";
     default:
-      return 'secondary'
+      return "secondary";
   }
-}
+};
 
-export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetailsModalProps) {
-  if (!activo) return null
+export function ActivoDetailsModal({
+  activo,
+  open,
+  onOpenChange,
+}: ActivoDetailsModalProps) {
+  if (!activo) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -55,22 +74,30 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Placa</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Placa
+                  </label>
                   <p className="text-lg font-semibold">{activo.placa}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Serial</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Serial
+                  </label>
                   <p className="text-base">{activo.serial}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Tipo</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Tipo
+                  </label>
                   <p className="text-base capitalize">{activo.tipo}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Estado</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Estado
+                  </label>
                   <div className="mt-1">
                     <Badge variant={getEstadoBadgeVariant(activo.estado)}>
                       {activo.estado.toUpperCase()}
@@ -81,22 +108,32 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Marca</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Marca
+                  </label>
                   <p className="text-base">{activo.marca}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Modelo</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Modelo
+                  </label>
                   <p className="text-base">{activo.modelo}</p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Proceso</label>
-                  <p className="text-base capitalize">{activo.proceso.replace('_', ' ')}</p>
+                  <label className="text-sm font-medium text-gray-500">
+                    Proceso
+                  </label>
+                  <p className="text-base capitalize">
+                    {activo.proceso.replace("_", " ")}
+                  </p>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Sede</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Sede
+                  </label>
                   <div className="flex items-center gap-2 mt-1">
                     <MapPin className="h-4 w-4 text-orange-600" />
                     <p className="text-base">Sede {activo.sede_id}</p>
@@ -116,7 +153,11 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
                     Fecha de Adquisición
                   </label>
                   <p className="text-base mt-1">
-                    {format(new Date(activo.fechaAdquisicion), "d 'de' MMMM 'de' yyyy", { locale: es })}
+                    {format(
+                      new Date(activo.fechaAdquisicion),
+                      "d 'de' MMMM 'de' yyyy",
+                      { locale: es }
+                    )}
                   </p>
                 </div>
               )}
@@ -128,7 +169,7 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
                     Valor
                   </label>
                   <p className="text-base mt-1">
-                    ${activo.valor.toLocaleString('es-CO')}
+                    ${activo.valor.toLocaleString("es-CO")}
                   </p>
                 </div>
               )}
@@ -139,7 +180,9 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
                     <User className="h-4 w-4" />
                     Sysman Responsable
                   </label>
-                  <p className="text-base mt-1">Usuario ID: {activo.usuario_sysman_id}</p>
+                  <p className="text-base mt-1">
+                    Usuario ID: {activo.usuario_sysman_id}
+                  </p>
                 </div>
               )}
 
@@ -149,10 +192,97 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
                     <User className="h-4 w-4" />
                     Usuario en Uso
                   </label>
-                  <p className="text-base mt-1">Usuario ID: {activo.usuario_uso_id}</p>
+                  <p className="text-base mt-1">
+                    Usuario ID: {activo.usuario_uso_id}
+                  </p>
                 </div>
               )}
             </div>
+
+            {/* Especificaciones Técnicas (PC/Portátil) */}
+            {activo.especificaciones &&
+              (activo.tipo.toLowerCase() === "computador" ||
+                activo.tipo.toLowerCase() === "portatil") && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Cpu className="h-5 w-5 text-orange-600" />
+                      Especificaciones Técnicas
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {activo.especificaciones.procesador && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                            <Cpu className="h-4 w-4" />
+                            Procesador
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.procesador}
+                          </p>
+                        </div>
+                      )}
+
+                      {activo.especificaciones.velocidad_cpu_ghz && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">
+                            Velocidad CPU
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.velocidad_cpu_ghz} GHz
+                          </p>
+                        </div>
+                      )}
+
+                      {activo.especificaciones.ram_gb && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                            <MemoryStick className="h-4 w-4" />
+                            Memoria RAM
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.ram_gb} GB
+                          </p>
+                        </div>
+                      )}
+
+                      {activo.especificaciones.almacenamiento_gb && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                            <HardDrive className="h-4 w-4" />
+                            Almacenamiento
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.almacenamiento_gb} GB
+                          </p>
+                        </div>
+                      )}
+
+                      {activo.especificaciones.tipo_disco && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">
+                            Tipo de Disco
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.tipo_disco}
+                          </p>
+                        </div>
+                      )}
+
+                      {activo.especificaciones.so && (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">
+                            Sistema Operativo
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.so}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
           </TabsContent>
 
           <TabsContent value="mantenimientos" className="mt-6">
@@ -169,5 +299,5 @@ export function ActivoDetailsModal({ activo, open, onOpenChange }: ActivoDetails
         </Tabs>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

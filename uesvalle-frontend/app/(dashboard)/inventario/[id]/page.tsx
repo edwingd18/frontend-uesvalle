@@ -36,6 +36,9 @@ import { es } from "date-fns/locale";
 import { ActivoFormModal } from "@/features/inventario/components/activo-form-modal";
 import { DeleteActivoDialog } from "@/features/inventario/components/delete-activo-dialog";
 import { useUsuarios } from "@/shared/hooks/use-usuarios";
+import { sedes } from "@/mocks/inventario";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const getEstadoBadge = (estado: string) => {
   const variants: Record<string, { variant: any; className: string }> = {
@@ -57,9 +60,14 @@ export default function ActivoDetailPage() {
   const { getUsuarioNombre } = useUsuarios();
   const [activo, setActivo] = useState<Activo | null>(null);
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
+  const [traslados, setTraslados] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const getSedeNombre = (sedeId: number) => {
+    return sedes.find((sede) => sede.id === sedeId)?.nombre || `Sede ${sedeId}`;
+  };
 
   useEffect(() => {
     loadData();
@@ -70,28 +78,28 @@ export default function ActivoDetailPage() {
       setLoading(true);
       const id = Number(params.id);
 
-      console.log("🔍 Cargando datos para activo ID:", id);
-
       // Cargar activo
       const activoData = await activosService.getActivo(id);
       setActivo(activoData);
-      console.log("✅ Activo cargado:", activoData);
 
-      // Intentar cargar mantenimientos, pero no fallar si el endpoint no existe
+      // Cargar hoja de vida (incluye mantenimientos y traslados)
       try {
-        console.log("🔧 Intentando cargar mantenimientos para activo:", id);
-        const mantenimientosData =
-          await mantenimientosService.getMantenimientosByActivo(id);
-        console.log("✅ Mantenimientos cargados:", mantenimientosData);
-        setMantenimientos(mantenimientosData);
-      } catch (mantError) {
-        // Si el endpoint no existe (404), simplemente dejamos la lista vacía
-        console.error("❌ Error al cargar mantenimientos:", mantError);
-        setMantenimientos([]);
+        const hojaVida = await activosService.getHojaVida(id);
+        setMantenimientos(hojaVida.historial_mantenimientos || []);
+        setTraslados(hojaVida.historial_traslados || []);
+      } catch (error) {
+        // Si falla, intentar cargar mantenimientos individualmente
+        try {
+          const mantenimientosData =
+            await mantenimientosService.getMantenimientosByActivo(id);
+          setMantenimientos(mantenimientosData);
+        } catch (mantError) {
+          setMantenimientos([]);
+        }
+        setTraslados([]);
       }
     } catch (error) {
       showToast.error("Error al cargar el activo");
-      console.error("❌ Error general:", error);
     } finally {
       setLoading(false);
     }
@@ -99,6 +107,215 @@ export default function ActivoDetailPage() {
 
   const handleDelete = () => {
     router.push("/inventario");
+  };
+
+  const generarPDF = () => {
+    if (!activo) return;
+
+    const doc = new jsPDF();
+    let yPos = 20;
+
+    // Encabezado
+    doc.setFontSize(20);
+    doc.setTextColor(234, 88, 12); // Orange-600
+    doc.text("Hoja de Vida del Activo", 14, yPos);
+    yPos += 10;
+
+    // Información del activo
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generado: ${new Date().toLocaleDateString()}`, 14, yPos);
+    yPos += 10;
+
+    // Placa y Estado
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${activo.placa}`, 14, yPos);
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Estado: ${activo.estado.toUpperCase()}`, 150, yPos);
+    yPos += 10;
+
+    // Información General
+    doc.setFontSize(14);
+    doc.setTextColor(234, 88, 12);
+    doc.text("Información General", 14, yPos);
+    yPos += 8;
+
+    const infoGeneral = [
+      ["Serial", activo.serial],
+      ["Tipo", activo.tipo],
+      ["Marca", activo.marca],
+      ["Modelo", activo.modelo],
+      ["Sede", getSedeNombre(activo.sede_id)],
+      ["Proceso", activo.proceso],
+    ];
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [],
+      body: infoGeneral,
+      theme: "plain",
+      styles: { fontSize: 10, cellPadding: 2 },
+      columnStyles: {
+        0: { fontStyle: "bold", textColor: [100, 100, 100], cellWidth: 40 },
+        1: { textColor: [0, 0, 0] },
+      },
+    });
+
+    yPos = (doc as any).lastAutoTable.finalY + 10;
+
+    // Especificaciones Técnicas (si existen)
+    if (
+      activo.especificaciones &&
+      (activo.tipo.toLowerCase() === "computador" ||
+        activo.tipo.toLowerCase() === "portatil")
+    ) {
+      doc.setFontSize(14);
+      doc.setTextColor(234, 88, 12);
+      doc.text("Especificaciones Técnicas", 14, yPos);
+      yPos += 8;
+
+      const especificaciones = [
+        ["Procesador", activo.especificaciones.procesador || "N/A"],
+        [
+          "Velocidad CPU",
+          activo.especificaciones.velocidad_cpu_ghz
+            ? `${activo.especificaciones.velocidad_cpu_ghz} GHz`
+            : "N/A",
+        ],
+        [
+          "Memoria RAM",
+          activo.especificaciones.ram_gb
+            ? `${activo.especificaciones.ram_gb} GB`
+            : "N/A",
+        ],
+        [
+          "Almacenamiento",
+          activo.especificaciones.almacenamiento_gb
+            ? `${activo.especificaciones.almacenamiento_gb} GB`
+            : "N/A",
+        ],
+        ["Tipo de Disco", activo.especificaciones.tipo_disco || "N/A"],
+        ["Sistema Operativo", activo.especificaciones.so || "N/A"],
+      ];
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [],
+        body: especificaciones,
+        theme: "plain",
+        styles: { fontSize: 10, cellPadding: 2 },
+        columnStyles: {
+          0: { fontStyle: "bold", textColor: [100, 100, 100], cellWidth: 40 },
+          1: { textColor: [0, 0, 0] },
+        },
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // Mantenimientos
+    if (mantenimientos.length > 0) {
+      // Verificar si necesitamos una nueva página
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setTextColor(234, 88, 12);
+      doc.text(
+        `Historial de Mantenimientos (${mantenimientos.length})`,
+        14,
+        yPos
+      );
+      yPos += 8;
+
+      const mantData = mantenimientos.map((mant) => [
+        format(new Date(mant.fecha), "dd/MM/yyyy"),
+        mant.tipo,
+        getUsuarioNombre(mant.tecnico_id),
+        getUsuarioNombre(mant.encargado_harware_id),
+        getUsuarioNombre(mant.encargado_software_id),
+      ]);
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Fecha", "Tipo", "Técnico", "Hardware", "Software"]],
+        body: mantData,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: {
+          fillColor: [234, 88, 12],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251],
+        },
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // Traslados
+    if (traslados.length > 0) {
+      // Verificar si necesitamos una nueva página
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setTextColor(234, 88, 12);
+      doc.text(`Historial de Traslados (${traslados.length})`, 14, yPos);
+      yPos += 8;
+
+      const trasladosData = traslados.map((traslado) => [
+        format(new Date(traslado.fecha), "dd/MM/yyyy"),
+        traslado.sede_origen?.nombre || `Sede ${traslado.sede_origen_id}`,
+        traslado.sede_destino?.nombre || `Sede ${traslado.sede_destino_id}`,
+        traslado.motivo || "N/A",
+        traslado.solicitado_por?.nombre ||
+          getUsuarioNombre(traslado.solicitado_por_id),
+      ]);
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Fecha", "Origen", "Destino", "Motivo", "Solicitado por"]],
+        body: trasladosData,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: {
+          fillColor: [234, 88, 12],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251],
+        },
+        columnStyles: {
+          3: { cellWidth: 50 },
+        },
+      });
+    }
+
+    // Pie de página
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Página ${i} de ${pageCount}`,
+        doc.internal.pageSize.getWidth() / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: "center" }
+      );
+    }
+
+    // Descargar
+    const fileName = `hoja_vida_${activo.placa}_${new Date().getTime()}.pdf`;
+    doc.save(fileName);
   };
 
   if (loading) {
@@ -158,15 +375,24 @@ export default function ActivoDetailPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+            <div
+              className="flex gap-2 animate-slide-in"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generarPDF}
+                className="shine-effect hover:scale-105 transition-transform"
+              >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar
+                Generar PDF
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowEditModal(true)}
+                className="hover:scale-105 transition-transform"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
@@ -175,6 +401,7 @@ export default function ActivoDetailPage() {
                 variant="destructive"
                 size="sm"
                 onClick={() => setShowDeleteDialog(true)}
+                className="hover:scale-105 transition-transform"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Eliminar
@@ -189,73 +416,170 @@ export default function ActivoDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Sidebar - Info Principal */}
           <div className="lg:col-span-1 space-y-6">
-            <Card>
+            <Card className="animate-fade-in card-hover">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5 text-orange-600" />
                   Información General
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Serial
                   </label>
-                  <p className="text-base font-mono mt-1">{activo.serial}</p>
+                  <p className="text-sm font-mono mt-0.5 font-medium">
+                    {activo.serial}
+                  </p>
                 </div>
-                <Separator />
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Tipo
                   </label>
-                  <p className="text-base capitalize mt-1">{activo.tipo}</p>
+                  <p className="text-sm capitalize mt-0.5 font-medium">
+                    {activo.tipo}
+                  </p>
                 </div>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Marca
-                  </label>
-                  <p className="text-base mt-1">{activo.marca}</p>
-                </div>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Modelo
-                  </label>
-                  <p className="text-base mt-1">{activo.modelo}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Marca
+                    </label>
+                    <p className="text-sm mt-0.5 font-medium">{activo.marca}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Modelo
+                    </label>
+                    <p className="text-sm mt-0.5 font-medium">
+                      {activo.modelo}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card
+              className="animate-fade-in card-hover"
+              style={{ animationDelay: "0.1s" }}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-orange-600" />
                   Ubicación
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Sede
                   </label>
-                  <p className="text-base mt-1">Sede {activo.sede_id}</p>
+                  <p className="text-sm mt-0.5 font-medium">
+                    {getSedeNombre(activo.sede_id)}
+                  </p>
                 </div>
-                <Separator />
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Proceso
                   </label>
-                  <p className="text-base mt-1">{activo.proceso}</p>
+                  <p className="text-sm capitalize mt-0.5 font-medium">
+                    {activo.proceso}
+                  </p>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Especificaciones Técnicas (PC/Portátil) */}
+            {activo.especificaciones &&
+              (activo.tipo.toLowerCase() === "computador" ||
+                activo.tipo.toLowerCase() === "portatil") && (
+                <Card
+                  className="animate-fade-in card-hover"
+                  style={{ animationDelay: "0.2s" }}
+                >
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Cpu className="h-5 w-5 text-orange-600" />
+                      Especificaciones
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {activo.especificaciones.procesador && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Procesador
+                        </label>
+                        <p className="text-sm mt-0.5 font-medium">
+                          {activo.especificaciones.procesador}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {activo.especificaciones.ram_gb && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            RAM
+                          </label>
+                          <p className="text-sm mt-0.5 font-medium">
+                            {activo.especificaciones.ram_gb} GB
+                          </p>
+                        </div>
+                      )}
+                      {activo.especificaciones.velocidad_cpu_ghz && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            CPU
+                          </label>
+                          <p className="text-sm mt-0.5 font-medium">
+                            {activo.especificaciones.velocidad_cpu_ghz} GHz
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {activo.especificaciones.almacenamiento_gb && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            Disco
+                          </label>
+                          <p className="text-sm mt-0.5 font-medium">
+                            {activo.especificaciones.almacenamiento_gb} GB
+                          </p>
+                        </div>
+                      )}
+                      {activo.especificaciones.tipo_disco && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            Tipo
+                          </label>
+                          <p className="text-sm mt-0.5 font-medium">
+                            {activo.especificaciones.tipo_disco}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {activo.especificaciones.so && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Sistema Operativo
+                        </label>
+                        <p className="text-sm mt-0.5 font-medium">
+                          {activo.especificaciones.so}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
           </div>
 
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="mantenimientos" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="mantenimientos">
                   <Wrench className="mr-2 h-4 w-4" />
                   Mantenimientos
@@ -263,10 +587,6 @@ export default function ActivoDetailPage() {
                 <TabsTrigger value="historial">
                   <Calendar className="mr-2 h-4 w-4" />
                   Historial
-                </TabsTrigger>
-                <TabsTrigger value="documentos">
-                  <Download className="mr-2 h-4 w-4" />
-                  Documentos
                 </TabsTrigger>
               </TabsList>
 
@@ -444,37 +764,107 @@ export default function ActivoDetailPage() {
               <TabsContent value="historial" className="mt-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Historial de Cambios</CardTitle>
+                    <CardTitle>Historial de Traslados</CardTitle>
                     <CardDescription>
-                      Registro de modificaciones del activo
+                      {traslados.length} traslado(s) registrado(s)
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-12">
-                      <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">
-                        Historial disponible próximamente
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="documentos" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Documentos Adjuntos</CardTitle>
-                    <CardDescription>
-                      Facturas, garantías y otros documentos
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-12">
-                      <Download className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">
-                        No hay documentos adjuntos
-                      </p>
-                    </div>
+                    {traslados.length === 0 ? (
+                      <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
+                        <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          Sin traslados registrados
+                        </h3>
+                        <p className="text-gray-600">
+                          Este activo no ha sido trasladado entre sedes
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {traslados
+                          .sort(
+                            (a, b) =>
+                              new Date(b.fecha).getTime() -
+                              new Date(a.fecha).getTime()
+                          )
+                          .map((traslado) => (
+                            <div
+                              key={traslado.id}
+                              className="flex items-start gap-4 p-5 border-2 rounded-xl hover:border-orange-300 hover:shadow-md transition-all bg-white card-hover animate-fade-in"
+                            >
+                              <div className="flex-shrink-0">
+                                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-700 border-blue-200">
+                                  <MapPin className="h-6 w-6" />
+                                </div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h4 className="font-bold text-gray-900 text-lg">
+                                    Traslado de Sede
+                                  </h4>
+                                  <Badge
+                                    variant="outline"
+                                    className="capitalize"
+                                  >
+                                    {traslado.sede_origen?.nombre ||
+                                      `Sede ${traslado.sede_origen_id}`}{" "}
+                                    →{" "}
+                                    {traslado.sede_destino?.nombre ||
+                                      `Sede ${traslado.sede_destino_id}`}
+                                  </Badge>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                                    <Calendar className="h-4 w-4" />
+                                    <span>
+                                      {format(
+                                        new Date(traslado.fecha),
+                                        "d 'de' MMMM 'de' yyyy",
+                                        { locale: es }
+                                      )}
+                                    </span>
+                                  </div>
+                                  {traslado.motivo && (
+                                    <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                                      <span className="font-medium">
+                                        Motivo:
+                                      </span>{" "}
+                                      {traslado.motivo}
+                                    </p>
+                                  )}
+                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                                    <div className="flex items-center gap-1 text-gray-600">
+                                      <User className="h-3.5 w-3.5" />
+                                      <span className="font-medium">
+                                        Solicitado por:
+                                      </span>
+                                      <span>
+                                        {traslado.solicitado_por?.nombre ||
+                                          getUsuarioNombre(
+                                            traslado.solicitado_por_id
+                                          )}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-gray-600">
+                                      <User className="h-3.5 w-3.5" />
+                                      <span className="font-medium">
+                                        Creado por:
+                                      </span>
+                                      <span>
+                                        {traslado.creado_por?.nombre ||
+                                          getUsuarioNombre(
+                                            traslado.creado_por_id
+                                          )}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

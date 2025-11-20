@@ -83,7 +83,27 @@ const activoFormSchema = z.object({
   estado: z.enum(["bueno", "regular", "malo", "mantenimiento", "baja"], {
     message: "Selecciona un estado",
   }),
-  proceso: z.string().min(1, "El proceso es obligatorio"),
+  proceso: z.enum(
+    [
+      "sistemas",
+      "contabilidad",
+      "administracion",
+      "gerencia",
+      "juridica",
+      "financiera",
+      "tecnica",
+    ],
+    {
+      message: "Selecciona un proceso",
+    }
+  ),
+  // Especificaciones técnicas (solo para PC y Portátil)
+  procesador: z.string().optional(),
+  ram_gb: z.number().optional(),
+  almacenamiento_gb: z.number().optional(),
+  so: z.string().optional(),
+  tipo_disco: z.enum(["SSD", "HDD", "Híbrido"]).optional(),
+  velocidad_cpu_ghz: z.number().optional(),
 });
 
 type ActivoFormValues = z.infer<typeof activoFormSchema>;
@@ -138,6 +158,12 @@ export function ActivoFormModal({
           sede_id: activo.sede_id,
           estado: activo.estado.toLowerCase() as any,
           proceso: activo.proceso,
+          procesador: undefined,
+          ram_gb: undefined,
+          almacenamiento_gb: undefined,
+          so: undefined,
+          tipo_disco: undefined,
+          velocidad_cpu_ghz: undefined,
         }
       : {
           serial: "",
@@ -147,7 +173,13 @@ export function ActivoFormModal({
           modelo: "",
           sede_id: 1,
           estado: "bueno",
-          proceso: "Asignado a soporte",
+          proceso: "sistemas",
+          procesador: "",
+          ram_gb: undefined,
+          almacenamiento_gb: undefined,
+          so: "",
+          tipo_disco: undefined,
+          velocidad_cpu_ghz: undefined,
         },
   });
 
@@ -163,6 +195,12 @@ export function ActivoFormModal({
         sede_id: activo.sede_id,
         estado: activo.estado.toLowerCase() as any,
         proceso: activo.proceso,
+        procesador: undefined,
+        ram_gb: undefined,
+        almacenamiento_gb: undefined,
+        so: undefined,
+        tipo_disco: undefined,
+        velocidad_cpu_ghz: undefined,
       });
     } else {
       form.reset({
@@ -173,7 +211,13 @@ export function ActivoFormModal({
         modelo: "",
         sede_id: 1,
         estado: "bueno",
-        proceso: "Asignado a soporte",
+        proceso: "sistemas",
+        procesador: "",
+        ram_gb: undefined,
+        almacenamiento_gb: undefined,
+        so: "",
+        tipo_disco: undefined,
+        velocidad_cpu_ghz: undefined,
       });
     }
     setCurrentStep(0);
@@ -182,15 +226,14 @@ export function ActivoFormModal({
   const handleSubmit = async (data: ActivoFormValues) => {
     setIsSubmitting(true);
     try {
-      // Transformar datos al formato del backend
-      const tipoCapitalized =
-        data.tipo.charAt(0).toUpperCase() + data.tipo.slice(1);
+      // El backend espera tipos y estados en MAYÚSCULAS
+      const tipoUppercase = data.tipo.toUpperCase();
       const estadoUppercase = data.estado.toUpperCase();
 
       const payload = {
         serial: data.serial,
         placa: data.placa,
-        tipo: tipoCapitalized,
+        tipo: tipoUppercase,
         marca: data.marca,
         modelo: data.modelo,
         sede_id: data.sede_id,
@@ -203,9 +246,61 @@ export function ActivoFormModal({
           activo.id,
           payload as UpdateActivoData
         );
+
+        // Si es PC o Portátil y tiene especificaciones, actualizarlas
+        if (
+          (data.tipo === "computador" || data.tipo === "portatil") &&
+          (data.procesador || data.ram_gb || data.almacenamiento_gb)
+        ) {
+          const especificaciones = {
+            activo_id: activo.id,
+            procesador: data.procesador || "",
+            ram_gb: data.ram_gb || 0,
+            almacenamiento_gb: data.almacenamiento_gb || 0,
+            so: data.so || "",
+            tipo_disco: data.tipo_disco || "SSD",
+            velocidad_cpu_ghz: data.velocidad_cpu_ghz || 0,
+          };
+
+          const endpoint = data.tipo === "computador" ? "pcs" : "portatiles";
+          await fetch(`http://localhost:3000/${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(especificaciones),
+          });
+        }
+
         showToast.success("Activo actualizado correctamente");
       } else {
-        await activosService.createActivo(payload as CreateActivoData);
+        const nuevoActivo = await activosService.createActivo(
+          payload as CreateActivoData
+        );
+
+        // Si es PC o Portátil y tiene especificaciones, crearlas
+        if (
+          (data.tipo === "computador" || data.tipo === "portatil") &&
+          (data.procesador || data.ram_gb || data.almacenamiento_gb)
+        ) {
+          const especificaciones = {
+            activo_id: nuevoActivo.id,
+            procesador: data.procesador || "",
+            ram_gb: data.ram_gb || 0,
+            almacenamiento_gb: data.almacenamiento_gb || 0,
+            so: data.so || "",
+            tipo_disco: data.tipo_disco || "SSD",
+            velocidad_cpu_ghz: data.velocidad_cpu_ghz || 0,
+          };
+
+          const endpoint = data.tipo === "computador" ? "pcs" : "portatiles";
+          await fetch(`http://localhost:3000/${endpoint}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(especificaciones),
+          });
+        }
+
         showToast.success("Activo creado exitosamente");
       }
 
@@ -676,22 +771,223 @@ export function ActivoFormModal({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-base font-semibold">
-                            Proceso o Asignación *
+                            Proceso o Departamento *
                           </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Ej: Asignado a soporte técnico, Sala de servidores..."
-                              className="h-12 text-base"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="h-12 text-base w-full">
+                                <SelectValue placeholder="Selecciona un proceso" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem
+                                value="sistemas"
+                                className="text-base py-3"
+                              >
+                                Sistemas
+                              </SelectItem>
+                              <SelectItem
+                                value="contabilidad"
+                                className="text-base py-3"
+                              >
+                                Contabilidad
+                              </SelectItem>
+                              <SelectItem
+                                value="administracion"
+                                className="text-base py-3"
+                              >
+                                Administración
+                              </SelectItem>
+                              <SelectItem
+                                value="gerencia"
+                                className="text-base py-3"
+                              >
+                                Gerencia
+                              </SelectItem>
+                              <SelectItem
+                                value="juridica"
+                                className="text-base py-3"
+                              >
+                                Jurídica
+                              </SelectItem>
+                              <SelectItem
+                                value="financiera"
+                                className="text-base py-3"
+                              >
+                                Financiera
+                              </SelectItem>
+                              <SelectItem
+                                value="tecnica"
+                                className="text-base py-3"
+                              >
+                                Técnica
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormDescription className="text-sm mt-2">
-                            Describe el uso o asignación actual del activo
+                            Departamento o área donde está asignado el activo
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {/* Especificaciones Técnicas - Solo para PC y Portátil */}
+                    {(form.watch("tipo") === "computador" ||
+                      form.watch("tipo") === "portatil") && (
+                      <>
+                        <div className="pt-6 border-t">
+                          <h4 className="text-base font-semibold mb-4 text-gray-900">
+                            Especificaciones Técnicas (Opcional)
+                          </h4>
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="procesador"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Procesador</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Intel Core i7-1255U"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="ram_gb"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>RAM (GB)</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="16"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          e.target.value
+                                            ? Number(e.target.value)
+                                            : undefined
+                                        )
+                                      }
+                                      value={field.value || ""}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="almacenamiento_gb"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Almacenamiento (GB)</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="512"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          e.target.value
+                                            ? Number(e.target.value)
+                                            : undefined
+                                        )
+                                      }
+                                      value={field.value || ""}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="tipo_disco"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Tipo de Disco</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Selecciona" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="SSD">SSD</SelectItem>
+                                      <SelectItem value="HDD">HDD</SelectItem>
+                                      <SelectItem value="Híbrido">
+                                        Híbrido
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="so"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Sistema Operativo</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Windows 11 Pro"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="velocidad_cpu_ghz"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Velocidad CPU (GHz)</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      step="0.1"
+                                      placeholder="3.7"
+                                      {...field}
+                                      onChange={(e) =>
+                                        field.onChange(
+                                          e.target.value
+                                            ? Number(e.target.value)
+                                            : undefined
+                                        )
+                                      }
+                                      value={field.value || ""}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Resumen antes de enviar */}

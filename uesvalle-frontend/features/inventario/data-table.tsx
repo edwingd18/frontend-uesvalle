@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,18 +12,18 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { ChevronDown, Search, X, Filter } from "lucide-react"
+} from "@tanstack/react-table";
+import { ChevronDown, Search, X, Filter } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -31,28 +31,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { usePersistentFilters } from "./hooks/use-persistent-filters"
+} from "@/components/ui/select";
+import { usePersistentFilters } from "./hooks/use-persistent-filters";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
 
   const {
     filters,
@@ -61,8 +64,8 @@ export function DataTable<TData, TValue>({
     clearFilter,
     hasActiveFilters,
     activeFiltersCount,
-    isLoaded
-  } = usePersistentFilters()
+    isLoaded,
+  } = usePersistentFilters();
 
   const table = useReactTable({
     data,
@@ -74,7 +77,8 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onGlobalFilterChange: (value: string) => updateFilter('globalFilter', value),
+    onGlobalFilterChange: (value: string) =>
+      updateFilter("globalFilter", value),
     globalFilterFn: "includesString",
     state: {
       sorting,
@@ -82,24 +86,28 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       globalFilter: filters.globalFilter,
     },
-  })
+  });
 
   // Sincronizar filtros persistentes con filtros de columnas
   React.useEffect(() => {
-    if (!isLoaded) return
+    if (!isLoaded) return;
 
-    const newColumnFilters: ColumnFiltersState = []
+    const newColumnFilters: ColumnFiltersState = [];
 
-    if (filters.tipo) newColumnFilters.push({ id: 'tipo', value: filters.tipo })
-    if (filters.estado) newColumnFilters.push({ id: 'estado', value: filters.estado })
-    if (filters.proceso) newColumnFilters.push({ id: 'proceso', value: filters.proceso })
-    if (filters.sede) newColumnFilters.push({ id: 'sede', value: filters.sede })
+    if (filters.tipo)
+      newColumnFilters.push({ id: "tipo", value: filters.tipo });
+    if (filters.estado)
+      newColumnFilters.push({ id: "estado", value: filters.estado });
+    if (filters.proceso)
+      newColumnFilters.push({ id: "proceso", value: filters.proceso });
+    if (filters.sede)
+      newColumnFilters.push({ id: "sede", value: filters.sede });
 
-    setColumnFilters(newColumnFilters)
-  }, [filters, isLoaded])
+    setColumnFilters(newColumnFilters);
+  }, [filters, isLoaded]);
 
   if (!isLoaded) {
-    return <div className="flex justify-center p-8">Cargando filtros...</div>
+    return <div className="flex justify-center p-8">Cargando filtros...</div>;
   }
 
   return (
@@ -112,14 +120,18 @@ export function DataTable<TData, TValue>({
             <Input
               placeholder="Buscar por placa, serial, marca, modelo..."
               value={filters.globalFilter}
-              onChange={(event) => updateFilter('globalFilter', event.target.value)}
+              onChange={(event) =>
+                updateFilter("globalFilter", event.target.value)
+              }
               className="w-80"
             />
           </div>
 
           <Select
             value={filters.tipo || "all"}
-            onValueChange={(value) => updateFilter('tipo', value === "all" ? "" : value)}
+            onValueChange={(value) =>
+              updateFilter("tipo", value === "all" ? "" : value)
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por tipo" />
@@ -140,7 +152,9 @@ export function DataTable<TData, TValue>({
 
           <Select
             value={filters.estado || "all"}
-            onValueChange={(value) => updateFilter('estado', value === "all" ? "" : value)}
+            onValueChange={(value) =>
+              updateFilter("estado", value === "all" ? "" : value)
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por estado" />
@@ -157,17 +171,22 @@ export function DataTable<TData, TValue>({
 
           <Select
             value={filters.proceso || "all"}
-            onValueChange={(value) => updateFilter('proceso', value === "all" ? "" : value)}
+            onValueChange={(value) =>
+              updateFilter("proceso", value === "all" ? "" : value)
+            }
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filtrar por proceso" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los procesos</SelectItem>
-              <SelectItem value="activo">Activo</SelectItem>
-              <SelectItem value="en_revision">En revisión</SelectItem>
-              <SelectItem value="descartado">Descartado</SelectItem>
-              <SelectItem value="en_traslado">En traslado</SelectItem>
+              <SelectItem value="sistemas">Sistemas</SelectItem>
+              <SelectItem value="contabilidad">Contabilidad</SelectItem>
+              <SelectItem value="administracion">Administración</SelectItem>
+              <SelectItem value="gerencia">Gerencia</SelectItem>
+              <SelectItem value="juridica">Jurídica</SelectItem>
+              <SelectItem value="financiera">Financiera</SelectItem>
+              <SelectItem value="tecnica">Técnica</SelectItem>
             </SelectContent>
           </Select>
 
@@ -193,7 +212,7 @@ export function DataTable<TData, TValue>({
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  )
+                  );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -204,16 +223,21 @@ export function DataTable<TData, TValue>({
           <div className="flex items-center gap-2 flex-wrap p-3 bg-muted/30 rounded-lg border">
             <div className="flex items-center gap-1">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Filtros activos:</span>
+              <span className="text-sm text-muted-foreground">
+                Filtros activos:
+              </span>
             </div>
 
             {filters.globalFilter && (
-              <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-secondary/80">
+              <Badge
+                variant="secondary"
+                className="gap-1 cursor-pointer hover:bg-secondary/80"
+              >
                 Búsqueda: "{filters.globalFilter}"
                 <button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    clearFilter('globalFilter')
+                    e.stopPropagation();
+                    clearFilter("globalFilter");
                   }}
                   className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
                 >
@@ -223,12 +247,15 @@ export function DataTable<TData, TValue>({
             )}
 
             {filters.tipo && (
-              <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-secondary/80">
+              <Badge
+                variant="secondary"
+                className="gap-1 cursor-pointer hover:bg-secondary/80"
+              >
                 Tipo: {filters.tipo}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    clearFilter('tipo')
+                    e.stopPropagation();
+                    clearFilter("tipo");
                   }}
                   className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
                 >
@@ -238,12 +265,15 @@ export function DataTable<TData, TValue>({
             )}
 
             {filters.estado && (
-              <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-secondary/80">
+              <Badge
+                variant="secondary"
+                className="gap-1 cursor-pointer hover:bg-secondary/80"
+              >
                 Estado: {filters.estado}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    clearFilter('estado')
+                    e.stopPropagation();
+                    clearFilter("estado");
                   }}
                   className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
                 >
@@ -253,12 +283,15 @@ export function DataTable<TData, TValue>({
             )}
 
             {filters.proceso && (
-              <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-secondary/80">
+              <Badge
+                variant="secondary"
+                className="gap-1 cursor-pointer hover:bg-secondary/80"
+              >
                 Proceso: {filters.proceso}
                 <button
                   onClick={(e) => {
-                    e.stopPropagation()
-                    clearFilter('proceso')
+                    e.stopPropagation();
+                    clearFilter("proceso");
                   }}
                   className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
                 >
@@ -296,7 +329,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -356,5 +389,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  )
+  );
 }

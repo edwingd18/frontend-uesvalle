@@ -11,6 +11,7 @@ import {
   Trash2,
   Plus,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import { DataTable } from "@/features/inventario/data-table";
 import { useInventario } from "@/features/inventario/hooks/use-inventario";
@@ -35,6 +36,7 @@ import { Activo } from "@/shared/types/inventario";
 import { sedes, usuarios } from "@/mocks/inventario";
 import { ActivoFormModal } from "@/features/inventario/components/activo-form-modal";
 import { DeleteActivoDialog } from "@/features/inventario/components/delete-activo-dialog";
+import { ReportesModal } from "@/features/inventario/components/ReportesModal";
 
 const getSedeNombre = (sedeId: number) => {
   return sedes.find((sede) => sede.id === sedeId)?.nombre || "N/A";
@@ -90,23 +92,8 @@ export default function InventarioPage() {
   // Estados para los modales
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportesModalOpen, setReportesModalOpen] = useState(false);
   const [selectedActivo, setSelectedActivo] = useState<Activo | null>(null);
-
-  // Estados para filtros
-  const [estadoFilter, setEstadoFilter] = useState<string>("todos");
-  const [tipoFilter, setTipoFilter] = useState<string>("todos");
-
-  // Filtrar datos
-  const filteredData = useMemo(() => {
-    return data.filter((activo) => {
-      const matchEstado =
-        estadoFilter === "todos" ||
-        activo.estado.toLowerCase() === estadoFilter;
-      const matchTipo =
-        tipoFilter === "todos" || activo.tipo.toLowerCase() === tipoFilter;
-      return matchEstado && matchTipo;
-    });
-  }, [data, estadoFilter, tipoFilter]);
 
   // Handlers para las acciones
   const handleView = (activo: Activo) => {
@@ -318,6 +305,10 @@ export default function InventarioPage() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Actualizar
           </Button>
+          <Button variant="outline" onClick={() => setReportesModalOpen(true)}>
+            <Download className="mr-2 h-4 w-4" />
+            Generar Reporte
+          </Button>
           <Button
             onClick={handleCreate}
             className="bg-orange-600 hover:bg-orange-700"
@@ -328,64 +319,17 @@ export default function InventarioPage() {
         </div>
       </div>
 
-      <div className="mt-6">
-        <Card>
+      <div className="mt-6 animate-fade-in">
+        <Card className="card-hover">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Activos Tecnológicos</CardTitle>
-                <CardDescription>
-                  Lista completa de equipos registrados en el sistema (
-                  {filteredData.length} de {data.length} activos)
-                </CardDescription>
-              </div>
-
-              {/* Filtros rápidos */}
-              <div className="flex gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-gray-600">
-                    Estado
-                  </label>
-                  <select
-                    value={estadoFilter}
-                    onChange={(e) => setEstadoFilter(e.target.value)}
-                    className="h-9 px-3 rounded-md border border-gray-200 text-sm bg-white hover:bg-gray-50 transition-colors"
-                  >
-                    <option value="todos">Todos</option>
-                    <option value="bueno">Bueno</option>
-                    <option value="regular">Regular</option>
-                    <option value="malo">Malo</option>
-                    <option value="mantenimiento">Mantenimiento</option>
-                    <option value="baja">Baja</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-gray-600">
-                    Tipo
-                  </label>
-                  <select
-                    value={tipoFilter}
-                    onChange={(e) => setTipoFilter(e.target.value)}
-                    className="h-9 px-3 rounded-md border border-gray-200 text-sm bg-white hover:bg-gray-50 transition-colors"
-                  >
-                    <option value="todos">Todos</option>
-                    <option value="computador">Computador</option>
-                    <option value="portatil">Portátil</option>
-                    <option value="tablet">Tablet</option>
-                    <option value="impresora">Impresora</option>
-                    <option value="router">Router</option>
-                    <option value="switch">Switch</option>
-                    <option value="servidor">Servidor</option>
-                    <option value="ups">UPS</option>
-                    <option value="monitor">Monitor</option>
-                  </select>
-                </div>
-              </div>
-            </div>
+            <CardTitle>Activos Tecnológicos</CardTitle>
+            <CardDescription>
+              Lista completa de equipos registrados en el sistema ({data.length}{" "}
+              activos)
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <DataTable columns={columns} data={filteredData} />
+            <DataTable columns={columns} data={data} />
           </CardContent>
         </Card>
       </div>
@@ -403,6 +347,12 @@ export default function InventarioPage() {
         onOpenChange={setDeleteDialogOpen}
         activo={selectedActivo}
         onSuccess={handleSuccess}
+      />
+
+      <ReportesModal
+        open={reportesModalOpen}
+        onOpenChange={setReportesModalOpen}
+        activos={data}
       />
     </div>
   );

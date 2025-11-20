@@ -36,9 +36,11 @@ import { Mantenimiento } from "@/shared/types/mantenimiento";
 import { format } from "date-fns";
 import { MantenimientoFormModal } from "@/features/mantenimientos/components/mantenimiento-form-modal";
 import { DeleteMantenimientoDialog } from "@/features/mantenimientos/components/delete-mantenimiento-dialog";
+import { ReportesMantenimientosModal } from "@/features/mantenimientos/components/ReportesMantenimientosModal";
 import { es } from "date-fns/locale";
 import { useUsuarios } from "@/shared/hooks/use-usuarios";
 import { useInventario } from "@/features/inventario/hooks/use-inventario";
+import { Download } from "lucide-react";
 
 const getTipoBadgeVariant = (tipo: string) => {
   switch (tipo) {
@@ -86,6 +88,7 @@ export default function MantenimientosPage() {
   // Estados para los modales
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportesModalOpen, setReportesModalOpen] = useState(false);
   const [selectedMantenimiento, setSelectedMantenimiento] =
     useState<Mantenimiento | null>(null);
 
@@ -289,6 +292,10 @@ export default function MantenimientosPage() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Actualizar
           </Button>
+          <Button variant="outline" onClick={() => setReportesModalOpen(true)}>
+            <Download className="mr-2 h-4 w-4" />
+            Generar Reporte
+          </Button>
           <Button
             onClick={handleCreate}
             className="bg-orange-600 hover:bg-orange-700"
@@ -331,6 +338,14 @@ export default function MantenimientosPage() {
         onOpenChange={setDeleteDialogOpen}
         mantenimiento={selectedMantenimiento}
         onSuccess={handleSuccess}
+      />
+
+      <ReportesMantenimientosModal
+        open={reportesModalOpen}
+        onOpenChange={setReportesModalOpen}
+        mantenimientos={data}
+        activos={activos}
+        usuarios={usuarios}
       />
     </div>
   );

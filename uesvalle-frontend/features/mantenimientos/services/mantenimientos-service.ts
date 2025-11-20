@@ -5,6 +5,7 @@ import {
 } from "@/shared/types/mantenimiento";
 import { API_BASE_URL } from "@/shared/config/api";
 import { authService } from "@/shared/services/auth-service";
+import { planificacionService } from "@/features/planificacion/services/planificacion-service";
 
 class MantenimientosService {
   async getMantenimientos(): Promise<Mantenimiento[]> {
@@ -81,7 +82,44 @@ class MantenimientosService {
       );
     }
 
-    return await response.json();
+    const mantenimiento = await response.json();
+
+    // Incrementar el contador de realizados en la planificación
+    try {
+      const fecha = new Date(mantenimiento.fecha);
+      const ano = fecha.getFullYear();
+      const mes = fecha.getMonth() + 1;
+
+      // Obtener la planificación actual
+      const planificacion = await planificacionService.getPlanificacionAnual(
+        ano
+      );
+
+      // Incrementar el contador de realizados del mes correspondiente
+      const mesesActualizados = planificacion.meses.map((m) =>
+        m.mes === mes
+          ? {
+              mes: m.mes,
+              planificados: m.planificados,
+              realizados: m.realizados + 1,
+            }
+          : {
+              mes: m.mes,
+              planificados: m.planificados,
+              realizados: m.realizados,
+            }
+      );
+
+      // Actualizar la planificación
+      await planificacionService.updatePlanificacionAnual(ano, {
+        meses: mesesActualizados,
+      });
+    } catch (error) {
+      // Si no existe planificación para el año, no hacer nada
+      console.warn("No se pudo actualizar la planificación:", error);
+    }
+
+    return mantenimiento;
   }
 
   async updateMantenimiento(

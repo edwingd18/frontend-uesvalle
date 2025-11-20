@@ -1,87 +1,69 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-const chartData = [
-  { sede: "Cali", activos: 456, disponibles: 420, mantenimiento: 24, malo: 12 },
-  { sede: "Palmira", activos: 298, disponibles: 278, mantenimiento: 15, malo: 5 },
-  { sede: "Tuluá", activos: 187, disponibles: 170, mantenimiento: 12, malo: 5 },
-  { sede: "Buga", activos: 142, disponibles: 130, mantenimiento: 8, malo: 4 },
-  { sede: "Cartago", activos: 98, disponibles: 88, mantenimiento: 6, malo: 4 },
-  { sede: "Jamundí", activos: 64, disponibles: 58, mantenimiento: 4, malo: 2 },
-]
+interface InteractiveChartProps {
+  data: Array<{
+    sede: string;
+    cantidad: number;
+  }>;
+}
 
-const chartConfig = {
-  disponibles: {
-    label: "Disponibles",
-    color: "hsl(var(--chart-1))",
-  },
-  mantenimiento: {
-    label: "Mantenimiento",
-    color: "hsl(var(--chart-2))",
-  },
-  malo: {
-    label: "En mal estado",
-    color: "hsl(var(--chart-3))",
-  },
-} satisfies ChartConfig
+export function InteractiveChart({ data }: InteractiveChartProps) {
+  // Acortar nombres de sedes
+  const formattedData = data.map((item) => ({
+    ...item,
+    sedeCorta: item.sede
+      .replace("Cali - Sede Principal", "Cali")
+      .replace("Sede Principal", "Principal"),
+  }));
 
-export function InteractiveChart() {
+  const maxCantidad = Math.max(...formattedData.map((d) => d.cantidad), 1);
+
   return (
-    <Card className="lg:col-span-2">
-      <CardHeader>
-        <CardTitle>Distribución de Activos por Sede</CardTitle>
-        <CardDescription>
-          Estado de equipos tecnológicos en cada ubicación de UESVALLE
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base">Distribución por Sede</CardTitle>
+        <CardDescription className="text-xs">
+          Activos por ubicación
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <XAxis
-              dataKey="sede"
-              tickLine={false}
-              axisLine={false}
-              className="text-xs"
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              className="text-xs"
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
-            />
-            <Bar
-              dataKey="disponibles"
-              stackId="a"
-              fill="var(--color-disponibles)"
-              radius={[0, 0, 4, 4]}
-            />
-            <Bar
-              dataKey="mantenimiento"
-              stackId="a"
-              fill="var(--color-mantenimiento)"
-            />
-            <Bar
-              dataKey="malo"
-              stackId="a"
-              fill="var(--color-malo)"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        </ChartContainer>
+        <div className="space-y-3">
+          {formattedData
+            .sort((a, b) => b.cantidad - a.cantidad)
+            .map((item) => {
+              const porcentaje = (item.cantidad / maxCantidad) * 100;
+
+              return (
+                <div key={item.sede} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{item.sedeCorta}</span>
+                    <span className="text-muted-foreground font-semibold">
+                      {item.cantidad}
+                    </span>
+                  </div>
+                  <div className="h-8 bg-gray-100 rounded-lg overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-end pr-2 transition-all"
+                      style={{ width: `${porcentaje}%` }}
+                    >
+                      <span className="text-xs font-semibold text-white">
+                        {item.cantidad}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
       </CardContent>
     </Card>
-  )
+  );
 }

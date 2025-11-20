@@ -1,167 +1,450 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+"use client";
+
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Package,
   Wrench,
   Users,
   AlertTriangle,
-  TrendingUp,
-  Calendar,
-  MapPin,
-  Clock,
-  Plus,
-  BarChart3,
-  Settings,
-  Download,
+  RefreshCw,
   CheckCircle,
-  XCircle,
-  Activity
-} from 'lucide-react'
-import Link from 'next/link'
-
-// Nuevos componentes mejorados
-import { MetricsCard } from '@/features/dashboard/components/metrics-card'
-import { InteractiveChart } from '@/features/dashboard/components/interactive-chart'
-import { QuickActions } from '@/features/dashboard/components/quick-actions'
+  TrendingDown,
+  ArrowRight,
+  BarChart3,
+  Calendar,
+  Plus,
+} from "lucide-react";
+import Link from "next/link";
+import { useDashboardStats } from "@/features/dashboard/hooks/use-dashboard-stats";
+import { useAuthStore } from "@/shared/store/auth-store";
+import { ActivoFormModal } from "@/features/inventario/components/activo-form-modal";
+import { MantenimientoFormModal } from "@/features/mantenimientos/components/mantenimiento-form-modal";
 
 export default function DashboardPage() {
+  const { stats, loading, error, refetch } = useDashboardStats();
+  const usuario = useAuthStore((state) => state.usuario);
+
+  // Estados para los modales
+  const [activoModalOpen, setActivoModalOpen] = useState(false);
+  const [mantenimientoModalOpen, setMantenimientoModalOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin text-orange-600 mx-auto mb-4" />
+          <p className="text-muted-foreground">Cargando estadísticas...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+          <p className="text-lg font-semibold mb-2">Error al cargar datos</p>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={refetch}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Reintentar
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  const porcentajeDisponibles =
+    stats.totalActivos > 0
+      ? Math.round((stats.activosDisponibles / stats.totalActivos) * 100)
+      : 0;
+
+  const porcentajeEnMantenimiento =
+    stats.totalActivos > 0
+      ? ((stats.activosEnMantenimiento / stats.totalActivos) * 100).toFixed(1)
+      : "0";
+
+  // Acciones rápidas según el rol
+  const quickActions = [
+    {
+      onClick: () => setActivoModalOpen(true),
+      icon: Package,
+      title: "Nuevo Activo",
+      description: "Registrar equipo",
+      color: "bg-gradient-to-br from-orange-500 to-orange-600",
+      roles: ["ADMIN", "SYSMAN"],
+    },
+    {
+      onClick: () => setMantenimientoModalOpen(true),
+      icon: Wrench,
+      title: "Mantenimiento",
+      description: "Crear servicio",
+      color: "bg-gradient-to-br from-blue-500 to-blue-600",
+      roles: ["ADMIN", "SYSMAN"],
+    },
+    {
+      href: "/planificacion",
+      icon: Calendar,
+      title: "Planificación",
+      description: "Ver calendario",
+      color: "bg-gradient-to-br from-purple-500 to-purple-600",
+      roles: ["ADMIN", "SYSMAN"],
+    },
+    {
+      href: "/usuarios",
+      icon: Users,
+      title: "Usuarios",
+      description: "Ver usuarios",
+      color: "bg-gradient-to-br from-green-500 to-green-600",
+      roles: ["ADMIN"],
+    },
+    {
+      href: "/inventario",
+      icon: BarChart3,
+      title: "Inventario",
+      description: "Ver todo",
+      color: "bg-gradient-to-br from-slate-500 to-slate-600",
+      roles: ["ADMIN", "SYSMAN", "RESPONSABLE"],
+    },
+  ].filter((action) => action.roles.includes(usuario?.rol || "RESPONSABLE"));
+
+  const handleSuccess = () => {
+    refetch();
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header con acciones */}
+    <div className="space-y-6 pb-8">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-1">
-            Bienvenido de nuevo, <span className="font-medium text-primary">Admin</span>
+            Bienvenido,{" "}
+            <span className="font-medium text-orange-600">
+              {usuario?.nombre}
+            </span>
           </p>
         </div>
-        <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Activo
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={refetch}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Actualizar
+        </Button>
       </div>
 
-      {/* Métricas principales con componentes mejorados */}
+      {/* Métricas principales */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricsCard
-          title="Total Activos"
-          value="1,245"
-          icon={Package}
-          trend={{
-            value: "+12.3%",
-            isPositive: true,
-            label: "vs mes pasado"
-          }}
-          badge={{
-            text: "Activo",
-            variant: "outline"
-          }}
-        />
-
-        <MetricsCard
-          title="En Mantenimiento"
-          value="23"
-          icon={Wrench}
-          description="1.8% del total"
-          badge={{
-            text: "Urgente",
-            variant: "destructive"
-          }}
-        />
-
-        <MetricsCard
-          title="Disponibles"
-          value="1,187"
-          icon={CheckCircle}
-          trend={{
-            value: "95.3%",
-            isPositive: true,
-            label: "operativos"
-          }}
-        />
-
-        <MetricsCard
-          title="Alertas Activas"
-          value="8"
-          icon={AlertTriangle}
-          description="3 críticas • 5 moderadas"
-          badge={{
-            text: "Crítico",
-            variant: "destructive"
-          }}
-        />
-      </div>
-
-      {/* Gráficas y estadísticas mejoradas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Gráfica interactiva con shadcn charts */}
-        <InteractiveChart />
-
-        {/* Próximos mantenimientos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-primary" />
-              Próximos Mantenimientos
-            </CardTitle>
-            <CardDescription>
-              Equipos programados para revisión
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                <div className="flex-shrink-0">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">UESV-PC-2023-089</p>
-                  <p className="text-xs text-gray-600">Hoy • 14:30</p>
-                  <p className="text-xs text-orange-600 font-medium">Mantenimiento preventivo</p>
-                </div>
+        <Card className="border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Activos
+                </p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">
+                  {stats.totalActivos}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.distribucionPorTipo.length} tipos
+                </p>
               </div>
-              
-              <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex-shrink-0">
-                  <Clock className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">UESV-IMP-2024-012</p>
-                  <p className="text-xs text-gray-600">Mañana • 09:00</p>
-                  <p className="text-xs text-blue-600 font-medium">Revisión general</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="flex-shrink-0">
-                  <Clock className="h-4 w-4 text-gray-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">UESV-SRV-2023-004</p>
-                  <p className="text-xs text-gray-600">15 Mar • 16:00</p>
-                  <p className="text-xs text-gray-600 font-medium">Actualización sistema</p>
-                </div>
+              <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <Package className="h-6 w-6 text-orange-600" />
               </div>
             </div>
-            
-            <Button variant="outline" className="w-full mt-4" asChild>
-              <Link href="/mantenimientos">
-                Ver todos los mantenimientos
-              </Link>
-            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  En Mantenimiento
+                </p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">
+                  {stats.activosEnMantenimiento}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {porcentajeEnMantenimiento}% del total
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Wrench className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Disponibles</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">
+                  {stats.activosDisponibles}
+                </p>
+                <p className="text-xs text-green-600 font-medium mt-1">
+                  {porcentajeDisponibles}% operativos
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-red-500 hover:shadow-lg transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">
+                  Dados de Baja
+                </p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">
+                  {stats.activosBaja}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.totalUsuarios} usuarios
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
+                <TrendingDown className="h-6 w-6 text-red-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Acciones rápidas y actividad mejoradas */}
-      <QuickActions userRole="admin" />
+      {/* Acciones Rápidas */}
+      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <CardHeader>
+          <CardTitle className="text-orange-900">Accesos Rápidos</CardTitle>
+          <CardDescription className="text-orange-700">
+            Accede directamente a las funciones principales
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {quickActions.map((action, index) => {
+              const Icon = action.icon;
+
+              if (action.href) {
+                return (
+                  <Link key={index} href={action.href}>
+                    <div className="group cursor-pointer">
+                      <div
+                        className={`${action.color} rounded-xl p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1`}
+                      >
+                        <Icon className="h-8 w-8 mb-3" />
+                        <h3 className="font-semibold text-sm mb-1">
+                          {action.title}
+                        </h3>
+                        <p className="text-xs opacity-90">
+                          {action.description}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              }
+
+              return (
+                <div
+                  key={index}
+                  onClick={action.onClick}
+                  className="group cursor-pointer"
+                >
+                  <div
+                    className={`${action.color} rounded-xl p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1`}
+                  >
+                    <Icon className="h-8 w-8 mb-3" />
+                    <h3 className="font-semibold text-sm mb-1">
+                      {action.title}
+                    </h3>
+                    <p className="text-xs opacity-90">{action.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Gráficas */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Distribución por Sede */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-orange-600" />
+              Distribución por Sede
+            </CardTitle>
+            <CardDescription>
+              {stats.distribucionPorSede.length} sedes activas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.distribucionPorSede
+                .sort((a, b) => b.cantidad - a.cantidad)
+                .map((item) => {
+                  const porcentaje =
+                    stats.totalActivos > 0
+                      ? Math.round((item.cantidad / stats.totalActivos) * 100)
+                      : 0;
+
+                  return (
+                    <div key={item.sede} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">{item.sede}</span>
+                        <span className="text-muted-foreground">
+                          {item.cantidad} ({porcentaje}%)
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all"
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Distribución por Estado */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Estado de los Activos</CardTitle>
+            <CardDescription>Condición actual del inventario</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.distribucionPorEstado
+                .sort((a, b) => b.cantidad - a.cantidad)
+                .map((item) => {
+                  const porcentaje =
+                    stats.totalActivos > 0
+                      ? Math.round((item.cantidad / stats.totalActivos) * 100)
+                      : 0;
+
+                  const colorClasses =
+                    item.estado.toLowerCase() === "bueno"
+                      ? "bg-green-500"
+                      : item.estado.toLowerCase() === "regular"
+                      ? "bg-yellow-500"
+                      : item.estado.toLowerCase() === "malo"
+                      ? "bg-red-500"
+                      : item.estado.toLowerCase() === "mantenimiento"
+                      ? "bg-blue-500"
+                      : "bg-gray-500";
+
+                  return (
+                    <div key={item.estado} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium capitalize">
+                          {item.estado}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {item.cantidad} ({porcentaje}%)
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${colorClasses} transition-all`}
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tipos de Activos */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-orange-600" />
+                Tipos de Activos
+              </CardTitle>
+              <CardDescription>
+                {stats.distribucionPorTipo.length} categorías registradas
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/inventario">
+                Ver todo
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            {stats.distribucionPorTipo
+              .sort((a, b) => b.cantidad - a.cantidad)
+              .map((item) => {
+                const porcentaje =
+                  stats.totalActivos > 0
+                    ? Math.round((item.cantidad / stats.totalActivos) * 100)
+                    : 0;
+
+                return (
+                  <div
+                    key={item.tipo}
+                    className="flex flex-col items-center p-4 border rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mb-2">
+                      <span className="text-xl font-bold text-orange-600">
+                        {item.cantidad}
+                      </span>
+                    </div>
+                    <span className="font-medium capitalize text-sm text-center">
+                      {item.tipo}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {porcentaje}%
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Modales */}
+      <ActivoFormModal
+        open={activoModalOpen}
+        onOpenChange={setActivoModalOpen}
+        activo={null}
+        onSuccess={handleSuccess}
+      />
+
+      <MantenimientoFormModal
+        open={mantenimientoModalOpen}
+        onOpenChange={setMantenimientoModalOpen}
+        mantenimiento={null}
+        onSuccess={handleSuccess}
+      />
     </div>
-  )
+  );
 }

@@ -27,6 +27,9 @@ export interface Activo {
     | "financiera"
     | "tecnica";
   fecha_instalacion?: string | null; // Campo del backend (opcional)
+  fecha_creacion?: string; // Fecha de creación del registro
+  createdAt?: string; // Timestamp de creación
+  updatedAt?: string; // Timestamp de actualización
   // Especificaciones de PC/Portátil (cuando aplique)
   especificaciones?: {
     procesador?: string;

@@ -50,6 +50,24 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  // Ordenar por ID descendente (más recientes primero) antes de aplicar otros filtros
+  const sortedData = React.useMemo(() => {
+    return [...data].sort((a: any, b: any) => {
+      // Intentar ordenar por id, createdAt, o fecha_creacion
+      if (a.id && b.id) return b.id - a.id;
+      if (a.createdAt && b.createdAt)
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      if (a.fecha_creacion && b.fecha_creacion)
+        return (
+          new Date(b.fecha_creacion).getTime() -
+          new Date(a.fecha_creacion).getTime()
+        );
+      return 0;
+    });
+  }, [data]);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -68,7 +86,7 @@ export function DataTable<TData, TValue>({
   } = usePersistentFilters();
 
   const table = useReactTable({
-    data,
+    data: sortedData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -193,7 +211,10 @@ export function DataTable<TData, TValue>({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto font-normal justify-between">
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto font-normal justify-between"
+                >
                   Columnas
                   <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                 </Button>

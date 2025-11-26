@@ -74,22 +74,24 @@ export default function TrasladosPage() {
 
   // Filtrar traslados
   const filteredTraslados = useMemo(() => {
-    return traslados.filter((traslado) => {
-      const matchSearch =
-        searchTerm === "" ||
-        traslado.motivo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        traslado.id.toString().includes(searchTerm);
+    return traslados
+      .filter((traslado) => {
+        const matchSearch =
+          searchTerm === "" ||
+          traslado.motivo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          traslado.id.toString().includes(searchTerm);
 
-      const matchOrigen =
-        sedeOrigenFilter === "todos" ||
-        traslado.sede_origen_id === Number(sedeOrigenFilter);
+        const matchOrigen =
+          sedeOrigenFilter === "todos" ||
+          traslado.sede_origen_id === Number(sedeOrigenFilter);
 
-      const matchDestino =
-        sedeDestinoFilter === "todos" ||
-        traslado.sede_destino_id === Number(sedeDestinoFilter);
+        const matchDestino =
+          sedeDestinoFilter === "todos" ||
+          traslado.sede_destino_id === Number(sedeDestinoFilter);
 
-      return matchSearch && matchOrigen && matchDestino;
-    });
+        return matchSearch && matchOrigen && matchDestino;
+      })
+      .sort((a, b) => b.id - a.id);
   }, [traslados, searchTerm, sedeOrigenFilter, sedeDestinoFilter]);
 
   const handleCreate = () => {

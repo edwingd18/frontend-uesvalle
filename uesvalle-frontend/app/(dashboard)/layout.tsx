@@ -21,9 +21,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="hidden lg:flex lg:flex-shrink-0 lg:sticky lg:top-0 lg:h-screen">
         <Sidebar
           isCollapsed={sidebarCollapsed}
-          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
       </div>
+
+      {/* Botón hamburguesa para desktop */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`hidden lg:block fixed top-4 z-50 transition-all duration-300 ${
+          sidebarCollapsed ? 'left-20' : 'left-[280px]'
+        }`}
+        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+      >
+        <Menu className="h-6 w-6" />
+        <span className="sr-only">Colapsar menú</span>
+      </Button>
 
       {/* Sidebar Mobile */}
       <>
@@ -69,7 +81,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <div className="flex-1 min-h-screen">
-        <main className="focus:outline-none p-6 pt-16 lg:pt-6">
+        <main className="focus:outline-none p-6 pt-16">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

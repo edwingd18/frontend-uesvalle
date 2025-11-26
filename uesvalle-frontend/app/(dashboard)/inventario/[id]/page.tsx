@@ -404,7 +404,7 @@ export default function ActivoDetailPage() {
                 className="hover:scale-105 transition-transform"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar
+                Dar de baja
               </Button>
             </div>
           </div>

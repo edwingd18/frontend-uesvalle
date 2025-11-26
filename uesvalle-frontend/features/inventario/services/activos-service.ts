@@ -130,20 +130,24 @@ class ActivosService {
     return await response.json();
   }
 
-  async deleteActivo(id: number): Promise<void> {
+  async darDeBajaActivo(id: number, observacion_baja: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/activos/${id}`, {
-      method: "DELETE",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...authService.getAuthHeader(),
       },
       credentials: "include",
+      body: JSON.stringify({
+        estado: "BAJA",
+        observacion_baja: observacion_baja
+      }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(
-        error.message || error.error || "Error al eliminar activo"
+        error.message || error.error || "Error al dar de baja el activo"
       );
     }
   }

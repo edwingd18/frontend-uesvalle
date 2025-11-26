@@ -118,20 +118,22 @@ export function Sidebar({
         className
       )}
     >
-      {/* Toggle Button */}
-      <Button
-        onClick={onToggle}
-        variant="ghost"
-        size="icon"
-        className="fixed -right-3 top-6 z-[60] h-6 w-6 rounded-full bg-white shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
-        style={{ left: isCollapsed ? "52px" : "244px" }}
-      >
-        {isCollapsed ? (
-          <ChevronRight className="h-3 w-3" />
-        ) : (
-          <ChevronLeft className="h-3 w-3" />
-        )}
-      </Button>
+      {/* Toggle Button - Solo visible en desktop */}
+      {onToggle && (
+        <Button
+          onClick={onToggle}
+          variant="ghost"
+          size="icon"
+          className="hidden lg:block fixed -right-3 top-6 z-[60] h-6 w-6 rounded-full bg-white shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
+          style={{ left: isCollapsed ? "52px" : "244px" }}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-3 w-3" />
+          ) : (
+            <ChevronLeft className="h-3 w-3" />
+          )}
+        </Button>
+      )}
 
       <div className="space-y-4 py-4 flex flex-col h-full">
         {/* Logo y título */}

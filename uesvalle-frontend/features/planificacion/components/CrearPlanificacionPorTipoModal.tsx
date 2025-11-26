@@ -30,15 +30,31 @@ const MESES = [
 ];
 
 const TIPOS_ACTIVO = [
-  { value: "computador", label: "Computador" },
-  { value: "portatil", label: "Portátil" },
-  { value: "tablet", label: "Tablet" },
-  { value: "impresora", label: "Impresora" },
-  { value: "router", label: "Router" },
-  { value: "switch", label: "Switch" },
-  { value: "servidor", label: "Servidor" },
-  { value: "ups", label: "UPS" },
-  { value: "monitor", label: "Monitor" },
+  { value: "ACCESS POINT", label: "Access Point" },
+  { value: "BIOMETRICO", label: "Biométrico" },
+  { value: "CAMARA", label: "Cámara" },
+  { value: "CELULAR", label: "Celular" },
+  { value: "COMPUTADOR", label: "Computador" },
+  { value: "DISCO EXTERNO", label: "Disco Externo" },
+  { value: "PATCHPANEL", label: "Patchpanel" },
+  { value: "DVR", label: "DVR" },
+  { value: "ESCANER", label: "Escáner" },
+  { value: "IMPRESORA", label: "Impresora" },
+  { value: "IPAD", label: "iPad" },
+  { value: "MONITOR", label: "Monitor" },
+  { value: "PLANTA TELEFONICA", label: "Planta Telefónica" },
+  { value: "PORTATIL", label: "Portátil" },
+  { value: "RACK", label: "Rack" },
+  { value: "ROUTER", label: "Router" },
+  { value: "SERVIDOR", label: "Servidor" },
+  { value: "SWITCH", label: "Switch" },
+  { value: "TABLET", label: "Tablet" },
+  { value: "TELEFONO", label: "Teléfono" },
+  { value: "TELEVISOR", label: "Televisor" },
+  { value: "TODO EN UNO", label: "Todo en Uno" },
+  { value: "UPS", label: "UPS" },
+  { value: "XVR", label: "XVR" },
+  { value: "VIDEO BEAM", label: "Video Beam" },
 ];
 
 interface CrearPlanificacionPorTipoModalProps {
@@ -102,17 +118,17 @@ export function CrearPlanificacionPorTipoModal({
   const handleConfirm = () => {
     const planificacionArray = [];
     for (let mes = 1; mes <= 12; mes++) {
+      // Incluir TODOS los tipos de activos, incluso con valor 0
       const cuotas = TIPOS_ACTIVO.map((tipo) => ({
         tipo: tipo.value,
-        planificado: planificacion[mes][tipo.value],
-      })).filter((cuota) => cuota.planificado > 0);
+        planificado: planificacion[mes][tipo.value] || 0,
+        realizados: 0,
+      }));
 
-      if (cuotas.length > 0) {
-        planificacionArray.push({
-          mes,
-          cuotas,
-        });
-      }
+      planificacionArray.push({
+        mes,
+        cuotas,
+      });
     }
 
     onConfirm({
@@ -124,17 +140,19 @@ export function CrearPlanificacionPorTipoModal({
   const autoLlenar = () => {
     const nuevaPlanificacion: Record<number, Record<string, number>> = {};
     for (let mes = 1; mes <= 12; mes++) {
-      nuevaPlanificacion[mes] = {
-        computador: 10,
-        portatil: 5,
-        tablet: 2,
-        impresora: 3,
-        router: 1,
-        switch: 1,
-        servidor: 2,
-        ups: 2,
-        monitor: 4,
-      };
+      nuevaPlanificacion[mes] = {};
+      TIPOS_ACTIVO.forEach((tipo) => {
+        // Valores de ejemplo para algunos tipos comunes
+        if (tipo.value === "COMPUTADOR")
+          nuevaPlanificacion[mes][tipo.value] = 10;
+        else if (tipo.value === "PORTATIL")
+          nuevaPlanificacion[mes][tipo.value] = 5;
+        else if (tipo.value === "IMPRESORA")
+          nuevaPlanificacion[mes][tipo.value] = 3;
+        else if (tipo.value === "MONITOR")
+          nuevaPlanificacion[mes][tipo.value] = 4;
+        else nuevaPlanificacion[mes][tipo.value] = 1;
+      });
     }
     setPlanificacion(nuevaPlanificacion);
   };
@@ -273,12 +291,7 @@ export function CrearPlanificacionPorTipoModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={calcularTotalGeneral() === 0}
-          >
-            Crear Planificación
-          </Button>
+          <Button onClick={handleConfirm}>Crear Planificación</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

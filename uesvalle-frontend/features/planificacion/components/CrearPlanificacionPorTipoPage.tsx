@@ -24,15 +24,31 @@ const MESES = [
 ];
 
 const TIPOS_ACTIVO = [
+  { value: "ACCESS POINT", label: "Access Point" },
+  { value: "BIOMETRICO", label: "Biométrico" },
+  { value: "CAMARA", label: "Cámara" },
+  { value: "CELULAR", label: "Celular" },
   { value: "COMPUTADOR", label: "Computador" },
-  { value: "PORTATIL", label: "Portátil" },
-  { value: "TABLET", label: "Tablet" },
+  { value: "DISCO EXTERNO", label: "Disco Externo" },
+  { value: "PATCHPANEL", label: "Patchpanel" },
+  { value: "DVR", label: "DVR" },
+  { value: "ESCANER", label: "Escáner" },
   { value: "IMPRESORA", label: "Impresora" },
-  { value: "ROUTER", label: "Router" },
-  { value: "SWITCH", label: "Switch" },
-  { value: "SERVIDOR", label: "Servidor" },
-  { value: "UPS", label: "UPS" },
+  { value: "IPAD", label: "iPad" },
   { value: "MONITOR", label: "Monitor" },
+  { value: "PLANTA TELEFONICA", label: "Planta Telefónica" },
+  { value: "PORTATIL", label: "Portátil" },
+  { value: "RACK", label: "Rack" },
+  { value: "ROUTER", label: "Router" },
+  { value: "SERVIDOR", label: "Servidor" },
+  { value: "SWITCH", label: "Switch" },
+  { value: "TABLET", label: "Tablet" },
+  { value: "TELEFONO", label: "Teléfono" },
+  { value: "TELEVISOR", label: "Televisor" },
+  { value: "TODO EN UNO", label: "Todo en Uno" },
+  { value: "UPS", label: "UPS" },
+  { value: "XVR", label: "XVR" },
+  { value: "VIDEO BEAM", label: "Video Beam" },
 ];
 
 interface CrearPlanificacionPorTipoPageProps {
@@ -96,18 +112,17 @@ export function CrearPlanificacionPorTipoPage({
   const handleConfirm = () => {
     const planificacionArray = [];
     for (let mes = 1; mes <= 12; mes++) {
+      // Incluir TODOS los tipos de activos, incluso con valor 0
       const cuotas = TIPOS_ACTIVO.map((tipo) => ({
         tipo: tipo.value,
-        planificado: planificacion[mes][tipo.value],
-        realizado: 0, // Inicializar en 0, se actualizará cuando se completen mantenimientos
-      })).filter((cuota) => cuota.planificado > 0);
+        planificado: planificacion[mes][tipo.value] || 0,
+        realizados: 0,
+      }));
 
-      if (cuotas.length > 0) {
-        planificacionArray.push({
-          mes,
-          cuotas,
-        });
-      }
+      planificacionArray.push({
+        mes,
+        cuotas,
+      });
     }
 
     onConfirm({
@@ -119,17 +134,19 @@ export function CrearPlanificacionPorTipoPage({
   const autoLlenar = () => {
     const nuevaPlanificacion: Record<number, Record<string, number>> = {};
     for (let mes = 1; mes <= 12; mes++) {
-      nuevaPlanificacion[mes] = {
-        COMPUTADOR: 10,
-        PORTATIL: 5,
-        TABLET: 2,
-        IMPRESORA: 3,
-        ROUTER: 1,
-        SWITCH: 1,
-        SERVIDOR: 2,
-        UPS: 2,
-        MONITOR: 4,
-      };
+      nuevaPlanificacion[mes] = {};
+      TIPOS_ACTIVO.forEach((tipo) => {
+        // Valores de ejemplo para algunos tipos comunes
+        if (tipo.value === "COMPUTADOR")
+          nuevaPlanificacion[mes][tipo.value] = 10;
+        else if (tipo.value === "PORTATIL")
+          nuevaPlanificacion[mes][tipo.value] = 5;
+        else if (tipo.value === "IMPRESORA")
+          nuevaPlanificacion[mes][tipo.value] = 3;
+        else if (tipo.value === "MONITOR")
+          nuevaPlanificacion[mes][tipo.value] = 4;
+        else nuevaPlanificacion[mes][tipo.value] = 1;
+      });
     }
     setPlanificacion(nuevaPlanificacion);
   };
@@ -172,11 +189,7 @@ export function CrearPlanificacionPorTipoPage({
             <Sparkles className="mr-2 h-4 w-4" />
             Auto-llenar
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={calcularTotalGeneral() === 0}
-            size="lg"
-          >
+          <Button onClick={handleConfirm} size="lg">
             <Save className="mr-2 h-4 w-4" />
             Guardar Planificación
           </Button>

@@ -18,7 +18,9 @@ import {
   Download,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { CrearPlanificacionModal } from "./CrearPlanificacionModal";
+import { CrearPlanificacionPorTipoPage } from "./CrearPlanificacionPorTipoPage";
+import { EditarPlanificacionPorTipoPage } from "./EditarPlanificacionPorTipoPage";
+import { VisualizarPlanificacionPorTipo } from "./VisualizarPlanificacionPorTipo";
 import { ReportesPlanificacionModal } from "./ReportesPlanificacionModal";
 import {
   Chart as ChartJS,
@@ -94,7 +96,8 @@ export function PlanificacionAnualView({
     planificados: 0,
     realizados: 0,
   });
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreatePage, setShowCreatePage] = useState(false);
+  const [showEditPage, setShowEditPage] = useState(false);
   const [reportesModalOpen, setReportesModalOpen] = useState(false);
 
   const {
@@ -141,17 +144,31 @@ export function PlanificacionAnualView({
     setEditingMes(null);
   };
 
-  const handleCreatePlanificacion = async (
-    meses: Array<{ mes: number; planificados: number; realizados: number }>
-  ) => {
+  const handleUpdatePlanificacion = async (planificacionData: any) => {
     try {
-      const nuevaPlanificacion = await createPlanificacion({
-        ano,
-        meses,
-      });
+      console.log("Datos a actualizar:", planificacionData);
+
+      await updatePlanificacion(planificacionData);
+
+      console.log("Planificación actualizada");
+      setShowEditPage(false);
+      toast.success("Planificación actualizada correctamente");
+    } catch (err) {
+      console.error("Error al actualizar planificación:", err);
+      toast.error("Error al actualizar la planificación");
+    }
+  };
+
+  const handleCreatePlanificacion = async (planificacionData: any) => {
+    try {
+      console.log("Datos a enviar al backend:", planificacionData);
+
+      // Por ahora, mostrar el JSON que se enviaría
+      // TODO: Actualizar cuando el backend esté listo
+      const nuevaPlanificacion = await createPlanificacion(planificacionData);
 
       console.log("Planificación creada:", nuevaPlanificacion);
-      setShowCreateModal(false);
+      setShowCreatePage(false);
       toast.success("Planificación creada correctamente");
     } catch (err) {
       console.error("Error al crear planificación:", err);
@@ -167,32 +184,122 @@ export function PlanificacionAnualView({
     );
   }
 
+  // Header con selector de año
+  const renderHeader = () => (
+    <div className="flex items-center justify-between mb-6">
+      <div>
+        <h1 className="text-3xl font-bold">Planificación de Mantenimientos</h1>
+        <p className="text-muted-foreground mt-1">
+          Gestiona y visualiza la planificación anual de mantenimientos
+        </p>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="ano" className="text-sm font-medium">
+            Año:
+          </Label>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setAno(ano - 1)}
+              className="h-9 w-9"
+            >
+              -
+            </Button>
+            <Input
+              id="ano"
+              type="number"
+              value={ano}
+              onChange={(e) => setAno(Number(e.target.value))}
+              className="w-24 text-center h-9 font-semibold"
+              min={2020}
+              max={2050}
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setAno(ano + 1)}
+              className="h-9 w-9"
+            >
+              +
+            </Button>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => setAno(new Date().getFullYear())}
+          className="h-9"
+        >
+          Año Actual
+        </Button>
+      </div>
+    </div>
+  );
+
   if (error) {
+    if (showCreatePage) {
+      return (
+        <div className="container mx-auto p-6">
+          <CrearPlanificacionPorTipoPage
+            ano={ano}
+            onConfirm={handleCreatePlanificacion}
+            onCancel={() => setShowCreatePage(false)}
+          />
+        </div>
+      );
+    }
+
     return (
-      <>
+      <div className="container mx-auto p-6 space-y-6">
+        {renderHeader()}
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-12">
             <div className="text-center space-y-4">
-              <p className="text-muted-foreground">
-                No existe planificación para el año {ano}
-              </p>
-              <Button onClick={() => setShowCreateModal(true)}>
-                <Plus className="mr-2 h-4 w-4" />
+              <div className="w-16 h-16 mx-auto bg-orange-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-8 w-8 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">
+                  No existe planificación para el año {ano}
+                </h3>
+                <p className="text-muted-foreground">
+                  Crea una nueva planificación para comenzar a gestionar los
+                  mantenimientos
+                </p>
+              </div>
+              <Button onClick={() => setShowCreatePage(true)} size="lg">
+                <Plus className="mr-2 h-5 w-5" />
                 Crear Planificación {ano}
               </Button>
             </div>
           </CardContent>
         </Card>
-
-        <CrearPlanificacionModal
-          open={showCreateModal}
-          onOpenChange={setShowCreateModal}
-          ano={ano}
-          onConfirm={handleCreatePlanificacion}
-        />
-      </>
+      </div>
     );
   }
+
+  // Si está en modo edición
+  if (showEditPage && planificacion) {
+    return (
+      <EditarPlanificacionPorTipoPage
+        planificacion={planificacion}
+        onConfirm={handleUpdatePlanificacion}
+        onCancel={() => setShowEditPage(false)}
+      />
+    );
+  }
+
+  // Si hay planificación, mostrar el componente de visualización
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {renderHeader()}
+      <VisualizarPlanificacionPorTipo
+        planificacion={planificacion}
+        onEdit={() => setShowEditPage(true)}
+      />
+    </div>
+  );
 
   const totalPlanificados =
     planificacion?.meses?.reduce((sum, m) => sum + m.planificados, 0) || 0;
@@ -268,7 +375,7 @@ export function PlanificacionAnualView({
 
   return (
     <>
-      <CrearPlanificacionModal
+      <CrearPlanificacionPorTipoModal
         open={showCreateModal}
         onOpenChange={setShowCreateModal}
         ano={ano}

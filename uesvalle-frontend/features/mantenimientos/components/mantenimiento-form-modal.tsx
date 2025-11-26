@@ -288,9 +288,9 @@ export function MantenimientoFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-[1600px] w-[96vw] max-h-[92vh] p-0 gap-0 overflow-hidden sm:!max-w-[1600px]">
+      <DialogContent className="w-full max-w-lg sm:max-w-xl lg:max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col">
         {/* Header limpio */}
-        <div className="bg-white border-b px-16 py-6">
+        <div className="bg-white border-b px-4 sm:px-8 lg:px-16 py-4 sm:py-6 flex-none">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-gray-900">
               <div className="bg-orange-100 p-2 rounded-lg">
@@ -308,7 +308,7 @@ export function MantenimientoFormModal({
           </DialogHeader>
 
           {/* Stepper personalizado */}
-          <div className="mt-8 px-32">
+          <div className="mt-4 sm:mt-6 lg:mt-8 px-0 sm:px-8 lg:px-24">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <div
@@ -318,7 +318,7 @@ export function MantenimientoFormModal({
                 >
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all ${
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all ${
                         index === currentStep
                           ? "bg-orange-600 text-white ring-4 ring-orange-100 scale-110"
                           : index < currentStep
@@ -345,7 +345,7 @@ export function MantenimientoFormModal({
 
                   {index < steps.length - 1 && (
                     <div
-                      className={`h-0.5 flex-1 mx-6 transition-all duration-500 ${
+                      className={`h-0.5 flex-1 mx-4 sm:mx-6 transition-all duration-500 ${
                         index < currentStep ? "bg-orange-600" : "bg-gray-300"
                       }`}
                     />
@@ -357,10 +357,7 @@ export function MantenimientoFormModal({
         </div>
 
         {/* Contenido scrolleable */}
-        <div
-          className="overflow-y-auto px-16 py-8 bg-gray-50"
-          style={{ maxHeight: "calc(92vh - 320px)", minHeight: "400px" }}
-        >
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-6 lg:py-8 bg-gray-50">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
@@ -565,7 +562,7 @@ export function MantenimientoFormModal({
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-x-16 gap-y-7">
+                    <div className="space-y-6">
                       <FormField
                         control={form.control}
                         name="tipo"
@@ -840,7 +837,7 @@ export function MantenimientoFormModal({
         </div>
 
         {/* Footer fijo con botones */}
-        <div className="border-t bg-white px-16 py-6">
+        <div className="border-t bg-white px-4 sm:px-8 lg:px-16 py-4 sm:py-6 flex-none">
           <div className="flex gap-4 justify-between">
             <div className="flex gap-2">
               {currentStep > 0 && (

@@ -389,9 +389,9 @@ export function ActivoFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:w-[90vw] lg:w-[85vw] max-w-[1200px] max-h-[90vh] p-0 gap-0 overflow-hidden">
+      <DialogContent className="w-full max-w-lg sm:max-w-xl lg:max-w-2xl max-h-[90vh] p-0 overflow-hidden flex flex-col">
         {/* Header limpio */}
-        <div className="bg-white border-b px-4 sm:px-8 lg:px-16 py-4 sm:py-6">
+        <div className="bg-white border-b px-4 sm:px-8 lg:px-16 py-4 sm:py-6 flex-none">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
               <div className="bg-orange-100 p-1.5 sm:p-2 rounded-lg">
@@ -460,10 +460,7 @@ export function ActivoFormModal({
         </div>
 
         {/* Contenido scrolleable */}
-        <div
-          className="overflow-y-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-6 lg:py-8 bg-gray-50"
-          style={{ maxHeight: "calc(90vh - 280px)", minHeight: "300px" }}
-        >
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-6 lg:py-8 bg-gray-50">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
@@ -1072,7 +1069,7 @@ export function ActivoFormModal({
         </div>
 
         {/* Footer fijo con botones */}
-        <div className="border-t bg-white px-4 sm:px-8 lg:px-16 py-4 sm:py-6">
+        <div className="border-t bg-white px-4 sm:px-8 lg:px-16 py-4 sm:py-6 flex-none">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-between">
             <div className="flex gap-2 order-2 sm:order-1">
               {currentStep > 0 && (

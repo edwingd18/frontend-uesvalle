@@ -114,108 +114,112 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="space-y-4">
         {/* Barra de filtros */}
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+          <div className="flex items-center space-x-2 flex-1">
             <Search className="h-4 w-4 text-gray-500" />
             <Input
-              placeholder="Buscar por placa, serial, marca, modelo..."
+              placeholder="Buscar..."
               value={filters.globalFilter}
               onChange={(event) =>
                 updateFilter("globalFilter", event.target.value)
               }
-              className="w-80"
+              className="w-full"
             />
           </div>
 
-          <Select
-            value={filters.tipo || "all"}
-            onValueChange={(value) =>
-              updateFilter("tipo", value === "all" ? "" : value)
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar por tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los tipos</SelectItem>
-              <SelectItem value="computador">Computador</SelectItem>
-              <SelectItem value="portatil">Portátil</SelectItem>
-              <SelectItem value="tablet">Tablet</SelectItem>
-              <SelectItem value="impresora">Impresora</SelectItem>
-              <SelectItem value="router">Router</SelectItem>
-              <SelectItem value="switch">Switch</SelectItem>
-              <SelectItem value="servidor">Servidor</SelectItem>
-              <SelectItem value="ups">UPS</SelectItem>
-              <SelectItem value="monitor">Monitor</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-2 sm:flex gap-2">
+            <Select
+              value={filters.tipo || "all"}
+              onValueChange={(value) =>
+                updateFilter("tipo", value === "all" ? "" : value)
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[140px]">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="computador">Computador</SelectItem>
+                <SelectItem value="portatil">Portátil</SelectItem>
+                <SelectItem value="tablet">Tablet</SelectItem>
+                <SelectItem value="impresora">Impresora</SelectItem>
+                <SelectItem value="router">Router</SelectItem>
+                <SelectItem value="switch">Switch</SelectItem>
+                <SelectItem value="servidor">Servidor</SelectItem>
+                <SelectItem value="ups">UPS</SelectItem>
+                <SelectItem value="monitor">Monitor</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select
-            value={filters.estado || "all"}
-            onValueChange={(value) =>
-              updateFilter("estado", value === "all" ? "" : value)
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar por estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="bueno">Bueno</SelectItem>
-              <SelectItem value="regular">Regular</SelectItem>
-              <SelectItem value="malo">Malo</SelectItem>
-              <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
-              <SelectItem value="baja">Baja</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select
+              value={filters.estado || "all"}
+              onValueChange={(value) =>
+                updateFilter("estado", value === "all" ? "" : value)
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[140px]">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="bueno">Bueno</SelectItem>
+                <SelectItem value="regular">Regular</SelectItem>
+                <SelectItem value="malo">Malo</SelectItem>
+                <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
+                <SelectItem value="baja">Baja</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select
-            value={filters.proceso || "all"}
-            onValueChange={(value) =>
-              updateFilter("proceso", value === "all" ? "" : value)
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar por proceso" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los procesos</SelectItem>
-              <SelectItem value="sistemas">Sistemas</SelectItem>
-              <SelectItem value="contabilidad">Contabilidad</SelectItem>
-              <SelectItem value="administracion">Administración</SelectItem>
-              <SelectItem value="gerencia">Gerencia</SelectItem>
-              <SelectItem value="juridica">Jurídica</SelectItem>
-              <SelectItem value="financiera">Financiera</SelectItem>
-              <SelectItem value="tecnica">Técnica</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select
+              value={filters.proceso || "all"}
+              onValueChange={(value) =>
+                updateFilter("proceso", value === "all" ? "" : value)
+              }
+            >
+              <SelectTrigger className="w-full sm:w-[140px]">
+                <SelectValue placeholder="Proceso" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="sistemas">Sistemas</SelectItem>
+                <SelectItem value="contabilidad">Contabilidad</SelectItem>
+                <SelectItem value="administracion">Administración</SelectItem>
+                <SelectItem value="gerencia">Gerencia</SelectItem>
+                <SelectItem value="juridica">Jurídica</SelectItem>
+                <SelectItem value="financiera">Financiera</SelectItem>
+                <SelectItem value="tecnica">Técnica</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columnas <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <span className="hidden sm:inline">Columnas</span>
+                  <span className="sm:hidden">Cols</span>
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Filtros activos y limpiar */}
@@ -314,14 +318,14 @@ export function DataTable<TData, TValue>({
 
       {/* Espaciado adicional antes de la tabla */}
       <div className="mt-6"></div>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="whitespace-nowrap">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -342,7 +346,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -364,12 +368,12 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+        <div className="text-sm text-muted-foreground text-center sm:text-left">
           {table.getFilteredRowModel().rows.length} de{" "}
-          {table.getCoreRowModel().rows.length} fila(s) mostradas.
+          {table.getCoreRowModel().rows.length} fila(s)
         </div>
-        <div className="space-x-2">
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"

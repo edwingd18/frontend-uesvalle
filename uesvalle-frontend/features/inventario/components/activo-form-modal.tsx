@@ -104,6 +104,7 @@ const activoFormSchema = z.object({
   so: z.string().optional(),
   tipo_disco: z.enum(["SSD", "HDD", "Híbrido"]).optional(),
   velocidad_cpu_ghz: z.number().optional(),
+  licencia: z.string().optional(),
 });
 
 type ActivoFormValues = z.infer<typeof activoFormSchema>;
@@ -164,6 +165,7 @@ export function ActivoFormModal({
           so: undefined,
           tipo_disco: undefined,
           velocidad_cpu_ghz: undefined,
+          licencia: undefined,
         }
       : {
           serial: "",
@@ -180,6 +182,7 @@ export function ActivoFormModal({
           so: "",
           tipo_disco: undefined,
           velocidad_cpu_ghz: undefined,
+          licencia: "",
         },
   });
 
@@ -201,6 +204,7 @@ export function ActivoFormModal({
         so: undefined,
         tipo_disco: undefined,
         velocidad_cpu_ghz: undefined,
+        licencia: undefined,
       });
     } else {
       form.reset({
@@ -218,6 +222,7 @@ export function ActivoFormModal({
         so: "",
         tipo_disco: undefined,
         velocidad_cpu_ghz: undefined,
+        licencia: "",
       });
     }
     setCurrentStep(0);
@@ -260,6 +265,7 @@ export function ActivoFormModal({
             so: data.so || "",
             tipo_disco: data.tipo_disco || "SSD",
             velocidad_cpu_ghz: data.velocidad_cpu_ghz || 0,
+            licencia: data.licencia || "",
           };
 
           const endpoint = data.tipo === "computador" ? "pcs" : "portatiles";
@@ -290,6 +296,7 @@ export function ActivoFormModal({
             so: data.so || "",
             tipo_disco: data.tipo_disco || "SSD",
             velocidad_cpu_ghz: data.velocidad_cpu_ghz || 0,
+            licencia: data.licencia || "",
           };
 
           const endpoint = data.tipo === "computador" ? "pcs" : "portatiles";
@@ -382,17 +389,19 @@ export function ActivoFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-[1600px] w-[96vw] max-h-[92vh] p-0 gap-0 overflow-hidden sm:!max-w-[1600px]">
+      <DialogContent className="w-[95vw] sm:w-[90vw] lg:w-[85vw] max-w-[1200px] max-h-[90vh] p-0 gap-0 overflow-hidden">
         {/* Header limpio */}
-        <div className="bg-white border-b px-16 py-6">
+        <div className="bg-white border-b px-4 sm:px-8 lg:px-16 py-4 sm:py-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-gray-900">
-              <div className="bg-orange-100 p-2 rounded-lg">
-                <Package className="h-6 w-6 text-orange-600" />
+            <DialogTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+              <div className="bg-orange-100 p-1.5 sm:p-2 rounded-lg">
+                <Package className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-orange-600" />
               </div>
-              {isEditing ? "Editar Activo" : "Crear Nuevo Activo"}
+              <span className="truncate">
+                {isEditing ? "Editar Activo" : "Crear Nuevo Activo"}
+              </span>
             </DialogTitle>
-            <DialogDescription className="text-gray-600 text-sm mt-2 ml-14">
+            <DialogDescription className="text-gray-600 text-xs sm:text-sm mt-2 ml-0 sm:ml-14">
               {isEditing
                 ? "Modifica los datos del activo tecnológico"
                 : "Completa la información en 3 pasos sencillos"}
@@ -400,7 +409,7 @@ export function ActivoFormModal({
           </DialogHeader>
 
           {/* Stepper mejorado con líneas separadas */}
-          <div className="mt-8 px-32">
+          <div className="mt-4 sm:mt-6 lg:mt-8 px-0 sm:px-8 lg:px-32">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <div
@@ -411,22 +420,22 @@ export function ActivoFormModal({
                   {/* Paso */}
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center font-semibold text-sm sm:text-base transition-all ${
                         index === currentStep
-                          ? "bg-orange-600 text-white ring-4 ring-orange-100 scale-110"
+                          ? "bg-orange-600 text-white ring-2 sm:ring-4 ring-orange-100 scale-110"
                           : index < currentStep
                           ? "bg-orange-600 text-white"
                           : "bg-white border-2 border-gray-300 text-gray-500"
                       }`}
                     >
                       {index < currentStep ? (
-                        <Check className="h-6 w-6" />
+                        <Check className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                       ) : (
                         index + 1
                       )}
                     </div>
                     <p
-                      className={`text-sm font-medium mt-3 whitespace-nowrap ${
+                      className={`text-xs sm:text-sm font-medium mt-2 sm:mt-3 whitespace-nowrap ${
                         index === currentStep
                           ? "text-orange-600"
                           : "text-gray-600"
@@ -439,7 +448,7 @@ export function ActivoFormModal({
                   {/* Línea conectora */}
                   {index < steps.length - 1 && (
                     <div
-                      className={`h-0.5 flex-1 mx-6 transition-all duration-500 ${
+                      className={`h-0.5 flex-1 mx-2 sm:mx-4 lg:mx-6 transition-all duration-500 ${
                         index < currentStep ? "bg-orange-600" : "bg-gray-300"
                       }`}
                     />
@@ -452,8 +461,8 @@ export function ActivoFormModal({
 
         {/* Contenido scrolleable */}
         <div
-          className="overflow-y-auto px-16 py-8 bg-gray-50"
-          style={{ maxHeight: "calc(92vh - 320px)", minHeight: "400px" }}
+          className="overflow-y-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-6 lg:py-8 bg-gray-50"
+          style={{ maxHeight: "calc(90vh - 280px)", minHeight: "300px" }}
         >
           <Form {...form}>
             <form
@@ -473,7 +482,7 @@ export function ActivoFormModal({
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-x-16 gap-y-7">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-x-16 lg:gap-y-7">
                     <FormField
                       control={form.control}
                       name="tipo"
@@ -984,6 +993,27 @@ export function ActivoFormModal({
                                 </FormItem>
                               )}
                             />
+
+                            <FormField
+                              control={form.control}
+                              name="licencia"
+                              render={({ field }) => (
+                                <FormItem className="col-span-2">
+                                  <FormLabel>Licencia</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Windows 11 Pro - Licencia OEM"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Información sobre la licencia del sistema
+                                    operativo o software
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
                         </div>
                       </>
@@ -991,11 +1021,11 @@ export function ActivoFormModal({
                   </div>
 
                   {/* Resumen antes de enviar */}
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-2 border-blue-200 rounded-xl p-6 space-y-4 shadow-sm">
-                    <h4 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-2 border-blue-200 rounded-xl p-4 sm:p-6 space-y-4 shadow-sm">
+                    <h4 className="text-base sm:text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
                       📋 Resumen del Activo
                     </h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="bg-white p-4 rounded-lg shadow-sm">
                         <span className="text-sm text-gray-600 font-medium">
                           Tipo:
@@ -1042,30 +1072,31 @@ export function ActivoFormModal({
         </div>
 
         {/* Footer fijo con botones */}
-        <div className="border-t bg-white px-16 py-6">
-          <div className="flex gap-4 justify-between">
-            <div className="flex gap-2">
+        <div className="border-t bg-white px-4 sm:px-8 lg:px-16 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-between">
+            <div className="flex gap-2 order-2 sm:order-1">
               {currentStep > 0 && (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={prevStep}
                   disabled={isSubmitting}
-                  className="h-12 px-6 font-medium text-base"
+                  className="h-10 sm:h-12 px-4 sm:px-6 font-medium text-sm sm:text-base flex-1 sm:flex-none"
                 >
-                  <ChevronLeft className="mr-2 h-5 w-5" />
-                  Anterior
+                  <ChevronLeft className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="hidden sm:inline">Anterior</span>
+                  <span className="sm:hidden">Atrás</span>
                 </Button>
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3 order-1 sm:order-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
-                className="h-12 px-6 font-medium text-base"
+                className="h-10 sm:h-12 px-4 sm:px-6 font-medium text-sm sm:text-base flex-1 sm:flex-none"
               >
                 Cancelar
               </Button>
@@ -1074,23 +1105,30 @@ export function ActivoFormModal({
                 <Button
                   type="button"
                   onClick={nextStep}
-                  className="h-12 px-8 font-medium text-base bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/30"
+                  className="h-10 sm:h-12 px-4 sm:px-8 font-medium text-sm sm:text-base bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/30 flex-1 sm:flex-none"
                 >
                   Siguiente
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  <ChevronRight className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               ) : (
                 <Button
                   type="submit"
                   onClick={form.handleSubmit(handleSubmit)}
                   disabled={isSubmitting}
-                  className="h-12 px-8 font-medium text-base bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/30"
+                  className="h-10 sm:h-12 px-4 sm:px-8 font-medium text-sm sm:text-base bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/30 flex-1 sm:flex-none"
                 >
                   {isSubmitting && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                   )}
-                  {!isSubmitting && <Check className="mr-2 h-4 w-4" />}
-                  {isEditing ? "Actualizar Activo" : "Crear Activo"}
+                  {!isSubmitting && (
+                    <Check className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {isEditing ? "Actualizar Activo" : "Crear Activo"}
+                  </span>
+                  <span className="sm:hidden">
+                    {isEditing ? "Actualizar" : "Crear"}
+                  </span>
                 </Button>
               )}
             </div>

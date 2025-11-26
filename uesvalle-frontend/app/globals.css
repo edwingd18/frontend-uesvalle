@@ -282,3 +282,82 @@ textarea {
 .page-transition {
   animation: fadeIn 0.5s ease-out;
 }
+
+/* Mejoras responsive */
+@layer utilities {
+  /* Scroll horizontal suave para tablas en móviles */
+  .table-container {
+    @apply overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0;
+  }
+
+  /* Ocultar scrollbar pero mantener funcionalidad */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Texto responsive */
+  .text-responsive {
+    @apply text-sm sm:text-base;
+  }
+
+  /* Padding responsive para contenedores */
+  .container-responsive {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Grid responsive automático */
+  .grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .grid-auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+/* Mejoras para touch devices */
+@media (hover: none) and (pointer: coarse) {
+  /* Aumentar área de toque en botones pequeños */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mejorar espaciado en elementos interactivos */
+  .touch-target {
+    padding: 0.75rem;
+  }
+}
+
+/* Optimizaciones para pantallas pequeñas */
+@media (max-width: 640px) {
+  /* Reducir animaciones en móviles para mejor rendimiento */
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* Ajustar tamaño de fuente base */
+  html {
+    font-size: 14px;
+  }
+
+  /* Mejorar legibilidad en móviles */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 641px) and (max-width: 1024px) {
+  html {
+    font-size: 15px;
+  }
+}

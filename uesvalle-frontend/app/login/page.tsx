@@ -20,7 +20,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle } from "lucide-react";
 
 const loginSchema = z.object({
-  correo: z.string().email("Correo electrónico inválido"),
+  username: z
+    .string()
+    .min(3, "El nombre de usuario debe tener al menos 3 caracteres"),
   contrasena: z
     .string()
     .min(6, "La contraseña debe tener al menos 6 caracteres"),
@@ -81,16 +83,18 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="correo">Correo Electrónico</Label>
+              <Label htmlFor="username">Nombre de Usuario</Label>
               <Input
-                id="correo"
-                type="email"
-                placeholder="correo@ejemplo.com"
-                {...register("correo")}
+                id="username"
+                type="text"
+                placeholder="usuario"
+                {...register("username")}
                 disabled={isLoading}
               />
-              {errors.correo && (
-                <p className="text-sm text-red-600">{errors.correo.message}</p>
+              {errors.username && (
+                <p className="text-sm text-red-600">
+                  {errors.username.message}
+                </p>
               )}
             </div>
 

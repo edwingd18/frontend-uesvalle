@@ -126,17 +126,24 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Dashboard
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             Bienvenido,{" "}
             <span className="font-medium text-orange-600">
               {usuario?.nombre}
             </span>
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={refetch}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={refetch}
+          className="w-full sm:w-auto"
+        >
           <RefreshCw className="h-4 w-4 mr-2" />
           Actualizar
         </Button>
@@ -236,7 +243,7 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
 
@@ -245,13 +252,13 @@ export default function DashboardPage() {
                   <Link key={index} href={action.href}>
                     <div className="group cursor-pointer">
                       <div
-                        className={`${action.color} rounded-xl p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1`}
+                        className={`${action.color} rounded-xl p-4 sm:p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1`}
                       >
-                        <Icon className="h-8 w-8 mb-3" />
-                        <h3 className="font-semibold text-sm mb-1">
+                        <Icon className="h-6 w-6 sm:h-8 sm:w-8 mb-2 sm:mb-3" />
+                        <h3 className="font-semibold text-xs sm:text-sm mb-1">
                           {action.title}
                         </h3>
-                        <p className="text-xs opacity-90">
+                        <p className="text-xs opacity-90 hidden sm:block">
                           {action.description}
                         </p>
                       </div>
@@ -267,13 +274,15 @@ export default function DashboardPage() {
                   className="group cursor-pointer"
                 >
                   <div
-                    className={`${action.color} rounded-xl p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1`}
+                    className={`${action.color} rounded-xl p-4 sm:p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1`}
                   >
-                    <Icon className="h-8 w-8 mb-3" />
-                    <h3 className="font-semibold text-sm mb-1">
+                    <Icon className="h-6 w-6 sm:h-8 sm:w-8 mb-2 sm:mb-3" />
+                    <h3 className="font-semibold text-xs sm:text-sm mb-1">
                       {action.title}
                     </h3>
-                    <p className="text-xs opacity-90">{action.description}</p>
+                    <p className="text-xs opacity-90 hidden sm:block">
+                      {action.description}
+                    </p>
                   </div>
                 </div>
               );
@@ -399,7 +408,7 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {stats.distribucionPorTipo
               .sort((a, b) => b.cantidad - a.cantidad)
               .map((item) => {
@@ -411,14 +420,14 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={item.tipo}
-                    className="flex flex-col items-center p-4 border rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all"
+                    className="flex flex-col items-center p-3 sm:p-4 border rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all"
                   >
-                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mb-2">
-                      <span className="text-xl font-bold text-orange-600">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-100 flex items-center justify-center mb-2">
+                      <span className="text-lg sm:text-xl font-bold text-orange-600">
                         {item.cantidad}
                       </span>
                     </div>
-                    <span className="font-medium capitalize text-sm text-center">
+                    <span className="font-medium capitalize text-xs sm:text-sm text-center">
                       {item.tipo}
                     </span>
                     <span className="text-xs text-muted-foreground">

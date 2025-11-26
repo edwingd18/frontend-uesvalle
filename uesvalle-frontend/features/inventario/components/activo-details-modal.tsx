@@ -279,6 +279,17 @@ export function ActivoDetailsModal({
                           </p>
                         </div>
                       )}
+
+                      {activo.especificaciones.licencia && (
+                        <div className="md:col-span-2">
+                          <label className="text-sm font-medium text-gray-500">
+                            Licencia
+                          </label>
+                          <p className="text-base mt-1">
+                            {activo.especificaciones.licencia}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </>

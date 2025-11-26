@@ -35,6 +35,7 @@ export interface Activo {
     so?: string;
     tipo_disco?: string;
     velocidad_cpu_ghz?: number;
+    licencia?: string;
   };
 }
 

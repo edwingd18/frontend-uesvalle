@@ -13,7 +13,7 @@ import {
   Shield,
   Mail,
 } from "lucide-react";
-import { DataTable } from "@/features/inventario/data-table";
+import { DataTable } from "@/features/usuarios/data-table";
 import { useUsuarios } from "@/shared/hooks/use-usuarios";
 import {
   Card,
@@ -82,94 +82,122 @@ export default function UsuariosPage() {
       {
         accessorKey: "id",
         header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            ID
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              ID
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         ),
         cell: ({ row }) => (
-          <div className="font-medium">#{row.getValue("id")}</div>
+          <div className="font-medium whitespace-nowrap px-6 py-3 text-center">#{row.getValue("id")}</div>
         ),
+        size: 120,
+        minSize: 120,
+        maxSize: 120,
       },
       {
         accessorKey: "nombre",
         header: ({ column }) => (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Nombre
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Nombre
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         ),
         cell: ({ row }) => (
-          <div className="font-semibold">{row.getValue("nombre")}</div>
+          <div className="font-semibold whitespace-nowrap px-8 py-3 text-center">{row.getValue("nombre")}</div>
         ),
+        size: 200,
+        minSize: 200,
       },
       {
         accessorKey: "correo",
-        header: "Correo Electrónico",
+        header: () => (
+          <div className="text-center">Correo Electrónico</div>
+        ),
         cell: ({ row }) => (
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+            <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
             <span>{row.getValue("correo")}</span>
           </div>
         ),
+        size: 250,
+        minSize: 250,
       },
       {
         accessorKey: "rol",
-        header: "Rol",
+        header: () => (
+          <div className="text-center">Rol</div>
+        ),
         cell: ({ row }) => {
           const rol = row.getValue("rol") as string;
           const badge = getRolBadgeVariant(rol);
           return (
-            <Badge variant={badge.variant} className={badge.className}>
-              {rol}
-            </Badge>
+            <div className="whitespace-nowrap text-center">
+              <Badge variant={badge.variant} className={badge.className}>
+                {rol}
+              </Badge>
+            </div>
           );
         },
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
       },
       {
         id: "actions",
+        header: () => (
+          <div className="text-center">Acciones</div>
+        ),
         enableHiding: false,
         cell: ({ row }) => {
           const usuario = row.original;
 
           return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Abrir menú</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => navigator.clipboard.writeText(usuario.correo)}
-                >
-                  Copiar correo
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleEdit(usuario)}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => handleDelete(usuario)}
-                  className="text-red-600 focus:text-red-600"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Eliminar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="whitespace-nowrap text-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Abrir menú</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() => navigator.clipboard.writeText(usuario.correo)}
+                  >
+                    Copiar correo
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleEdit(usuario)}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => handleDelete(usuario)}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           );
         },
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
       },
     ],
     []
@@ -186,33 +214,37 @@ export default function UsuariosPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <UsersIcon className="h-8 w-8 text-orange-600" />
-            Usuarios
-          </h1>
-          <p className="text-muted-foreground">
-            Gestiona los usuarios del sistema UESVALLE
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={refreshUsuarios}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Actualizar
-          </Button>
-          <Button
-            onClick={handleCreate}
-            className="bg-orange-600 hover:bg-orange-700"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Usuario
-          </Button>
+    <div className="w-full">
+      {/* Header con padding responsive */}
+      <div className="py-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+              <UsersIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+              Usuarios
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Gestiona los usuarios del sistema UESVALLE
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={refreshUsuarios} className="w-full sm:w-auto">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Actualizar
+            </Button>
+            <Button
+              onClick={handleCreate}
+              className="bg-orange-600 hover:bg-orange-700 w-full sm:w-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Usuario
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="mt-6">
+      {/* Card con scroll horizontal */}
+      <div>
         <Card>
           <CardHeader>
             <CardTitle>Usuarios del Sistema</CardTitle>
@@ -221,8 +253,10 @@ export default function UsuariosPage() {
               usuarios)
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <DataTable columns={columns} data={usuarios} />
+          <CardContent className="overflow-x-auto flex justify-center">
+            <div className="w-[280px] sm:w-full">
+              <DataTable columns={columns} data={usuarios} />
+            </div>
           </CardContent>
         </Card>
       </div>

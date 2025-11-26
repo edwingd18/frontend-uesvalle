@@ -19,13 +19,21 @@ export interface Activo {
   usuario_uso_id: number | null;
   estado: "bueno" | "regular" | "malo" | "mantenimiento" | "baja";
   proceso:
-    | "sistemas"
-    | "contabilidad"
-    | "administracion"
-    | "gerencia"
-    | "juridica"
-    | "financiera"
-    | "tecnica";
+    | "DIRECCIONAMIENTO ESTRATEGICO"
+    | "PLANEACIÓN E INFORMACIÓN INSTITUCIONAL"
+    | "GESTIÓN DE CALIDAD"
+    | "AGUA PARA CONSUMO HUMANO Y SANEAMIENTO BÁSICO"
+    | "ALIMENTOS Y MEDICAMENTOS"
+    | "ESTABLECIMIENTO DE INTERÉS SANITARIO"
+    | "ZOONOSIS Y ENFERMEDADES DE TRANSMISIÓN VECTORIAL"
+    | "GESTIÓN FINANCIERA"
+    | "GESTIÓN DE RECURSOS FÍSICOS"
+    | "GESTIÓN DEL TALENTO HUMANO"
+    | "GESTIÓN INFORMÁTICA"
+    | "GESTIÓN DOCUMENTAL Y ATENCIÓN AL CIUDADANO"
+    | "GESTIÓN DE CONTRATACIÓN"
+    | "GESTIÓN JURÍDICA Y DISCIPLINARIA"
+    | "CONTROL INTERNO A LA GESTIÓN";
   fecha_instalacion?: string | null; // Campo del backend (opcional)
   fecha_creacion?: string; // Fecha de creación del registro
   createdAt?: string; // Timestamp de creación

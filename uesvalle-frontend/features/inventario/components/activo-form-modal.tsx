@@ -788,48 +788,120 @@ export function ActivoFormModal({
                                 <SelectValue placeholder="Selecciona un proceso" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent className="max-h-[400px] overflow-y-auto">
                               <SelectItem
-                                value="sistemas"
-                                className="text-base py-3"
+                                value="DIRECCIONAMIENTO ESTRATEGICO"
+                                className="text-sm py-2"
                               >
-                                Sistemas
+                                Direccionamiento Estratégico
                               </SelectItem>
                               <SelectItem
-                                value="contabilidad"
-                                className="text-base py-3"
+                                value="PLANEACIÓN E INFORMACIÓN INSTITUCIONAL"
+                                className="text-sm py-2"
                               >
-                                Contabilidad
+                                Planeación e Información Institucional
                               </SelectItem>
                               <SelectItem
-                                value="administracion"
-                                className="text-base py-3"
+                                value="GESTIÓN DE CALIDAD"
+                                className="text-sm py-2"
                               >
-                                Administración
+                                Gestión de Calidad
                               </SelectItem>
                               <SelectItem
-                                value="gerencia"
-                                className="text-base py-3"
+                                value="AGUA PARA CONSUMO HUMANO Y SANEAMIENTO BÁSICO"
+                                className="text-sm py-2"
                               >
-                                Gerencia
+                                Agua para Consumo Humano y Saneamiento Básico
                               </SelectItem>
                               <SelectItem
-                                value="juridica"
-                                className="text-base py-3"
+                                value="ALIMENTOS Y MEDICAMENTOS"
+                                className="text-sm py-2"
                               >
-                                Jurídica
+                                Alimentos y Medicamentos
                               </SelectItem>
                               <SelectItem
-                                value="financiera"
-                                className="text-base py-3"
+                                value="ESTABLECIMIENTO DE INTERÉS SANITARIO"
+                                className="text-sm py-2"
                               >
-                                Financiera
+                                Establecimiento de Interés Sanitario
                               </SelectItem>
                               <SelectItem
-                                value="tecnica"
-                                className="text-base py-3"
+                                value="ZOONOSIS Y ENFERMEDADES DE TRANSMISIÓN VECTORIAL"
+                                className="text-sm py-2"
                               >
-                                Técnica
+                                Zoonosis y Enfermedades de Transmisión Vectorial
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN FINANCIERA"
+                                className="text-sm py-2"
+                              >
+                                Gestión Financiera
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN DE RECURSOS FÍSICOS"
+                                className="text-sm py-2"
+                              >
+                                Gestión de Recursos Físicos
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN DEL TALENTO HUMANO"
+                                className="text-sm py-2"
+                              >
+                                Gestión del Talento Humano
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN INFORMÁTICA"
+                                className="text-sm py-2"
+                              >
+                                Gestión Informática
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN DOCUMENTAL Y ATENCIÓN AL CIUDADANO"
+                                className="text-sm py-2"
+                              >
+                                Gestión Documental y Atención al Ciudadano
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN DE CONTRATACIÓN"
+                                className="text-sm py-2"
+                              >
+                                Gestión de Contratación
+                              </SelectItem>
+                              <SelectItem
+                                value="GESTIÓN JURÍDICA Y DISCIPLINARIA"
+                                className="text-sm py-2"
+                              >
+                                Gestión Jurídica y Disciplinaria
+                              </SelectItem>
+                              <SelectItem
+                                value="CONTROL INTERNO A LA GESTIÓN"
+                                className="text-sm py-2"
+                              >
+                                Control Interno a la Gestión
+                              </SelectItem>
+                              <SelectItem
+                                value="ARO NORTE - CARTAGO"
+                                className="text-sm py-2"
+                              >
+                                ARO Norte - Cartago
+                              </SelectItem>
+                              <SelectItem
+                                value="ARO CENTRO - TULUÁ"
+                                className="text-sm py-2"
+                              >
+                                ARO Centro - Tuluá
+                              </SelectItem>
+                              <SelectItem
+                                value="ARO SUR - CALI"
+                                className="text-sm py-2"
+                              >
+                                ARO Sur - Cali
+                              </SelectItem>
+                              <SelectItem
+                                value="ARCHIVO-CENTRAL YUMBO"
+                                className="text-sm py-2"
+                              >
+                                Archivo-Central Yumbo
                               </SelectItem>
                             </SelectContent>
                           </Select>

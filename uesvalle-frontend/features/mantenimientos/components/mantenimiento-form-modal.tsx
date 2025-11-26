@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/shared/lib/utils";
 import { mantenimientosService } from "../services/mantenimientos-service";
@@ -62,20 +63,50 @@ interface Step {
   icon: any;
 }
 
-const mantenimientoFormSchema = z.object({
-  activo_id: z.number().min(1, "Selecciona un activo"),
-  fecha_realizado: z.string().min(1, "La fecha es obligatoria"),
-  tipo: z.enum(["preventivo", "correctivo", "predictivo"], {
-    message: "Selecciona un tipo de mantenimiento",
-  }),
-  tecnico_id: z.number().min(1, "Selecciona un técnico"),
-  encargado_harware_id: z
-    .number()
-    .min(1, "Selecciona un encargado de hardware"),
-  encargado_software_id: z
-    .number()
-    .min(1, "Selecciona un encargado de software"),
-});
+const mantenimientoFormSchema = z
+  .object({
+    alcance: z.enum(["hardware", "software", "ambos"], {
+      message: "Selecciona el alcance del mantenimiento",
+    }),
+    activo_id: z.number().min(1, "Selecciona un activo"),
+    fecha_realizado: z.string().min(1, "La fecha es obligatoria"),
+    tipo: z.enum(["preventivo", "correctivo", "predictivo"], {
+      message: "Selecciona un tipo de mantenimiento",
+    }),
+    tecnico_id: z.number().min(1, "Selecciona un técnico"),
+    encargado_harware_id: z.number().optional(),
+    encargado_software_id: z.number().optional(),
+    arreglos_hardware: z.array(z.string()).optional(),
+    arreglos_software: z.array(z.string()).optional(),
+    observacion_hardware: z.string().optional(),
+    observacion_software: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      // Si el alcance es hardware o ambos, el encargado de hardware es obligatorio
+      if (data.alcance === "hardware" || data.alcance === "ambos") {
+        return data.encargado_harware_id && data.encargado_harware_id > 0;
+      }
+      return true;
+    },
+    {
+      message: "Selecciona un encargado de hardware",
+      path: ["encargado_harware_id"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Si el alcance es software o ambos, el encargado de software es obligatorio
+      if (data.alcance === "software" || data.alcance === "ambos") {
+        return data.encargado_software_id && data.encargado_software_id > 0;
+      }
+      return true;
+    },
+    {
+      message: "Selecciona un encargado de software",
+      path: ["encargado_software_id"],
+    }
+  );
 
 type MantenimientoFormValues = z.infer<typeof mantenimientoFormSchema>;
 
@@ -86,15 +117,56 @@ interface MantenimientoFormModalProps {
   onSuccess: () => void;
 }
 
+// Arreglos comunes
+const ARREGLOS_HARDWARE = [
+  "Limpieza interna del equipo",
+  "Cambio de pasta térmica",
+  "Limpieza de ventiladores",
+  "Revisión de conexiones",
+  "Cambio de disco duro",
+  "Ampliación de RAM",
+  "Cambio de fuente de poder",
+  "Reparación de teclado",
+  "Cambio de batería",
+  "Revisión de puertos USB",
+  "Otros",
+];
+
+const ARREGLOS_SOFTWARE = [
+  "Actualización de sistema operativo",
+  "Instalación de antivirus",
+  "Limpieza de archivos temporales",
+  "Optimización de inicio",
+  "Actualización de drivers",
+  "Instalación de software requerido",
+  "Configuración de red",
+  "Respaldo de información",
+  "Formateo y reinstalación",
+  "Eliminación de malware",
+  "Otros",
+];
+
 const steps: Step[] = [
+  {
+    id: 0,
+    title: "Alcance",
+    description: "Tipo de servicio",
+    icon: Wrench,
+  },
   {
     id: 1,
     title: "Detalles",
     description: "Activo y tipo",
-    icon: Wrench,
+    icon: Package,
   },
   {
     id: 2,
+    title: "Arreglos",
+    description: "Trabajos realizados",
+    icon: Wrench,
+  },
+  {
+    id: 3,
     title: "Personal",
     description: "Responsables",
     icon: Users,
@@ -141,20 +213,30 @@ export function MantenimientoFormModal({
     resolver: zodResolver(mantenimientoFormSchema),
     defaultValues: mantenimiento
       ? {
+          alcance: "ambos",
           activo_id: mantenimiento.activo_id,
           fecha_realizado: mantenimiento.fecha_realizado.split("T")[0],
           tipo: mantenimiento.tipo,
           tecnico_id: mantenimiento.tecnico_id,
           encargado_harware_id: mantenimiento.encargado_harware_id,
           encargado_software_id: mantenimiento.encargado_software_id,
+          arreglos_hardware: [],
+          arreglos_software: [],
+          observacion_hardware: mantenimiento.observacion_hardware || "",
+          observacion_software: mantenimiento.observacion_software || "",
         }
       : {
+          alcance: "ambos",
           activo_id: 0,
           fecha_realizado: "",
           tipo: "preventivo",
           tecnico_id: 0,
           encargado_harware_id: 0,
           encargado_software_id: 0,
+          arreglos_hardware: [],
+          arreglos_software: [],
+          observacion_hardware: "",
+          observacion_software: "",
         },
   });
 
@@ -185,15 +267,54 @@ export function MantenimientoFormModal({
   const handleSubmit = async (data: MantenimientoFormValues) => {
     setIsSubmitting(true);
     try {
-      // Construir payload según si es creación o edición
-      const basePayload = {
+      // Construir payload base
+      const basePayload: any = {
         activo_id: data.activo_id,
         fecha_realizado: new Date(data.fecha_realizado).toISOString(),
         tipo: data.tipo,
         tecnico_id: data.tecnico_id,
-        encargado_harware_id: data.encargado_harware_id,
-        encargado_software_id: data.encargado_software_id,
       };
+
+      // Agregar encargados según el alcance
+      if (data.alcance === "hardware" || data.alcance === "ambos") {
+        basePayload.encargado_harware_id = data.encargado_harware_id;
+
+        // Construir observación de hardware con arreglos + texto adicional
+        let observacionHardware = "";
+        if (data.arreglos_hardware && data.arreglos_hardware.length > 0) {
+          observacionHardware =
+            "Arreglos realizados:\n" +
+            data.arreglos_hardware.map((a) => `- ${a}`).join("\n");
+        }
+        if (data.observacion_hardware) {
+          if (observacionHardware)
+            observacionHardware += "\n\nObservaciones adicionales:\n";
+          observacionHardware += data.observacion_hardware;
+        }
+        if (observacionHardware) {
+          basePayload.observacion_hardware = observacionHardware;
+        }
+      }
+
+      if (data.alcance === "software" || data.alcance === "ambos") {
+        basePayload.encargado_software_id = data.encargado_software_id;
+
+        // Construir observación de software con arreglos + texto adicional
+        let observacionSoftware = "";
+        if (data.arreglos_software && data.arreglos_software.length > 0) {
+          observacionSoftware =
+            "Arreglos realizados:\n" +
+            data.arreglos_software.map((a) => `- ${a}`).join("\n");
+        }
+        if (data.observacion_software) {
+          if (observacionSoftware)
+            observacionSoftware += "\n\nObservaciones adicionales:\n";
+          observacionSoftware += data.observacion_software;
+        }
+        if (observacionSoftware) {
+          basePayload.observacion_software = observacionSoftware;
+        }
+      }
 
       if (isEditing && mantenimiento) {
         // Al editar, incluir actualizado_por_id
@@ -236,6 +357,8 @@ export function MantenimientoFormModal({
     let fieldsToValidate: (keyof MantenimientoFormValues)[] = [];
 
     if (currentStep === 0) {
+      fieldsToValidate = ["alcance"];
+    } else if (currentStep === 1) {
       fieldsToValidate = ["activo_id", "tipo", "fecha_realizado"];
     }
 
@@ -363,8 +486,120 @@ export function MantenimientoFormModal({
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
-              {/* PASO 1: Información del Mantenimiento */}
+              {/* PASO 0: Alcance del Mantenimiento */}
               {currentStep === 0 && (
+                <div className="space-y-6 animate-in fade-in-50 duration-300">
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-2 border-orange-200 rounded-xl p-8 shadow-sm">
+                    <h3 className="text-2xl font-bold text-orange-900 mb-3 flex items-center gap-3">
+                      <div className="bg-orange-200 p-3 rounded-lg">
+                        <Wrench className="h-6 w-6 text-orange-700" />
+                      </div>
+                      ¿Qué tipo de mantenimiento realizarás?
+                    </h3>
+                    <p className="text-sm text-orange-700 ml-14 mb-6">
+                      Selecciona el alcance del servicio que se realizará
+                    </p>
+
+                    <FormField
+                      control={form.control}
+                      name="alcance"
+                      render={({ field }) => (
+                        <FormItem className="space-y-4">
+                          <FormControl>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <button
+                                type="button"
+                                onClick={() => field.onChange("hardware")}
+                                className={cn(
+                                  "relative p-6 rounded-xl border-2 transition-all hover:scale-105",
+                                  field.value === "hardware"
+                                    ? "border-orange-600 bg-orange-50 shadow-lg"
+                                    : "border-gray-200 bg-white hover:border-orange-300"
+                                )}
+                              >
+                                {field.value === "hardware" && (
+                                  <div className="absolute top-3 right-3">
+                                    <Check className="h-6 w-6 text-orange-600" />
+                                  </div>
+                                )}
+                                <div className="flex flex-col items-center gap-3">
+                                  <div className="p-4 rounded-full bg-blue-100">
+                                    <Wrench className="h-8 w-8 text-blue-600" />
+                                  </div>
+                                  <h4 className="text-lg font-bold">
+                                    Hardware
+                                  </h4>
+                                  <p className="text-sm text-gray-600 text-center">
+                                    Mantenimiento físico del equipo
+                                  </p>
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => field.onChange("software")}
+                                className={cn(
+                                  "relative p-6 rounded-xl border-2 transition-all hover:scale-105",
+                                  field.value === "software"
+                                    ? "border-orange-600 bg-orange-50 shadow-lg"
+                                    : "border-gray-200 bg-white hover:border-orange-300"
+                                )}
+                              >
+                                {field.value === "software" && (
+                                  <div className="absolute top-3 right-3">
+                                    <Check className="h-6 w-6 text-orange-600" />
+                                  </div>
+                                )}
+                                <div className="flex flex-col items-center gap-3">
+                                  <div className="p-4 rounded-full bg-green-100">
+                                    <Package className="h-8 w-8 text-green-600" />
+                                  </div>
+                                  <h4 className="text-lg font-bold">
+                                    Software
+                                  </h4>
+                                  <p className="text-sm text-gray-600 text-center">
+                                    Configuración y programas
+                                  </p>
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => field.onChange("ambos")}
+                                className={cn(
+                                  "relative p-6 rounded-xl border-2 transition-all hover:scale-105",
+                                  field.value === "ambos"
+                                    ? "border-orange-600 bg-orange-50 shadow-lg"
+                                    : "border-gray-200 bg-white hover:border-orange-300"
+                                )}
+                              >
+                                {field.value === "ambos" && (
+                                  <div className="absolute top-3 right-3">
+                                    <Check className="h-6 w-6 text-orange-600" />
+                                  </div>
+                                )}
+                                <div className="flex flex-col items-center gap-3">
+                                  <div className="p-4 rounded-full bg-purple-100">
+                                    <Wrench className="h-8 w-8 text-purple-600" />
+                                  </div>
+                                  <h4 className="text-lg font-bold">Ambos</h4>
+                                  <p className="text-sm text-gray-600 text-center">
+                                    Hardware y Software
+                                  </p>
+                                </div>
+                              </button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* PASO 1: Información del Mantenimiento */}
+              {currentStep === 1 && (
                 <div className="space-y-6 animate-in fade-in-50 duration-300">
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
@@ -613,20 +848,20 @@ export function MantenimientoFormModal({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold">
-                              Fecha Programada *
+                              Fecha de Realización *
                             </FormLabel>
                             <FormControl>
-                              <div className="relative">
-                                <Input
-                                  type="date"
-                                  {...field}
-                                  className="h-12 text-base"
-                                />
-                                <Calendar className="absolute right-3 top-3.5 h-5 w-5 text-gray-400 pointer-events-none" />
-                              </div>
+                              <Input
+                                type="date"
+                                {...field}
+                                max={new Date().toISOString().split("T")[0]}
+                                disabled={isSubmitting}
+                                className="h-12 text-base"
+                              />
                             </FormControl>
                             <FormDescription className="text-sm">
-                              Fecha en la que se realizará el mantenimiento
+                              Fecha en la que se realizó el mantenimiento (no
+                              puede ser futura)
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -637,8 +872,208 @@ export function MantenimientoFormModal({
                 </div>
               )}
 
-              {/* PASO 2: Asignación de Personal */}
-              {currentStep === 1 && (
+              {/* PASO 2: Arreglos Realizados */}
+              {currentStep === 2 && (
+                <div className="space-y-6 animate-in fade-in-50 duration-300">
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                      <Wrench className="h-5 w-5 text-orange-600" />
+                      Trabajos Realizados
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-6">
+                      Selecciona los arreglos comunes realizados
+                    </p>
+
+                    <div className="space-y-6">
+                      {(form.watch("alcance") === "hardware" ||
+                        form.watch("alcance") === "ambos") && (
+                        <FormField
+                          control={form.control}
+                          name="arreglos_hardware"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Arreglos de Hardware
+                              </FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={(value) => {
+                                    const current = field.value || [];
+                                    if (!current.includes(value)) {
+                                      field.onChange([...current, value]);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-12">
+                                    <SelectValue placeholder="Selecciona arreglos realizados" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ARREGLOS_HARDWARE.map((arreglo) => (
+                                      <SelectItem key={arreglo} value={arreglo}>
+                                        {arreglo}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              {field.value && field.value.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                  {field.value.map((arreglo) => (
+                                    <Badge
+                                      key={arreglo}
+                                      variant="secondary"
+                                      className="gap-1 pr-1"
+                                    >
+                                      {arreglo}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          field.onChange(
+                                            field.value?.filter(
+                                              (a) => a !== arreglo
+                                            )
+                                          );
+                                        }}
+                                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                                      >
+                                        ✕
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      {(form.watch("alcance") === "software" ||
+                        form.watch("alcance") === "ambos") && (
+                        <FormField
+                          control={form.control}
+                          name="arreglos_software"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Arreglos de Software
+                              </FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={(value) => {
+                                    const current = field.value || [];
+                                    if (!current.includes(value)) {
+                                      field.onChange([...current, value]);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-12">
+                                    <SelectValue placeholder="Selecciona arreglos realizados" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ARREGLOS_SOFTWARE.map((arreglo) => (
+                                      <SelectItem key={arreglo} value={arreglo}>
+                                        {arreglo}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              {field.value && field.value.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                  {field.value.map((arreglo) => (
+                                    <Badge
+                                      key={arreglo}
+                                      variant="secondary"
+                                      className="gap-1 pr-1"
+                                    >
+                                      {arreglo}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          field.onChange(
+                                            field.value?.filter(
+                                              (a) => a !== arreglo
+                                            )
+                                          );
+                                        }}
+                                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                                      >
+                                        ✕
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      {/* Observaciones adicionales */}
+                      <div className="space-y-6 pt-4 border-t">
+                        {(form.watch("alcance") === "hardware" ||
+                          form.watch("alcance") === "ambos") && (
+                          <FormField
+                            control={form.control}
+                            name="observacion_hardware"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-semibold">
+                                  Observaciones de Hardware
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Describe otros trabajos de hardware realizados o detalles adicionales..."
+                                    className="min-h-[100px]"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormDescription className="text-sm">
+                                  Opcional: Agrega detalles adicionales sobre el
+                                  mantenimiento de hardware
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {(form.watch("alcance") === "software" ||
+                          form.watch("alcance") === "ambos") && (
+                          <FormField
+                            control={form.control}
+                            name="observacion_software"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-base font-semibold">
+                                  Observaciones de Software
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="Describe otros trabajos de software realizados o detalles adicionales..."
+                                    className="min-h-[100px]"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormDescription className="text-sm">
+                                  Opcional: Agrega detalles adicionales sobre el
+                                  mantenimiento de software
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* PASO 3: Asignación de Personal */}
+              {currentStep === 3 && (
                 <div className="space-y-8 animate-in fade-in-50 slide-in-from-right-5 duration-300">
                   <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-2 border-orange-200 rounded-xl p-6 shadow-sm">
                     <h3 className="text-lg font-bold text-orange-900 mb-2 flex items-center gap-3">
@@ -693,85 +1128,91 @@ export function MantenimientoFormModal({
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="encargado_harware_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold">
-                            Encargado Hardware *
-                          </FormLabel>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            defaultValue={String(field.value)}
-                            disabled={loadingUsuarios}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-12 text-base w-full">
-                                <SelectValue placeholder="Selecciona un encargado" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="max-h-[300px]">
-                              {tecnicos.map((user) => (
-                                <SelectItem
-                                  key={user.id}
-                                  value={String(user.id)}
-                                  className="text-base py-3"
-                                >
-                                  {user.nombre} - {user.correo}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormDescription className="text-sm">
-                            Responsable de componentes físicos
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {(form.watch("alcance") === "hardware" ||
+                      form.watch("alcance") === "ambos") && (
+                      <FormField
+                        control={form.control}
+                        name="encargado_harware_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold">
+                              Encargado Hardware *
+                            </FormLabel>
+                            <Select
+                              onValueChange={(value) =>
+                                field.onChange(Number(value))
+                              }
+                              defaultValue={String(field.value)}
+                              disabled={loadingUsuarios}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-12 text-base w-full">
+                                  <SelectValue placeholder="Selecciona un encargado" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="max-h-[300px]">
+                                {tecnicos.map((user) => (
+                                  <SelectItem
+                                    key={user.id}
+                                    value={String(user.id)}
+                                    className="text-base py-3"
+                                  >
+                                    {user.nombre} - {user.correo}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription className="text-sm">
+                              Responsable de componentes físicos
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
-                    <FormField
-                      control={form.control}
-                      name="encargado_software_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-base font-semibold">
-                            Encargado Software *
-                          </FormLabel>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            defaultValue={String(field.value)}
-                            disabled={loadingUsuarios}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-12 text-base w-full">
-                                <SelectValue placeholder="Selecciona un encargado" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="max-h-[300px]">
-                              {tecnicos.map((user) => (
-                                <SelectItem
-                                  key={user.id}
-                                  value={String(user.id)}
-                                  className="text-base py-3"
-                                >
-                                  {user.nombre} - {user.correo}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormDescription className="text-sm">
-                            Responsable de sistemas y aplicaciones
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {(form.watch("alcance") === "software" ||
+                      form.watch("alcance") === "ambos") && (
+                      <FormField
+                        control={form.control}
+                        name="encargado_software_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold">
+                              Encargado Software *
+                            </FormLabel>
+                            <Select
+                              onValueChange={(value) =>
+                                field.onChange(Number(value))
+                              }
+                              defaultValue={String(field.value)}
+                              disabled={loadingUsuarios}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-12 text-base w-full">
+                                  <SelectValue placeholder="Selecciona un encargado" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="max-h-[300px]">
+                                {tecnicos.map((user) => (
+                                  <SelectItem
+                                    key={user.id}
+                                    value={String(user.id)}
+                                    className="text-base py-3"
+                                  >
+                                    {user.nombre} - {user.correo}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription className="text-sm">
+                              Responsable de sistemas y aplicaciones
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </div>
 
                   {/* Resumen antes de enviar */}

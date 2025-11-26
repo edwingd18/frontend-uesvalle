@@ -140,7 +140,7 @@ export default function MantenimientoDetailPage() {
                 <p className="text-gray-600 flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   {format(
-                    new Date(mantenimiento.fecha),
+                    new Date(mantenimiento.fecha_realizado),
                     "d 'de' MMMM 'de' yyyy",
                     { locale: es }
                   )}
@@ -228,137 +228,167 @@ export default function MantenimientoDetailPage() {
                     </div>
                   </div>
                 </div>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Encargado Hardware
-                  </label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-blue-100 text-blue-700">
-                        {getUsuarioNombre(
-                          mantenimiento.encargado_harware_id
-                        ).charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+
+                {mantenimiento.encargado_harware_id && (
+                  <>
+                    <Separator />
                     <div>
-                      <p className="font-medium">
-                        {getUsuarioNombre(mantenimiento.encargado_harware_id)}
-                      </p>
-                      <p className="text-sm text-gray-500">Hardware</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        Encargado Hardware
+                      </label>
+                      <div className="flex items-center gap-3 mt-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-blue-100 text-blue-700">
+                            {getUsuarioNombre(
+                              mantenimiento.encargado_harware_id
+                            ).charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">
+                            {getUsuarioNombre(
+                              mantenimiento.encargado_harware_id
+                            )}
+                          </p>
+                          <p className="text-sm text-gray-500">Hardware</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <Separator />
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Encargado Software
-                  </label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-green-100 text-green-700">
-                        {getUsuarioNombre(
-                          mantenimiento.encargado_software_id
-                        ).charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+                  </>
+                )}
+
+                {mantenimiento.encargado_software_id && (
+                  <>
+                    <Separator />
                     <div>
-                      <p className="font-medium">
-                        {getUsuarioNombre(mantenimiento.encargado_software_id)}
-                      </p>
-                      <p className="text-sm text-gray-500">Software</p>
+                      <label className="text-sm font-medium text-gray-500">
+                        Encargado Software
+                      </label>
+                      <div className="flex items-center gap-3 mt-2">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-green-100 text-green-700">
+                            {getUsuarioNombre(
+                              mantenimiento.encargado_software_id
+                            ).charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">
+                            {getUsuarioNombre(
+                              mantenimiento.encargado_software_id
+                            )}
+                          </p>
+                          <p className="text-sm text-gray-500">Software</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
 
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Checklist */}
+            {/* Información General */}
             <Card>
               <CardHeader>
-                <CardTitle>Tareas del Mantenimiento</CardTitle>
+                <CardTitle>Información del Mantenimiento</CardTitle>
                 <CardDescription>
-                  Lista de verificación y actividades realizadas
+                  Detalles generales del servicio realizado
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 border rounded-lg">
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    <span className="flex-1">Inspección visual del equipo</span>
-                    <Badge
-                      variant="outline"
-                      className="bg-green-50 text-green-700 border-green-200"
-                    >
-                      Completado
-                    </Badge>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      Tipo de Mantenimiento
+                    </label>
+                    <p className="mt-1 text-base font-semibold capitalize">
+                      {mantenimiento.tipo}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-3 p-3 border rounded-lg">
-                    <Clock className="h-5 w-5 text-gray-400" />
-                    <span className="flex-1">
-                      Limpieza de componentes internos
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-50 text-gray-600"
-                    >
-                      Pendiente
-                    </Badge>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      Fecha de Realización
+                    </label>
+                    <p className="mt-1 text-base font-semibold">
+                      {format(
+                        new Date(mantenimiento.fecha_realizado),
+                        "d 'de' MMMM 'de' yyyy",
+                        { locale: es }
+                      )}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-3 p-3 border rounded-lg">
-                    <Clock className="h-5 w-5 text-gray-400" />
-                    <span className="flex-1">Actualización de software</span>
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-50 text-gray-600"
-                    >
-                      Pendiente
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 border rounded-lg">
-                    <Clock className="h-5 w-5 text-gray-400" />
-                    <span className="flex-1">Pruebas de funcionamiento</span>
-                    <Badge
-                      variant="outline"
-                      className="bg-gray-50 text-gray-600"
-                    >
-                      Pendiente
-                    </Badge>
-                  </div>
+                  {mantenimiento.fecha_creacion && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">
+                        Fecha de Registro
+                      </label>
+                      <p className="mt-1 text-base">
+                        {format(
+                          new Date(mantenimiento.fecha_creacion),
+                          "d 'de' MMMM 'de' yyyy 'a las' HH:mm",
+                          { locale: es }
+                        )}
+                      </p>
+                    </div>
+                  )}
+                  {mantenimiento.creado_por_id && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">
+                        Registrado por
+                      </label>
+                      <p className="mt-1 text-base">
+                        {getUsuarioNombre(mantenimiento.creado_por_id)}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Notas */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Notas y Observaciones</CardTitle>
-                <CardDescription>
-                  Detalles adicionales del mantenimiento
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-gray-500">
-                  No hay notas registradas para este mantenimiento
-                </div>
-              </CardContent>
-            </Card>
+            {/* Observaciones */}
+            {(mantenimiento.observacion_hardware ||
+              mantenimiento.observacion_software) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Observaciones del Mantenimiento</CardTitle>
+                  <CardDescription>
+                    Detalles y trabajos realizados
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {mantenimiento.observacion_hardware && (
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        <Wrench className="h-4 w-4" />
+                        Hardware
+                      </h4>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                          {mantenimiento.observacion_hardware}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
 
-            {/* Archivos */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Archivos Adjuntos</CardTitle>
-                <CardDescription>Fotos, reportes y documentos</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-gray-500">
-                  No hay archivos adjuntos
-                </div>
-              </CardContent>
-            </Card>
+                  {mantenimiento.observacion_software && (
+                    <div>
+                      <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                        <Package className="h-4 w-4" />
+                        Software
+                      </h4>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                          {mantenimiento.observacion_software}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

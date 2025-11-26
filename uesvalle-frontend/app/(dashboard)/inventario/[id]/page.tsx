@@ -701,54 +701,85 @@ export default function ActivoDetailPage() {
                                       <Calendar className="h-4 w-4" />
                                       <span>
                                         {format(
-                                          new Date(mant.fecha),
+                                          new Date(mant.fecha_realizado),
                                           "d 'de' MMMM 'de' yyyy",
                                           { locale: es }
                                         )}
                                       </span>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                                      <div className="flex items-center gap-1 text-gray-600">
-                                        <User className="h-3.5 w-3.5" />
-                                        <span className="font-medium">
-                                          Técnico:
-                                        </span>
-                                        <span>
-                                          {getUsuarioNombre(mant.tecnico_id)}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-1 text-gray-600">
-                                        <User className="h-3.5 w-3.5" />
-                                        <span className="font-medium">
-                                          Creado por:
-                                        </span>
-                                        <span>
-                                          {getUsuarioNombre(mant.creado_por_id)}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-1 text-gray-600">
-                                        <Cpu className="h-3.5 w-3.5" />
-                                        <span className="font-medium">
-                                          Hardware:
-                                        </span>
-                                        <span>
-                                          {getUsuarioNombre(
-                                            mant.encargado_harware_id
-                                          )}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-1 text-gray-600">
-                                        <Monitor className="h-3.5 w-3.5" />
-                                        <span className="font-medium">
-                                          Software:
-                                        </span>
-                                        <span>
-                                          {getUsuarioNombre(
-                                            mant.encargado_software_id
-                                          )}
-                                        </span>
-                                      </div>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                      {mant.tecnico && (
+                                        <div className="flex items-center gap-1 text-gray-600">
+                                          <User className="h-3.5 w-3.5" />
+                                          <span className="font-medium">
+                                            Técnico:
+                                          </span>
+                                          <span>{mant.tecnico.nombre}</span>
+                                        </div>
+                                      )}
+                                      {mant.creado_por && (
+                                        <div className="flex items-center gap-1 text-gray-600">
+                                          <User className="h-3.5 w-3.5" />
+                                          <span className="font-medium">
+                                            Registrado por:
+                                          </span>
+                                          <span>{mant.creado_por.nombre}</span>
+                                        </div>
+                                      )}
+                                      {mant.encargado_harware && (
+                                        <div className="flex items-center gap-1 text-gray-600">
+                                          <Cpu className="h-3.5 w-3.5" />
+                                          <span className="font-medium">
+                                            Hardware:
+                                          </span>
+                                          <span>
+                                            {mant.encargado_harware.nombre}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {mant.encargado_software && (
+                                        <div className="flex items-center gap-1 text-gray-600">
+                                          <Monitor className="h-3.5 w-3.5" />
+                                          <span className="font-medium">
+                                            Software:
+                                          </span>
+                                          <span>
+                                            {mant.encargado_software.nombre}
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
+
+                                    {/* Observaciones */}
+                                    {(mant.observacion_hardware ||
+                                      mant.observacion_software) && (
+                                      <div className="mt-4 pt-4 border-t space-y-3">
+                                        {mant.observacion_hardware && (
+                                          <div>
+                                            <p className="text-xs font-semibold text-blue-900 mb-1">
+                                              Observaciones Hardware:
+                                            </p>
+                                            <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                                              <pre className="whitespace-pre-wrap text-xs text-gray-700 font-sans">
+                                                {mant.observacion_hardware}
+                                              </pre>
+                                            </div>
+                                          </div>
+                                        )}
+                                        {mant.observacion_software && (
+                                          <div>
+                                            <p className="text-xs font-semibold text-green-900 mb-1">
+                                              Observaciones Software:
+                                            </p>
+                                            <div className="bg-green-50 border border-green-200 rounded p-2">
+                                              <pre className="whitespace-pre-wrap text-xs text-gray-700 font-sans">
+                                                {mant.observacion_software}
+                                              </pre>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                                 <ArrowLeft className="h-5 w-5 text-gray-400 rotate-180 flex-shrink-0 mt-2" />

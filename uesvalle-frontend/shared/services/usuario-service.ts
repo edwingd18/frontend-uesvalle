@@ -1,4 +1,4 @@
-import { Usuario } from "@/shared/types/auth";
+import { Usuario, RegisterUsuarioData } from "@/shared/types/auth";
 import { API_BASE_URL } from "@/shared/config/api";
 import { authService } from "./auth-service";
 
@@ -62,6 +62,38 @@ class UsuarioService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || "Error al obtener usuarios");
+    }
+
+    return response.json();
+  }
+
+  async registerUsuario(data: RegisterUsuarioData): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      
+      // Manejo específico de errores según el backend
+      if (response.status === 400) {
+        if (Array.isArray(error.error)) {
+          // Error de validación Zod
+          const validationErrors = error.error.map((err: any) => err.message).join(', ');
+          throw new Error(`Validación: ${validationErrors}`);
+        } else if (error.error === "El correo ya está registrado") {
+          throw new Error("El correo ya está registrado");
+        }
+      } else if (response.status === 401 && error.error === "El nombre de usuario ya existe") {
+        throw new Error("El nombre de usuario ya existe");
+      }
+      
+      throw new Error(error.error || error.message || "Error al registrar usuario");
     }
 
     return response.json();

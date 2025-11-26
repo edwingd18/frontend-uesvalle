@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Usuario } from "@/shared/types/usuario";
+import { Usuario } from "@/shared/types/auth";
 import { API_BASE_URL } from "@/shared/config/api";
 import { authService } from "@/shared/services/auth-service";
 

@@ -33,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Usuario } from "@/shared/types/auth";
+import { UsuarioFormModal } from "@/features/usuarios/components/usuario-form-modal";
 
 const getRolBadgeVariant = (rol: string) => {
   switch (rol) {
@@ -226,7 +227,14 @@ export default function UsuariosPage() {
         </Card>
       </div>
 
-      {/* TODO: Agregar modales */}
+      {/* Modales */}
+      <UsuarioFormModal
+        open={formModalOpen}
+        onOpenChange={setFormModalOpen}
+        onSuccess={handleSuccess}
+      />
+
+      {/* TODO: Agregar modal de eliminación */}
     </div>
   );
 }

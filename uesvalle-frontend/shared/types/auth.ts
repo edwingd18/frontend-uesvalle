@@ -2,7 +2,7 @@ export interface Usuario {
   id: number;
   nombre: string;
   correo: string;
-  rol: "ADMIN" | "SYSMAN" | "RESPONSABLE";
+  rol: "ADMIN" | "SYSMAN" | "RESPONSABLE" | "TECNICO";
   estado: "ACTIVO" | "INACTIVO";
   sede_id: number;
 }
@@ -16,8 +16,18 @@ export interface RegisterData {
   nombre: string;
   correo: string;
   contrasena: string;
-  rol: "ADMIN" | "SYSMAN" | "RESPONSABLE";
+  rol: "ADMIN" | "SYSMAN" | "RESPONSABLE" | "TECNICO";
   sede_id: number;
+}
+
+export interface RegisterUsuarioData {
+  username: string;
+  nombre: string;
+  correo: string;
+  contrasena: string;
+  rol: "ADMIN" | "SYSMAN" | "USER" | "TECNICO";
+  sede_id: number;
+  celular: string;
 }
 
 export interface LoginResponse {

@@ -86,7 +86,7 @@ class MantenimientosService {
 
     // Incrementar el contador de realizados en la planificación
     try {
-      const fecha = new Date(mantenimiento.fecha);
+      const fecha = new Date(mantenimiento.fecha_realizado);
       const ano = fecha.getFullYear();
       const mes = fecha.getMonth() + 1;
 

@@ -49,7 +49,9 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "id", desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -65,7 +67,7 @@ export function DataTable<TData, TValue>({
     if (!fechaDesde && !fechaHasta) return data;
 
     return data.filter((row: any) => {
-      const fecha = new Date(row.fecha);
+      const fecha = new Date(row.fecha_realizado || row.fecha);
       const desde = fechaDesde ? new Date(fechaDesde) : null;
       const hasta = fechaHasta ? new Date(fechaHasta) : null;
 

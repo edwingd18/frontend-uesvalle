@@ -64,7 +64,7 @@ interface Step {
 
 const mantenimientoFormSchema = z.object({
   activo_id: z.number().min(1, "Selecciona un activo"),
-  fecha: z.string().min(1, "La fecha es obligatoria"),
+  fecha_realizado: z.string().min(1, "La fecha es obligatoria"),
   tipo: z.enum(["preventivo", "correctivo", "predictivo"], {
     message: "Selecciona un tipo de mantenimiento",
   }),
@@ -142,7 +142,7 @@ export function MantenimientoFormModal({
     defaultValues: mantenimiento
       ? {
           activo_id: mantenimiento.activo_id,
-          fecha: mantenimiento.fecha.split("T")[0],
+          fecha_realizado: mantenimiento.fecha_realizado.split("T")[0],
           tipo: mantenimiento.tipo,
           tecnico_id: mantenimiento.tecnico_id,
           encargado_harware_id: mantenimiento.encargado_harware_id,
@@ -150,7 +150,7 @@ export function MantenimientoFormModal({
         }
       : {
           activo_id: 0,
-          fecha: "",
+          fecha_realizado: "",
           tipo: "preventivo",
           tecnico_id: 0,
           encargado_harware_id: 0,
@@ -163,7 +163,7 @@ export function MantenimientoFormModal({
     if (mantenimiento) {
       form.reset({
         activo_id: mantenimiento.activo_id,
-        fecha: mantenimiento.fecha.split("T")[0],
+        fecha_realizado: mantenimiento.fecha_realizado.split("T")[0],
         tipo: mantenimiento.tipo,
         tecnico_id: mantenimiento.tecnico_id,
         encargado_harware_id: mantenimiento.encargado_harware_id,
@@ -172,7 +172,7 @@ export function MantenimientoFormModal({
     } else {
       form.reset({
         activo_id: 0,
-        fecha: "",
+        fecha_realizado: "",
         tipo: "preventivo",
         tecnico_id: 0,
         encargado_harware_id: 0,
@@ -188,7 +188,7 @@ export function MantenimientoFormModal({
       // Construir payload según si es creación o edición
       const basePayload = {
         activo_id: data.activo_id,
-        fecha: new Date(data.fecha).toISOString(),
+        fecha_realizado: new Date(data.fecha_realizado).toISOString(),
         tipo: data.tipo,
         tecnico_id: data.tecnico_id,
         encargado_harware_id: data.encargado_harware_id,
@@ -236,7 +236,7 @@ export function MantenimientoFormModal({
     let fieldsToValidate: (keyof MantenimientoFormValues)[] = [];
 
     if (currentStep === 0) {
-      fieldsToValidate = ["activo_id", "tipo", "fecha"];
+      fieldsToValidate = ["activo_id", "tipo", "fecha_realizado"];
     }
 
     const isValid = await form.trigger(fieldsToValidate);
@@ -609,7 +609,7 @@ export function MantenimientoFormModal({
 
                       <FormField
                         control={form.control}
-                        name="fecha"
+                        name="fecha_realizado"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-base font-semibold">

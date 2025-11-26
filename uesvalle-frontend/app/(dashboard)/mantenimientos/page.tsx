@@ -172,17 +172,21 @@ export default function MantenimientosPage() {
         },
       },
       {
-        accessorKey: "fecha",
+        accessorKey: "fecha_realizado",
         header: ({ column }) => (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Fecha
+            Fecha de Realización
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         ),
-        cell: ({ row }) => formatDate(row.getValue("fecha")),
+        cell: ({ row }) => (
+          <div className="pl-4">
+            {formatDate(row.getValue("fecha_realizado"))}
+          </div>
+        ),
       },
       {
         accessorKey: "tecnico_id",

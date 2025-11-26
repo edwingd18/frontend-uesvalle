@@ -41,14 +41,14 @@ export function usePlanificacion(ano: number) {
     fetchPlanificacion();
   }, [ano]);
 
-  const createPlanificacion = async (data: CreatePlanificacionData) => {
+  const createPlanificacion = async (data: any) => {
     try {
       setLoading(true);
       setError(null);
       const nuevaPlanificacion =
         await planificacionService.createPlanificacionAnual(data);
-      setPlanificacion(nuevaPlanificacion);
-      setError(null);
+      // Refrescar la planificación después de crear
+      await fetchPlanificacion();
       return nuevaPlanificacion;
     } catch (err) {
       const errorMsg =
@@ -60,12 +60,13 @@ export function usePlanificacion(ano: number) {
     }
   };
 
-  const updatePlanificacion = async (data: UpdatePlanificacionData) => {
+  const updatePlanificacion = async (data: any) => {
     try {
       setError(null);
       const planificacionActualizada =
         await planificacionService.updatePlanificacionAnual(ano, data);
-      setPlanificacion(planificacionActualizada);
+      // Refrescar la planificación después de actualizar
+      await fetchPlanificacion();
       return planificacionActualizada;
     } catch (err) {
       const errorMsg =

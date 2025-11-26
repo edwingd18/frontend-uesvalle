@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 const loginSchema = z.object({
   username: z
@@ -130,8 +131,16 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>¿Necesitas ayuda? Contacta al administrador del sistema</p>
+          <div className="mt-6 text-center space-y-2">
+            <Link
+              href="/auth/forgot-password"
+              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+            <p className="text-sm text-gray-600">
+              ¿Necesitas ayuda? Contacta al administrador del sistema
+            </p>
           </div>
         </CardContent>
       </Card>

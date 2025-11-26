@@ -1,0 +1,289 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Save, Sparkles, Trash2 } from "lucide-react";
+
+const MESES = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+const TIPOS_ACTIVO = [
+  { value: "COMPUTADOR", label: "Computador" },
+  { value: "PORTATIL", label: "Portátil" },
+  { value: "TABLET", label: "Tablet" },
+  { value: "IMPRESORA", label: "Impresora" },
+  { value: "ROUTER", label: "Router" },
+  { value: "SWITCH", label: "Switch" },
+  { value: "SERVIDOR", label: "Servidor" },
+  { value: "UPS", label: "UPS" },
+  { value: "MONITOR", label: "Monitor" },
+];
+
+interface EditarPlanificacionPorTipoPageProps {
+  planificacion: any;
+  onConfirm: (planificacion: any) => void;
+  onCancel: () => void;
+}
+
+export function EditarPlanificacionPorTipoPage({
+  planificacion,
+  onConfirm,
+  onCancel,
+}: EditarPlanificacionPorTipoPageProps) {
+  // Estado: [mes][tipo] = cantidad
+  const [datos, setDatos] = useState<Record<number, Record<string, number>>>(
+    () => {
+      const initial: Record<number, Record<string, number>> = {};
+
+      // Inicializar con ceros
+      for (let mes = 1; mes <= 12; mes++) {
+        initial[mes] = {};
+        TIPOS_ACTIVO.forEach((tipo) => {
+          initial[mes][tipo.value] = 0;
+        });
+      }
+
+      // Cargar datos existentes
+      planificacion.meses?.forEach((mes: any) => {
+        mes.cuotas?.forEach((cuota: any) => {
+          initial[mes.mes][cuota.tipo] = cuota.planificado || 0;
+        });
+      });
+
+      return initial;
+    }
+  );
+
+  const handleChange = (mes: number, tipo: string, value: string) => {
+    const cantidad = Math.max(0, parseInt(value) || 0);
+    setDatos((prev) => ({
+      ...prev,
+      [mes]: {
+        ...prev[mes],
+        [tipo]: cantidad,
+      },
+    }));
+  };
+
+  const calcularTotalMes = (mes: number) => {
+    return Object.values(datos[mes]).reduce((sum, val) => sum + val, 0);
+  };
+
+  const calcularTotalTipo = (tipo: string) => {
+    let total = 0;
+    for (let mes = 1; mes <= 12; mes++) {
+      total += datos[mes][tipo] || 0;
+    }
+    return total;
+  };
+
+  const calcularTotalGeneral = () => {
+    let total = 0;
+    for (let mes = 1; mes <= 12; mes++) {
+      total += calcularTotalMes(mes);
+    }
+    return total;
+  };
+
+  const handleConfirm = () => {
+    const planificacionArray = [];
+    for (let mes = 1; mes <= 12; mes++) {
+      const cuotas = TIPOS_ACTIVO.map((tipo) => ({
+        tipo: tipo.value,
+        planificado: datos[mes][tipo.value],
+        realizado: 0, // Mantener los realizados en 0 al editar
+      })).filter((cuota) => cuota.planificado > 0);
+
+      if (cuotas.length > 0) {
+        planificacionArray.push({
+          mes,
+          cuotas,
+        });
+      }
+    }
+
+    onConfirm({
+      planificacion: planificacionArray,
+    });
+  };
+
+  const limpiar = () => {
+    const nuevoDatos: Record<number, Record<string, number>> = {};
+    for (let mes = 1; mes <= 12; mes++) {
+      nuevoDatos[mes] = {};
+      TIPOS_ACTIVO.forEach((tipo) => {
+        nuevoDatos[mes][tipo.value] = 0;
+      });
+    }
+    setDatos(nuevoDatos);
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={onCancel}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">
+              Editar Planificación {planificacion.ano}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Modifica las cantidades planificadas por tipo de activo
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={limpiar}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Limpiar
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            disabled={calcularTotalGeneral() === 0}
+            size="lg"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            Guardar Cambios
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Anual
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{calcularTotalGeneral()}</div>
+          </CardContent>
+        </Card>
+        {TIPOS_ACTIVO.slice(0, 4).map((tipo) => (
+          <Card key={tipo.value}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {tipo.label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {calcularTotalTipo(tipo.value)}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Tabla de Planificación */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Planificación Mensual por Tipo de Activo</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full">
+            <table className="w-full border-collapse table-fixed">
+              <thead>
+                <tr>
+                  <th className="border p-2 bg-muted font-semibold text-left w-[10%]">
+                    Tipo
+                  </th>
+                  {MESES.map((mes, index) => (
+                    <th
+                      key={index}
+                      className="border p-1 bg-muted font-semibold text-center"
+                    >
+                      <span className="text-[10px]">{mes}</span>
+                    </th>
+                  ))}
+                  <th className="border p-2 bg-muted font-semibold text-center w-[6%]">
+                    <span className="text-xs">Total</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {TIPOS_ACTIVO.map((tipo) => {
+                  const totalTipo = calcularTotalTipo(tipo.value);
+                  return (
+                    <tr key={tipo.value} className="hover:bg-muted/50">
+                      <td className="border p-1 font-medium bg-muted/30 text-xs">
+                        {tipo.label}
+                      </td>
+                      {MESES.map((mes, index) => {
+                        const mesNum = index + 1;
+                        return (
+                          <td key={mesNum} className="border p-0.5">
+                            <Input
+                              type="number"
+                              min="0"
+                              value={datos[mesNum][tipo.value]}
+                              onChange={(e) =>
+                                handleChange(mesNum, tipo.value, e.target.value)
+                              }
+                              className="w-full text-center h-8 text-xs border-0 focus-visible:ring-1"
+                            />
+                          </td>
+                        );
+                      })}
+                      <td className="border p-1 text-center font-semibold bg-muted/30">
+                        <Badge
+                          variant={totalTipo > 0 ? "default" : "secondary"}
+                          className="text-[10px] px-1 py-0"
+                        >
+                          {totalTipo}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="bg-muted font-bold">
+                  <td className="border p-1 text-xs">Total</td>
+                  {MESES.map((mes, index) => {
+                    const mesNum = index + 1;
+                    const totalMes = calcularTotalMes(mesNum);
+                    return (
+                      <td key={mesNum} className="border p-1 text-center">
+                        <Badge
+                          variant="default"
+                          className="text-[10px] px-1 py-0"
+                        >
+                          {totalMes}
+                        </Badge>
+                      </td>
+                    );
+                  })}
+                  <td className="border p-1 text-center">
+                    <Badge variant="default" className="text-xs px-1 py-0.5">
+                      {calcularTotalGeneral()}
+                    </Badge>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

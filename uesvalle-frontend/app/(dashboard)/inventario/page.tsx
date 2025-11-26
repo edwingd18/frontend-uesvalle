@@ -339,8 +339,10 @@ export default function InventarioPage() {
               activos)
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <DataTable columns={columns} data={data} />
+          <CardContent className="overflow-x-auto flex justify-center">
+            <div className="w-[280px] sm:w-full">
+              <DataTable columns={columns} data={data} />
+            </div>
           </CardContent>
         </Card>
       </div>

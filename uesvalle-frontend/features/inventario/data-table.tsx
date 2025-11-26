@@ -115,15 +115,15 @@ export function DataTable<TData, TValue>({
       <div className="space-y-4">
         {/* Barra de filtros */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-          <div className="flex items-center space-x-2 flex-1">
-            <Search className="h-4 w-4 text-gray-500" />
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Buscar..."
               value={filters.globalFilter}
               onChange={(event) =>
                 updateFilter("globalFilter", event.target.value)
               }
-              className="w-full"
+              className="w-full pl-10"
             />
           </div>
 
@@ -193,10 +193,9 @@ export function DataTable<TData, TValue>({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <span className="hidden sm:inline">Columnas</span>
-                  <span className="sm:hidden">Cols</span>
-                  <ChevronDown className="ml-2 h-4 w-4" />
+                <Button variant="outline" className="w-full sm:w-auto font-normal justify-between">
+                  Columnas
+                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -368,8 +367,8 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-        <div className="text-sm text-muted-foreground text-center sm:text-left">
+      <div className="flex items-center justify-between gap-4 py-4">
+        <div className="text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length} de{" "}
           {table.getCoreRowModel().rows.length} fila(s)
         </div>

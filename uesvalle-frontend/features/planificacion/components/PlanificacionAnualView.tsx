@@ -275,7 +275,7 @@ export function PlanificacionAnualView({
                 </p>
               </div>
               {!readOnly && (
-                <Button onClick={() => setShowCreatePage(true)} size="default" className="w-full sm:w-auto>
+                <Button onClick={() => setShowCreatePage(true)} size="default" className="w-full sm:w-auto">
                   <Plus className="mr-2 h-5 w-5" />
                   Crear Planificación {ano}
                 </Button>

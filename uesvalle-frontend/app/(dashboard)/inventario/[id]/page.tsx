@@ -348,47 +348,59 @@ export default function ActivoDetailPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          {/* Header para móvil y desktop */}
+          <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            {/* Fila superior - Navegación y título */}
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => router.push("/inventario")}
+                className="shrink-0"
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-3xl font-bold text-gray-900">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3 mb-1">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">
                     {activo.placa}
                   </h1>
                   <Badge
                     variant={estadoBadge.variant}
-                    className={estadoBadge.className}
+                    className={`${estadoBadge.className} w-fit mt-1 sm:mt-0`}
                   >
                     {activo.estado.toUpperCase()}
                   </Badge>
                 </div>
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600 truncate">
                   {activo.marca} {activo.modelo} • {activo.tipo}
                 </p>
               </div>
             </div>
 
-            <div
-              className="flex gap-2 animate-slide-in"
-              style={{ animationDelay: "0.2s" }}
-            >
+            {/* Botones de acción */}
+            <div className="flex flex-wrap gap-2 sm:gap-2">
+              {/* Botón PDF solo visible en SM+ */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={generarPDF}
-                className="shine-effect hover:scale-105 transition-transform"
+                className="hidden sm:inline-flex shine-effect hover:scale-105 transition-transform"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Generar PDF
               </Button>
+              {/* Botón PDF solo ícono en móvil */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generarPDF}
+                className="sm:hidden shine-effect hover:scale-105 transition-transform"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              
               <Button
                 variant="outline"
                 size="sm"
@@ -396,8 +408,9 @@ export default function ActivoDetailPage() {
                 className="hover:scale-105 transition-transform"
               >
                 <Edit className="mr-2 h-4 w-4" />
-                Editar
+                <span className="hidden sm:inline">Editar</span>
               </Button>
+              
               <Button
                 variant="destructive"
                 size="sm"
@@ -405,7 +418,7 @@ export default function ActivoDetailPage() {
                 className="hover:scale-105 transition-transform"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Dar de baja
+                <span className="hidden sm:inline">Dar de baja</span>
               </Button>
             </div>
           </div>
@@ -413,18 +426,18 @@ export default function ActivoDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Sidebar - Info Principal */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             <Card className="animate-fade-in card-hover">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5 text-orange-600" />
-                  Información General
+                  Información del Activo
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div>
                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Serial
@@ -457,35 +470,31 @@ export default function ActivoDetailPage() {
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card
-              className="animate-fade-in card-hover"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-orange-600" />
-                  Ubicación
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Sede
-                  </label>
-                  <p className="text-sm mt-0.5 font-medium">
-                    {getSedeNombre(activo.sede_id)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Proceso
-                  </label>
-                  <p className="text-sm capitalize mt-0.5 font-medium">
-                    {activo.proceso}
-                  </p>
+                
+                {/* Separador visual */}
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MapPin className="h-4 w-4 text-orange-600" />
+                    <span className="text-sm font-medium text-gray-700">Ubicación</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Sede
+                      </label>
+                      <p className="text-sm mt-0.5 font-medium">
+                        {getSedeNombre(activo.sede_id)}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Proceso
+                      </label>
+                      <p className="text-sm capitalize mt-0.5 font-medium">
+                        {activo.proceso}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -494,7 +503,7 @@ export default function ActivoDetailPage() {
             {activo.estado?.toLowerCase() === "baja" && (
               <Card
                 className="animate-fade-in card-hover border-red-200 bg-red-50"
-                style={{ animationDelay: "0.15s" }}
+                style={{ animationDelay: "0.1s" }}
               >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-red-700">
@@ -532,7 +541,7 @@ export default function ActivoDetailPage() {
                 activo.tipo.toLowerCase() === "portatil") && (
                 <Card
                   className="animate-fade-in card-hover"
-                  style={{ animationDelay: "0.2s" }}
+                  style={{ animationDelay: "0.15s" }}
                 >
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -616,20 +625,22 @@ export default function ActivoDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="mantenimientos" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="mantenimientos">
-                  <Wrench className="mr-2 h-4 w-4" />
-                  Mantenimientos
+              <TabsList className="grid w-full grid-cols-2 mb-4 sm:mb-6">
+                <TabsTrigger value="mantenimientos" className="text-sm">
+                  <Wrench className="mr-1 sm:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Mantenimientos</span>
+                  <span className="sm:hidden">Mant.</span>
                 </TabsTrigger>
-                <TabsTrigger value="historial">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Historial
+                <TabsTrigger value="historial" className="text-sm">
+                  <Calendar className="mr-1 sm:mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Historial</span>
+                  <span className="sm:hidden">Hist.</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="mantenimientos" className="mt-6">
+              <TabsContent value="mantenimientos" className="mt-4 sm:mt-6">
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
+                  <CardHeader className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
                       <CardTitle>Historial de Mantenimientos</CardTitle>
                       <CardDescription>
@@ -640,20 +651,22 @@ export default function ActivoDetailPage() {
                       onClick={() =>
                         router.push(`/mantenimientos?activo=${activo.id}`)
                       }
-                      className="bg-orange-600 hover:bg-orange-700"
+                      className="bg-orange-600 hover:bg-orange-700 w-full sm:w-auto"
+                      size="sm"
                     >
                       <Wrench className="mr-2 h-4 w-4" />
-                      Programar Mantenimiento
+                      <span className="hidden sm:inline">Programar Mantenimiento</span>
+                      <span className="sm:hidden">Programar</span>
                     </Button>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 sm:p-6">
                     {mantenimientos.length === 0 ? (
-                      <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
-                        <Wrench className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg border-2 border-dashed">
+                        <Wrench className="h-12 sm:h-16 w-12 sm:w-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                           Sin mantenimientos registrados
                         </h3>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-sm sm:text-base text-gray-600 mb-4 px-4">
                           Este activo aún no tiene mantenimientos programados o
                           realizados
                         </p>
@@ -662,9 +675,11 @@ export default function ActivoDetailPage() {
                             router.push(`/mantenimientos?activo=${activo.id}`)
                           }
                           variant="outline"
+                          size="sm"
                         >
                           <Wrench className="mr-2 h-4 w-4" />
-                          Programar primer mantenimiento
+                          <span className="hidden sm:inline">Programar primer mantenimiento</span>
+                          <span className="sm:hidden">Programar</span>
                         </Button>
                       </div>
                     ) : (
@@ -829,7 +844,7 @@ export default function ActivoDetailPage() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="historial" className="mt-6">
+              <TabsContent value="historial" className="mt-4 sm:mt-6">
                 <Card>
                   <CardHeader>
                     <CardTitle>Historial de Traslados</CardTitle>
@@ -837,14 +852,14 @@ export default function ActivoDetailPage() {
                       {traslados.length} traslado(s) registrado(s)
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 sm:p-6">
                     {traslados.length === 0 ? (
-                      <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed">
-                        <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg border-2 border-dashed">
+                        <MapPin className="h-12 sm:h-16 w-12 sm:w-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                           Sin traslados registrados
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-600 px-4">
                           Este activo no ha sido trasladado entre sedes
                         </p>
                       </div>

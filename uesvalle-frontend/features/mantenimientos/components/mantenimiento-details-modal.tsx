@@ -1,59 +1,59 @@
-"use client"
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Mantenimiento } from '@/shared/types/mantenimiento'
 import {
-  Wrench,
-  Calendar,
-  User,
-  Package
-} from "lucide-react"
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
-import { useUsuarios } from '@/shared/hooks/use-usuarios'
-import { useInventario } from '@/features/inventario/hooks/use-inventario'
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Mantenimiento } from "@/shared/types/mantenimiento";
+import { Wrench, Calendar, User, Package } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { useUsuarios } from "@/shared/hooks/use-usuarios";
+import { useInventario } from "@/features/inventario/hooks/use-inventario";
 
 interface MantenimientoDetailsModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  mantenimiento: Mantenimiento | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  mantenimiento: Mantenimiento | null;
 }
 
 const getTipoBadgeVariant = (tipo: string) => {
   switch (tipo) {
-    case 'preventivo':
-      return 'default'
-    case 'correctivo':
-      return 'destructive'
-    case 'predictivo':
-      return 'secondary'
+    case "preventivo":
+      return "default";
+    case "correctivo":
+      return "destructive";
     default:
-      return 'outline'
+      return "outline";
   }
-}
+};
 
 const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return 'N/A'
+  if (!dateString) return "N/A";
   try {
-    return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", { locale: es })
+    return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", {
+      locale: es,
+    });
   } catch {
-    return dateString
+    return dateString;
   }
-}
+};
 
 export function MantenimientoDetailsModal({
   open,
   onOpenChange,
   mantenimiento,
 }: MantenimientoDetailsModalProps) {
-  const { getUsuarioNombre } = useUsuarios()
-  const { data: activos } = useInventario()
+  const { getUsuarioNombre } = useUsuarios();
+  const { data: activos } = useInventario();
 
-  if (!mantenimiento) return null
+  if (!mantenimiento) return null;
 
-  const activo = activos.find(a => a.id === mantenimiento.activo_id)
+  const activo = activos.find((a) => a.id === mantenimiento.activo_id);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,7 +91,9 @@ export function MantenimientoDetailsModal({
                   </div>
                 </>
               ) : (
-                <div className="text-sm text-gray-500">Activo #{mantenimiento.activo_id}</div>
+                <div className="text-sm text-gray-500">
+                  Activo #{mantenimiento.activo_id}
+                </div>
               )}
             </div>
           </div>
@@ -102,9 +104,14 @@ export function MantenimientoDetailsModal({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Wrench className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-600">Tipo de Mantenimiento</span>
+              <span className="text-sm font-medium text-gray-600">
+                Tipo de Mantenimiento
+              </span>
             </div>
-            <Badge variant={getTipoBadgeVariant(mantenimiento.tipo) as any} className="text-sm capitalize">
+            <Badge
+              variant={getTipoBadgeVariant(mantenimiento.tipo) as any}
+              className="text-sm capitalize"
+            >
               {mantenimiento.tipo}
             </Badge>
           </div>
@@ -138,13 +145,17 @@ export function MantenimientoDetailsModal({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Encargado Hardware:</span>
+                <span className="text-sm text-gray-600">
+                  Encargado Hardware:
+                </span>
                 <span className="text-sm font-medium">
                   {getUsuarioNombre(mantenimiento.encargado_harware_id)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Encargado Software:</span>
+                <span className="text-sm text-gray-600">
+                  Encargado Software:
+                </span>
                 <span className="text-sm font-medium">
                   {getUsuarioNombre(mantenimiento.encargado_software_id)}
                 </span>
@@ -167,7 +178,9 @@ export function MantenimientoDetailsModal({
                   <div>Creado: {formatDate(mantenimiento.createdAt)}</div>
                 )}
                 {mantenimiento.updatedAt && (
-                  <div>Última actualización: {formatDate(mantenimiento.updatedAt)}</div>
+                  <div>
+                    Última actualización: {formatDate(mantenimiento.updatedAt)}
+                  </div>
                 )}
               </div>
             </>
@@ -175,5 +188,5 @@ export function MantenimientoDetailsModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

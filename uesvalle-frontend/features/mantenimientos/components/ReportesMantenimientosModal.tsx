@@ -190,7 +190,6 @@ export function ReportesMantenimientosModal({
                   <SelectItem value="all">Todos los tipos</SelectItem>
                   <SelectItem value="preventivo">Preventivo</SelectItem>
                   <SelectItem value="correctivo">Correctivo</SelectItem>
-                  <SelectItem value="predictivo">Predictivo</SelectItem>
                 </SelectContent>
               </Select>
             </div>

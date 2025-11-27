@@ -3,7 +3,7 @@ export interface Mantenimiento {
   activo_id: number;
   fecha_realizado: string;
   fecha_creacion?: string;
-  tipo: "preventivo" | "correctivo" | "predictivo";
+  tipo: "preventivo" | "correctivo";
   tecnico_id: number;
   encargado_harware_id: number;
   encargado_software_id: number;
@@ -33,5 +33,7 @@ export interface UpdateMantenimientoData {
   tecnico_id?: number;
   encargado_harware_id?: number;
   encargado_software_id?: number;
+  observacion_hardware?: string | null;
+  observacion_software?: string | null;
   actualizado_por_id?: number;
 }

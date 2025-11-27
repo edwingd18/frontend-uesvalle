@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { Trash2, Loader2, AlertTriangle } from 'lucide-react'
+import { useState } from "react";
+import { Trash2, Loader2, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -9,34 +9,32 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { mantenimientosService } from '../services/mantenimientos-service'
-import { Mantenimiento } from '@/shared/types/mantenimiento'
-import { showToast } from '@/shared/lib/toast'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { mantenimientosService } from "../services/mantenimientos-service";
+import { Mantenimiento } from "@/shared/types/mantenimiento";
+import { showToast } from "@/shared/lib/toast";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface DeleteMantenimientoDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  mantenimiento: Mantenimiento | null
-  onSuccess: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  mantenimiento: Mantenimiento | null;
+  onSuccess: () => void;
 }
 
 const getTipoBadgeVariant = (tipo: string) => {
   switch (tipo) {
-    case 'preventivo':
-      return 'default'
-    case 'correctivo':
-      return 'destructive'
-    case 'predictivo':
-      return 'secondary'
+    case "preventivo":
+      return "default";
+    case "correctivo":
+      return "destructive";
     default:
-      return 'outline'
+      return "outline";
   }
-}
+};
 
 export function DeleteMantenimientoDialog({
   open,
@@ -44,36 +42,36 @@ export function DeleteMantenimientoDialog({
   mantenimiento,
   onSuccess,
 }: DeleteMantenimientoDialogProps) {
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!mantenimiento) return
+    if (!mantenimiento) return;
 
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      await mantenimientosService.deleteMantenimiento(mantenimiento.id)
-      showToast.success('Mantenimiento eliminado correctamente')
-      onOpenChange(false)
-      onSuccess()
+      await mantenimientosService.deleteMantenimiento(mantenimiento.id);
+      showToast.success("Mantenimiento eliminado correctamente");
+      onOpenChange(false);
+      onSuccess();
     } catch (error) {
       showToast.error(
         error instanceof Error
           ? error.message
-          : 'Error al eliminar el mantenimiento'
-      )
+          : "Error al eliminar el mantenimiento"
+      );
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return "N/A";
     try {
-      return format(new Date(dateString), 'dd/MM/yyyy', { locale: es })
+      return format(new Date(dateString), "dd/MM/yyyy", { locale: es });
     } catch {
-      return dateString
+      return dateString;
     }
-  }
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -91,21 +89,36 @@ export function DeleteMantenimientoDialog({
             {mantenimiento && (
               <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">ID:</span>
-                  <span className="text-sm text-gray-900">#{mantenimiento.id}</span>
+                  <span className="text-sm font-semibold text-gray-700">
+                    ID:
+                  </span>
+                  <span className="text-sm text-gray-900">
+                    #{mantenimiento.id}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">Tipo:</span>
-                  <Badge variant={getTipoBadgeVariant(mantenimiento.tipo) as any} className="capitalize">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Tipo:
+                  </span>
+                  <Badge
+                    variant={getTipoBadgeVariant(mantenimiento.tipo) as any}
+                    className="capitalize"
+                  >
                     {mantenimiento.tipo}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">Activo:</span>
-                  <span className="text-sm text-gray-900">#{mantenimiento.activo_id}</span>
+                  <span className="text-sm font-semibold text-gray-700">
+                    Activo:
+                  </span>
+                  <span className="text-sm text-gray-900">
+                    #{mantenimiento.activo_id}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">Fecha:</span>
+                  <span className="text-sm font-semibold text-gray-700">
+                    Fecha:
+                  </span>
                   <span className="text-sm text-gray-900">
                     {formatDate(mantenimiento.fecha)}
                   </span>
@@ -134,5 +147,5 @@ export function DeleteMantenimientoDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

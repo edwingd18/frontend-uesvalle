@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,51 +10,52 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Activo } from "@/shared/types/inventario"
-import { sedes, usuarios } from "@/mocks/inventario"
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Activo } from "@/shared/types/inventario";
+import { sedes, usuarios } from "@/mocks/inventario";
 
 const getSedeNombre = (sedeId: number) => {
-  return sedes.find(sede => sede.id === sedeId)?.nombre || 'N/A'
-}
+  return sedes.find((sede) => sede.id === sedeId)?.nombre || "N/A";
+};
 
 const getUsuarioNombre = (usuarioId: number | null) => {
-  if (!usuarioId) return 'N/A'
-  return usuarios.find(usuario => usuario.id === usuarioId)?.nombre || 'N/A'
-}
+  if (!usuarioId) return "N/A";
+  return usuarios.find((usuario) => usuario.id === usuarioId)?.nombre || "N/A";
+};
 
 const getEstadoBadgeVariant = (estado: string) => {
-  switch (estado) {
-    case 'bueno':
-      return 'default'
-    case 'regular':
-      return 'secondary'
-    case 'malo':
-      return 'destructive'
-    case 'mantenimiento':
-      return 'outline'
-    case 'baja':
-      return 'destructive'
+  const estadoLower = estado.toLowerCase();
+  switch (estadoLower) {
+    case "bueno":
+      return "default";
+    case "regular":
+      return "secondary";
+    case "malo":
+      return "destructive";
+    case "mantenimiento":
+      return "outline";
+    case "baja":
+      return "destructive";
     default:
-      return 'secondary'
+      return "secondary";
   }
-}
+};
 
 const getProcesoBadgeVariant = (proceso: string) => {
   switch (proceso) {
-    case 'activo':
-      return 'default'
-    case 'en_revision':
-      return 'secondary'
-    case 'descartado':
-      return 'destructive'
-    case 'en_traslado':
-      return 'outline'
+    case "activo":
+      return "default";
+    case "en_revision":
+      return "secondary";
+    case "descartado":
+      return "destructive";
+    case "en_traslado":
+      return "outline";
     default:
-      return 'secondary'
+      return "secondary";
   }
-}
+};
 
 export const columns: ColumnDef<Activo>[] = [
   {
@@ -68,9 +69,11 @@ export const columns: ColumnDef<Activo>[] = [
           Placa
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
-    cell: ({ row }) => <div className="font-medium">{row.getValue("placa")}</div>,
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("placa")}</div>
+    ),
   },
   {
     accessorKey: "serial",
@@ -83,7 +86,7 @@ export const columns: ColumnDef<Activo>[] = [
           Serial
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => <div>{row.getValue("serial")}</div>,
   },
@@ -98,11 +101,11 @@ export const columns: ColumnDef<Activo>[] = [
           Tipo
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const tipo = row.getValue("tipo") as string
-      return <div className="capitalize">{tipo}</div>
+      const tipo = row.getValue("tipo") as string;
+      return <div className="capitalize">{tipo}</div>;
     },
   },
   {
@@ -119,47 +122,49 @@ export const columns: ColumnDef<Activo>[] = [
     accessorKey: "sede_id",
     header: "Sede",
     cell: ({ row }) => {
-      const sedeId = row.getValue("sede_id") as number
-      return <div>{getSedeNombre(sedeId)}</div>
+      const sedeId = row.getValue("sede_id") as number;
+      return <div>{getSedeNombre(sedeId)}</div>;
     },
   },
   {
     accessorKey: "usuario_uso_id",
     header: "Usuario en Uso",
     cell: ({ row }) => {
-      const usuarioId = row.getValue("usuario_uso_id") as number | null
-      return <div>{getUsuarioNombre(usuarioId)}</div>
+      const usuarioId = row.getValue("usuario_uso_id") as number | null;
+      return <div>{getUsuarioNombre(usuarioId)}</div>;
     },
   },
   {
     accessorKey: "estado",
     header: "Estado",
     cell: ({ row }) => {
-      const estado = row.getValue("estado") as string
+      const estado = row.getValue("estado") as string;
+      const estadoCapitalizado =
+        estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase();
       return (
         <Badge variant={getEstadoBadgeVariant(estado)}>
-          {estado}
+          {estadoCapitalizado}
         </Badge>
-      )
+      );
     },
   },
   {
     accessorKey: "proceso",
     header: "Proceso",
     cell: ({ row }) => {
-      const proceso = row.getValue("proceso") as string
+      const proceso = row.getValue("proceso") as string;
       return (
         <Badge variant={getProcesoBadgeVariant(proceso)}>
-          {proceso.replace('_', ' ')}
+          {proceso.replace("_", " ")}
         </Badge>
-      )
+      );
     },
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const activo = row.original
+      const activo = row.original;
 
       return (
         <DropdownMenu>
@@ -182,7 +187,7 @@ export const columns: ColumnDef<Activo>[] = [
             <DropdownMenuItem>Historial</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];

@@ -174,17 +174,35 @@ export function ReportesModal({
                   <SelectTrigger id="tipoFiltro" className="w-full">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[400px] overflow-y-auto">
                     <SelectItem value="all">Todos los tipos</SelectItem>
-                    <SelectItem value="computador">Computador</SelectItem>
-                    <SelectItem value="portatil">Portátil</SelectItem>
-                    <SelectItem value="tablet">Tablet</SelectItem>
-                    <SelectItem value="impresora">Impresora</SelectItem>
-                    <SelectItem value="router">Router</SelectItem>
-                    <SelectItem value="switch">Switch</SelectItem>
-                    <SelectItem value="servidor">Servidor</SelectItem>
-                    <SelectItem value="ups">UPS</SelectItem>
-                    <SelectItem value="monitor">Monitor</SelectItem>
+                    <SelectItem value="ACCESS POINT">Access Point</SelectItem>
+                    <SelectItem value="BIOMETRICO">Biométrico</SelectItem>
+                    <SelectItem value="CAMARA">Cámara</SelectItem>
+                    <SelectItem value="CELULAR">Celular</SelectItem>
+                    <SelectItem value="COMPUTADOR">Computador</SelectItem>
+                    <SelectItem value="DISCO EXTERNO">Disco Externo</SelectItem>
+                    <SelectItem value="PATCHPANEL">Patchpanel</SelectItem>
+                    <SelectItem value="DVR">DVR</SelectItem>
+                    <SelectItem value="ESCANER">Escáner</SelectItem>
+                    <SelectItem value="IMPRESORA">Impresora</SelectItem>
+                    <SelectItem value="IPAD">iPad</SelectItem>
+                    <SelectItem value="MONITOR">Monitor</SelectItem>
+                    <SelectItem value="PLANTA TELEFONICA">
+                      Planta Telefónica
+                    </SelectItem>
+                    <SelectItem value="PORTATIL">Portátil</SelectItem>
+                    <SelectItem value="RACK">Rack</SelectItem>
+                    <SelectItem value="ROUTER">Router</SelectItem>
+                    <SelectItem value="SERVIDOR">Servidor</SelectItem>
+                    <SelectItem value="SWITCH">Switch</SelectItem>
+                    <SelectItem value="TABLET">Tablet</SelectItem>
+                    <SelectItem value="TELEFONO">Teléfono</SelectItem>
+                    <SelectItem value="TELEVISOR">Televisor</SelectItem>
+                    <SelectItem value="TODO EN UNO">Todo en Uno</SelectItem>
+                    <SelectItem value="UPS">UPS</SelectItem>
+                    <SelectItem value="XVR">XVR</SelectItem>
+                    <SelectItem value="VIDEO BEAM">Video Beam</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -199,11 +217,11 @@ export function ReportesModal({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos los estados</SelectItem>
-                    <SelectItem value="bueno">Bueno</SelectItem>
-                    <SelectItem value="regular">Regular</SelectItem>
-                    <SelectItem value="malo">Malo</SelectItem>
-                    <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
-                    <SelectItem value="baja">Baja</SelectItem>
+                    <SelectItem value="BUENO">Bueno</SelectItem>
+                    <SelectItem value="REGULAR">Regular</SelectItem>
+                    <SelectItem value="MALO">Malo</SelectItem>
+                    <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                    <SelectItem value="BAJA">Baja</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -216,17 +234,53 @@ export function ReportesModal({
                   <SelectTrigger id="procesoFiltro" className="w-full">
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[400px] overflow-y-auto">
                     <SelectItem value="all">Todos los procesos</SelectItem>
-                    <SelectItem value="sistemas">Sistemas</SelectItem>
-                    <SelectItem value="contabilidad">Contabilidad</SelectItem>
-                    <SelectItem value="administracion">
-                      Administración
+                    <SelectItem value="DIRECCIONAMIENTO ESTRATEGICO">
+                      Direccionamiento Estratégico
                     </SelectItem>
-                    <SelectItem value="gerencia">Gerencia</SelectItem>
-                    <SelectItem value="juridica">Jurídica</SelectItem>
-                    <SelectItem value="financiera">Financiera</SelectItem>
-                    <SelectItem value="tecnica">Técnica</SelectItem>
+                    <SelectItem value="PLANEACIÓN E INFORMACIÓN INSTITUCIONAL">
+                      Planeación e Información Institucional
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN DE CALIDAD">
+                      Gestión de Calidad
+                    </SelectItem>
+                    <SelectItem value="AGUA PARA CONSUMO HUMANO Y SANEAMIENTO BÁSICO">
+                      Agua para Consumo Humano y Saneamiento Básico
+                    </SelectItem>
+                    <SelectItem value="ALIMENTOS Y MEDICAMENTOS">
+                      Alimentos y Medicamentos
+                    </SelectItem>
+                    <SelectItem value="ESTABLECIMIENTO DE INTERÉS SANITARIO">
+                      Establecimiento de Interés Sanitario
+                    </SelectItem>
+                    <SelectItem value="ZOONOSIS Y ENFERMEDADES DE TRANSMISIÓN VECTORIAL">
+                      Zoonosis y Enfermedades de Transmisión Vectorial
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN FINANCIERA">
+                      Gestión Financiera
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN DE RECURSOS FÍSICOS">
+                      Gestión de Recursos Físicos
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN DEL TALENTO HUMANO">
+                      Gestión del Talento Humano
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN INFORMÁTICA">
+                      Gestión Informática
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN DOCUMENTAL Y ATENCIÓN AL CIUDADANO">
+                      Gestión Documental y Atención al Ciudadano
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN DE CONTRATACIÓN">
+                      Gestión de Contratación
+                    </SelectItem>
+                    <SelectItem value="GESTIÓN JURÍDICA Y DISCIPLINARIA">
+                      Gestión Jurídica y Disciplinaria
+                    </SelectItem>
+                    <SelectItem value="CONTROL INTERNO A LA GESTIÓN">
+                      Control Interno a la Gestión
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

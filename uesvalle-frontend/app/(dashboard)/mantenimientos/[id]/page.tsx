@@ -39,7 +39,6 @@ const getTipoBadge = (tipo: string) => {
   const variants: Record<string, { variant: any; className: string }> = {
     preventivo: { variant: "default", className: "bg-blue-600" },
     correctivo: { variant: "destructive", className: "" },
-    predictivo: { variant: "secondary", className: "bg-purple-600" },
   };
   return variants[tipo.toLowerCase()] || variants.preventivo;
 };

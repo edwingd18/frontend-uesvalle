@@ -2,8 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { Mantenimiento } from "@/shared/types/mantenimiento";
-import { Activo } from "@/shared/types/inventario";
-import { Usuario } from "@/shared/types/usuario";
+import { Activo, Usuario } from "@/shared/types/inventario";
 
 export class ReportesMantenimientosService {
   /**
@@ -50,9 +49,10 @@ export class ReportesMantenimientosService {
       return activo ? `${activo.placa} - ${activo.tipo}` : `ID: ${activoId}`;
     };
 
-    const getUsuarioNombre = (usuarioId: number) => {
+    const getUsuarioNombre = (usuarioId: number | null | undefined) => {
+      if (!usuarioId || usuarioId === 0) return "N/A";
       const usuario = usuarios.find((u) => u.id === usuarioId);
-      return usuario ? usuario.nombre : `ID: ${usuarioId}`;
+      return usuario ? usuario.nombre : "N/A";
     };
 
     // Tabla de mantenimientos
@@ -70,8 +70,8 @@ export class ReportesMantenimientosService {
       ],
       body: mantenimientos.map((mant) => [
         getActivoInfo(mant.activo_id),
-        new Date(mant.fecha).toLocaleDateString(),
-        mant.tipo,
+        new Date(mant.fecha_realizado).toLocaleDateString(),
+        mant.tipo.charAt(0).toUpperCase() + mant.tipo.slice(1),
         getUsuarioNombre(mant.tecnico_id),
         getUsuarioNombre(mant.encargado_harware_id),
         getUsuarioNombre(mant.encargado_software_id),
@@ -136,9 +136,10 @@ export class ReportesMantenimientosService {
       return activo ? activo.marca : "N/A";
     };
 
-    const getUsuarioNombre = (usuarioId: number) => {
+    const getUsuarioNombre = (usuarioId: number | null | undefined) => {
+      if (!usuarioId || usuarioId === 0) return "N/A";
       const usuario = usuarios.find((u) => u.id === usuarioId);
-      return usuario ? usuario.nombre : `ID: ${usuarioId}`;
+      return usuario ? usuario.nombre : "N/A";
     };
 
     // Preparar datos
@@ -147,8 +148,9 @@ export class ReportesMantenimientosService {
       "Placa Activo": getActivoInfo(mant.activo_id),
       "Tipo Activo": getActivoTipo(mant.activo_id),
       "Marca Activo": getActivoMarca(mant.activo_id),
-      Fecha: new Date(mant.fecha).toLocaleDateString(),
-      "Tipo Mantenimiento": mant.tipo,
+      "Fecha Realizado": new Date(mant.fecha_realizado).toLocaleDateString(),
+      "Tipo Mantenimiento":
+        mant.tipo.charAt(0).toUpperCase() + mant.tipo.slice(1),
       Técnico: getUsuarioNombre(mant.tecnico_id),
       "Encargado Hardware": getUsuarioNombre(mant.encargado_harware_id),
       "Encargado Software": getUsuarioNombre(mant.encargado_software_id),
@@ -224,10 +226,10 @@ export class ReportesMantenimientosService {
   ): Mantenimiento[] {
     let resultado = mantenimientos;
 
-    // Filtrar por fechas
+    // Filtrar por fechas de realización
     if (fechaInicio || fechaFin) {
       resultado = resultado.filter((mant) => {
-        const fechaMant = new Date(mant.fecha);
+        const fechaMant = new Date(mant.fecha_realizado);
 
         if (fechaInicio && fechaFin) {
           const inicio = new Date(fechaInicio);

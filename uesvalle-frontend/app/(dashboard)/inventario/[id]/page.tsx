@@ -378,6 +378,11 @@ export default function ActivoDetailPage() {
                   >
                     {activo.estado.toUpperCase()}
                   </Badge>
+                  {activo.estado.toUpperCase() === "BAJA" && (
+                    <span className="text-xs sm:text-sm text-red-600 font-medium">
+                      (Activo dado de baja)
+                    </span>
+                  )}
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 truncate">
                   {activo.marca} {activo.modelo} • {activo.tipo}
@@ -417,15 +422,17 @@ export default function ActivoDetailPage() {
                 <span className="hidden sm:inline">Editar</span>
               </Button>
 
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-                className="hover:scale-105 transition-transform"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Dar de baja</span>
-              </Button>
+              {activo.estado.toUpperCase() !== "BAJA" && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="hover:scale-105 transition-transform"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Dar de baja</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>

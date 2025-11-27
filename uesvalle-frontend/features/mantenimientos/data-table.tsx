@@ -160,7 +160,6 @@ export function DataTable<TData, TValue>({
               <SelectItem value="all">Todos</SelectItem>
               <SelectItem value="preventivo">Preventivo</SelectItem>
               <SelectItem value="correctivo">Correctivo</SelectItem>
-              <SelectItem value="predictivo">Predictivo</SelectItem>
             </SelectContent>
           </Select>
 

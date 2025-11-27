@@ -48,8 +48,6 @@ const getTipoBadgeVariant = (tipo: string) => {
       return "default";
     case "correctivo":
       return "destructive";
-    case "predictivo":
-      return "secondary";
     default:
       return "outline";
   }

@@ -228,6 +228,7 @@ export function DataTable<TData, TValue>({
                 <button
                   onClick={() => clearFilter("globalFilter")}
                   className="ml-1"
+                  aria-label="Eliminar filtro de búsqueda"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -237,7 +238,7 @@ export function DataTable<TData, TValue>({
             {tipoFilter && (
               <Badge variant="secondary" className="gap-1">
                 Tipo: {tipoFilter}
-                <button onClick={() => clearFilter("tipo")} className="ml-1">
+                <button onClick={() => clearFilter("tipo")} className="ml-1" aria-label="Eliminar filtro de tipo">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -249,6 +250,7 @@ export function DataTable<TData, TValue>({
                 <button
                   onClick={() => clearFilter("fechaDesde")}
                   className="ml-1"
+                  aria-label="Eliminar filtro de fecha desde"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -261,6 +263,7 @@ export function DataTable<TData, TValue>({
                 <button
                   onClick={() => clearFilter("fechaHasta")}
                   className="ml-1"
+                  aria-label="Eliminar filtro de fecha hasta"
                 >
                   <X className="h-3 w-3" />
                 </button>

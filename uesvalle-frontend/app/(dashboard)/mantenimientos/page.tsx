@@ -278,7 +278,7 @@ export default function MantenimientosPage() {
   }
 
   return (
-    <div className="w-full px-4 md:px-6 lg:container lg:mx-auto">
+    <div className="w-full min-h-full px-2 sm:px-4 md:px-6 lg:container lg:mx-auto">
       {/* Header con padding responsive */}
       <div className="py-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

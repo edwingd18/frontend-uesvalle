@@ -80,8 +80,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </>
 
       {/* Main Content */}
-      <div className="flex-1 min-h-screen">
-        <main className="focus:outline-none p-6 pt-16">
+      <div className="flex-1 min-h-screen bg-gray-50">
+        <main className="focus:outline-none p-2 sm:p-6 pt-16 min-h-screen">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

@@ -39,6 +39,12 @@ export function DeleteActivoDialog({
   const handleDarDeBaja = async () => {
     if (!activo || !motivo.trim()) return;
 
+    // Verificar si el activo ya está dado de baja
+    if (activo.estado.toUpperCase() === "BAJA") {
+      showToast.error("Este activo ya se encuentra en estado de baja");
+      return;
+    }
+
     setIsProcessing(true);
 
     // Mostrar toast de carga
@@ -104,25 +110,28 @@ export function DeleteActivoDialog({
             <AlertTriangle className="h-5 w-5" />
             ¿Dar de baja activo?
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>Esta acción cambiará el estado del activo a "BAJA".</p>
-            {activo && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Placa:</span> {activo.placa}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Tipo:</span> {activo.tipo}
-                </p>
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Marca:</span> {activo.marca}{" "}
-                  {activo.modelo}
-                </p>
-              </div>
-            )}
+          <AlertDialogDescription>
+            Esta acción cambiará el estado del activo a "BAJA".
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-            {/* Campo para el motivo */}
-            <div className="mt-4 space-y-2">
+        {activo && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">Placa:</span> {activo.placa}
+            </p>
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">Tipo:</span> {activo.tipo}
+            </p>
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">Marca:</span> {activo.marca}{" "}
+              {activo.modelo}
+            </p>
+          </div>
+        )}
+
+        {/* Campo para el motivo */}
+        <div className="mt-4 space-y-2">
               <Label
                 htmlFor="motivo"
                 className="text-sm font-medium text-gray-700"
@@ -143,9 +152,7 @@ export function DeleteActivoDialog({
                   activo
                 </p>
               )}
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+        </div>
         <AlertDialogFooter>
           <Button
             variant="outline"

@@ -218,14 +218,14 @@ export function VisualizarPlanificacionPorTipo({
     .slice(0, 3);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold">
+          <h2 className="text-2xl sm:text-3xl font-bold">
             Planificación {planificacion.ano}
           </h2>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Seguimiento de mantenimientos por tipo de activo
           </p>
         </div>
@@ -236,8 +236,15 @@ export function VisualizarPlanificacionPorTipo({
               Editar
             </Button>
           )}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={onEdit} size="sm" className="w-full sm:w-auto">
+            <Edit className="mr-2 h-4 w-4" />
+            Editar
+          </Button>
           <Button
             variant="outline"
+            size="sm"
+            className="w-full sm:w-auto"
             onClick={() => {
               try {
                 reportesPlanificacionPDFService.generarReportePlanificacion(
@@ -251,10 +258,13 @@ export function VisualizarPlanificacionPorTipo({
             }}
           >
             <Download className="mr-2 h-4 w-4" />
-            Reporte Detallado
+            <span className="hidden sm:inline">Reporte Detallado</span>
+            <span className="sm:hidden">Detallado</span>
           </Button>
           <Button
             variant="outline"
+            size="sm"
+            className="w-full sm:w-auto"
             onClick={() => {
               try {
                 reportesPlanificacionPDFService.generarReporteEstadisticas(
@@ -268,7 +278,8 @@ export function VisualizarPlanificacionPorTipo({
             }}
           >
             <FileText className="mr-2 h-4 w-4" />
-            Reporte Estadísticas
+            <span className="hidden sm:inline">Reporte Estadísticas</span>
+            <span className="sm:hidden">Estadísticas</span>
           </Button>
         </div>
       </div>
@@ -276,58 +287,62 @@ export function VisualizarPlanificacionPorTipo({
       {/* Tabs */}
       <Tabs defaultValue="planificacion" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="planificacion">
-            <Calendar className="mr-2 h-4 w-4" />
-            Planificación Detallada
+          <TabsTrigger value="planificacion" className="text-xs sm:text-sm">
+            <Calendar className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Planificación Detallada</span>
+            <span className="sm:hidden">Planificación</span>
           </TabsTrigger>
-          <TabsTrigger value="estadisticas">
-            <BarChart3 className="mr-2 h-4 w-4" />
-            Estadísticas
+          <TabsTrigger value="estadisticas" className="text-xs sm:text-sm">
+            <BarChart3 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Estadísticas</span>
+            <span className="sm:hidden">Stats</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Pestaña de Estadísticas */}
-        <TabsContent value="estadisticas" className="space-y-6 mt-6">
+        <TabsContent value="estadisticas" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
           {/* Cards de resumen */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Planificado
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">
+                <div className="text-xl sm:text-3xl font-bold">
                   {totalesGenerales.planificado}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Mantenimientos programados
+                  <span className="hidden sm:inline">Mantenimientos programados</span>
+                  <span className="sm:hidden">Programados</span>
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Total Realizado
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-600">
+                <div className="text-xl sm:text-3xl font-bold text-green-600">
                   {totalesGenerales.realizado}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Mantenimientos completados
+                  <span className="hidden sm:inline">Mantenimientos completados</span>
+                  <span className="sm:hidden">Completados</span>
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Pendientes
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-orange-600">
+                <div className="text-xl sm:text-3xl font-bold text-orange-600">
                   {totalesGenerales.planificado - totalesGenerales.realizado}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -336,13 +351,13 @@ export function VisualizarPlanificacionPorTipo({
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Cumplimiento
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-xl sm:text-3xl font-bold text-blue-600">
                   {porcentajeCumplimiento}%
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -353,13 +368,13 @@ export function VisualizarPlanificacionPorTipo({
           </div>
 
           {/* Gráficos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Mantenimientos por Tipo de Activo</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Mantenimientos por Tipo de Activo</CardTitle>
               </CardHeader>
               <CardContent>
-                <div style={{ height: "300px" }}>
+                <div className="h-[250px] sm:h-[300px]">
                   <Bar
                     data={datosGraficoBarras}
                     options={{
@@ -382,10 +397,10 @@ export function VisualizarPlanificacionPorTipo({
 
             <Card>
               <CardHeader>
-                <CardTitle>Progreso General</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Progreso General</CardTitle>
               </CardHeader>
               <CardContent>
-                <div style={{ height: "300px" }}>
+                <div className="h-[250px] sm:h-[300px]">
                   <Doughnut
                     data={datosGraficoDona}
                     options={{
@@ -404,13 +419,14 @@ export function VisualizarPlanificacionPorTipo({
           {/* Gráfica de Cumplimiento por Mes */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-orange-600" />
-                Tendencia de Cumplimiento Mensual
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+                <span className="hidden sm:inline">Tendencia de Cumplimiento Mensual</span>
+                <span className="sm:hidden">Cumplimiento Mensual</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div style={{ height: "300px" }}>
+              <div className="h-[250px] sm:h-[300px]">
                 <Line
                   data={datosGraficoCumplimiento}
                   options={{
@@ -441,32 +457,33 @@ export function VisualizarPlanificacionPorTipo({
           </Card>
 
           {/* Mejores y Peores Meses */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  Meses con Mejor Cumplimiento
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                  <span className="hidden sm:inline">Meses con Mejor Cumplimiento</span>
+                  <span className="sm:hidden">Mejores Meses</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {mejoresMeses.map((mes, index) => (
                     <div
                       key={mes.mes}
-                      className="flex items-center justify-between p-3 border rounded-lg"
+                      className="flex items-center justify-between p-2 sm:p-3 border rounded-lg"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-600">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-600 text-xs sm:text-sm">
                           {index + 1}
                         </div>
-                        <span className="font-medium">{mes.mes}</span>
+                        <span className="font-medium text-sm sm:text-base">{mes.mes}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="text-xs sm:text-sm text-muted-foreground">
                           {mes.realizado}/{mes.planificado}
                         </span>
-                        <Badge variant="default" className="bg-green-600">
+                        <Badge variant="default" className="bg-green-600 text-xs">
                           {mes.porcentaje}%
                         </Badge>
                       </div>
@@ -478,29 +495,30 @@ export function VisualizarPlanificacionPorTipo({
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-orange-600" />
-                  Meses con Menor Cumplimiento
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+                  <span className="hidden sm:inline">Meses con Menor Cumplimiento</span>
+                  <span className="sm:hidden">Peores Meses</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {peoresMeses.map((mes, index) => (
                     <div
                       key={mes.mes}
-                      className="flex items-center justify-between p-3 border rounded-lg"
+                      className="flex items-center justify-between p-2 sm:p-3 border rounded-lg"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600 text-xs sm:text-sm">
                           {index + 1}
                         </div>
-                        <span className="font-medium">{mes.mes}</span>
+                        <span className="font-medium text-sm sm:text-base">{mes.mes}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="text-xs sm:text-sm text-muted-foreground">
                           {mes.realizado}/{mes.planificado}
                         </span>
-                        <Badge variant="secondary">{mes.porcentaje}%</Badge>
+                        <Badge variant="secondary" className="text-xs">{mes.porcentaje}%</Badge>
                       </div>
                     </div>
                   ))}
@@ -512,10 +530,10 @@ export function VisualizarPlanificacionPorTipo({
           {/* Resumen por Tipo */}
           <Card>
             <CardHeader>
-              <CardTitle>Resumen por Tipo de Activo</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Resumen por Tipo de Activo</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                 {tiposArray.map((tipo) => {
                   const totales = calcularTotalTipo(tipo);
                   const porcentaje =
@@ -528,12 +546,12 @@ export function VisualizarPlanificacionPorTipo({
                   return (
                     <div
                       key={tipo}
-                      className="flex flex-col items-center p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                      className="flex flex-col items-center p-3 sm:p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                     >
-                      <span className="text-sm font-medium text-center mb-2">
+                      <span className="text-xs sm:text-sm font-medium text-center mb-1 sm:mb-2 break-words">
                         {tipo}
                       </span>
-                      <div className="text-2xl font-bold mb-1">
+                      <div className="text-lg sm:text-2xl font-bold mb-1">
                         {totales.realizado}/{totales.planificado}
                       </div>
                       <Badge
@@ -562,9 +580,9 @@ export function VisualizarPlanificacionPorTipo({
             <CardHeader>
               <CardTitle>Planificación Mensual por Tipo de Activo</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="w-full">
-                <table className="w-full border-collapse table-fixed">
+            <CardContent className="overflow-x-auto flex justify-center">
+              <div className="w-[280px] sm:w-full md:w-[700px] lg:w-full">
+                <table className="w-full border-collapse table-fixed min-w-[800px] md:min-w-full">
                   <thead>
                     <tr>
                       <th className="border p-2 bg-muted font-semibold text-left w-[10%]">
@@ -597,50 +615,44 @@ export function VisualizarPlanificacionPorTipo({
 
                       return (
                         <tr key={tipo} className="hover:bg-muted/50">
-                          <td className="border p-2 font-medium bg-muted/30 text-sm sticky left-0 z-10 bg-muted/30">
-                            {tipo}
+                          <td className="border p-1 sm:p-2 font-medium bg-muted/30 text-xs sm:text-sm">
+                            <span className="break-words">{tipo}</span>
                           </td>
                           {MESES.map((mes, index) => {
                             const mesNum = index + 1;
                             const datos = datosTabla[mesNum][tipo];
                             const tieneDatos =
                               datos.planificado > 0 || datos.realizado > 0;
+                            const porcentaje = datos.planificado > 0 ? Math.min((datos.realizado / datos.planificado) * 100, 100) : 0;
 
                             return (
                               <td
                                 key={mesNum}
-                                className="border p-1 text-center"
+                                className="border p-0.5 sm:p-1 text-center"
                               >
                                 {tieneDatos ? (
                                   <div className="flex flex-col gap-0.5">
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground">
                                       {datos.realizado}/{datos.planificado}
                                     </span>
                                     {datos.planificado > 0 && (
-                                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                      <div className="w-full bg-gray-200 rounded-full h-1 sm:h-1.5">
                                         <div
-                                          className="bg-green-600 h-1.5 rounded-full"
-                                          style={{
-                                            width: `${Math.min(
-                                              (datos.realizado /
-                                                datos.planificado) *
-                                                100,
-                                              100
-                                            )}%`,
-                                          }}
+                                          className="bg-green-600 h-1 sm:h-1.5 rounded-full transition-all duration-300"
+                                          style={{ width: `${porcentaje}%` }}
                                         />
                                       </div>
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-xs text-muted-foreground">
+                                  <span className="text-[10px] sm:text-xs text-muted-foreground">
                                     -
                                   </span>
                                 )}
                               </td>
                             );
                           })}
-                          <td className="border p-2 text-center font-semibold bg-muted/30 sticky right-0 z-10 bg-muted/30">
+                          <td className="border p-2 text-center font-semibold bg-muted/30">
                             <div className="flex flex-col items-center gap-1">
                               <Badge
                                 variant={
@@ -666,22 +678,22 @@ export function VisualizarPlanificacionPorTipo({
                   </tbody>
                   <tfoot>
                     <tr className="bg-muted font-bold">
-                      <td className="border p-2 text-sm sticky left-0 z-10 bg-muted">
+                      <td className="border p-1 sm:p-2 text-xs sm:text-sm bg-muted">
                         Total
                       </td>
                       {MESES.map((mes, index) => {
                         const mesNum = index + 1;
                         const totalesMes = calcularTotalMes(mesNum);
                         return (
-                          <td key={mesNum} className="border p-2 text-center">
-                            <Badge variant="default" className="text-xs">
+                          <td key={mesNum} className="border p-0.5 sm:p-2 text-center">
+                            <Badge variant="default" className="text-[10px] sm:text-xs">
                               {totalesMes.realizado}/{totalesMes.planificado}
                             </Badge>
                           </td>
                         );
                       })}
-                      <td className="border p-2 text-center sticky right-0 z-10 bg-muted">
-                        <Badge variant="default" className="text-sm">
+                      <td className="border p-1 sm:p-2 text-center bg-muted">
+                        <Badge variant="default" className="text-xs sm:text-sm">
                           {totalesGenerales.realizado}/
                           {totalesGenerales.planificado}
                         </Badge>

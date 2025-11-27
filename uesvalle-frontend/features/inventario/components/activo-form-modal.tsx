@@ -264,7 +264,37 @@ export function ActivoFormModal({
       });
     }
     setCurrentStep(0);
-  }, [activo, form, open]);
+  }, [activo, form]);
+
+  // Efecto adicional para asegurar que las especificaciones se cargen cuando el modal se abre
+  useEffect(() => {
+    if (open && activo?.especificaciones) {
+      // Usar setValue para forzar los valores
+      setTimeout(() => {
+        if (activo.especificaciones?.procesador) {
+          form.setValue("procesador", activo.especificaciones.procesador);
+        }
+        if (activo.especificaciones?.ram_gb !== undefined) {
+          form.setValue("ram_gb", activo.especificaciones.ram_gb);
+        }
+        if (activo.especificaciones?.almacenamiento_gb !== undefined) {
+          form.setValue("almacenamiento_gb", activo.especificaciones.almacenamiento_gb);
+        }
+        if (activo.especificaciones?.so) {
+          form.setValue("so", activo.especificaciones.so);
+        }
+        if (activo.especificaciones?.tipo_disco) {
+          form.setValue("tipo_disco", activo.especificaciones.tipo_disco as any);
+        }
+        if (activo.especificaciones?.velocidad_cpu_ghz !== undefined) {
+          form.setValue("velocidad_cpu_ghz", activo.especificaciones.velocidad_cpu_ghz);
+        }
+        if (activo.especificaciones?.licencia) {
+          form.setValue("licencia", activo.especificaciones.licencia);
+        }
+      }, 100);
+    }
+  }, [open, activo, form]);
 
   const handleSubmit = async (data: ActivoFormValues) => {
     setIsSubmitting(true);

@@ -143,29 +143,32 @@ export default function TrasladosPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full py-4 sm:py-6 pr-1">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Traslados</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Traslados</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Gestiona los traslados de activos entre sedes
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={refreshData}>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={refreshData} size="sm">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Actualizar
+            <span className="hidden sm:inline">Actualizar</span>
           </Button>
-          <Button variant="outline" onClick={() => setReportesModalOpen(true)}>
+          <Button variant="outline" onClick={() => setReportesModalOpen(true)} size="sm">
             <Download className="mr-2 h-4 w-4" />
-            Generar Reporte
+            <span className="hidden sm:inline">Generar Reporte</span>
+            <span className="sm:hidden">Reporte</span>
           </Button>
           <Button
             className="bg-orange-600 hover:bg-orange-700"
             onClick={handleCreate}
+            size="sm"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Nuevo Traslado
+            <span className="hidden sm:inline">Nuevo Traslado</span>
+            <span className="sm:hidden">Nuevo</span>
           </Button>
         </div>
       </div>
@@ -185,8 +188,8 @@ export default function TrasladosPage() {
           </div>
 
           {/* Filtros */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <div className="relative flex-1">
+          <div className="space-y-3 mt-4">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Buscar por motivo o ID..."
@@ -196,73 +199,76 @@ export default function TrasladosPage() {
               />
             </div>
 
-            <Select
-              value={sedeOrigenFilter}
-              onValueChange={setSedeOrigenFilter}
-            >
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="Sede origen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todas las sedes origen</SelectItem>
-                {sedes.map((sede) => (
-                  <SelectItem key={sede.id} value={String(sede.id)}>
-                    {sede.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={sedeDestinoFilter}
-              onValueChange={setSedeDestinoFilter}
-            >
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="Sede destino" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todas las sedes destino</SelectItem>
-                {sedes.map((sede) => (
-                  <SelectItem key={sede.id} value={String(sede.id)}>
-                    {sede.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {(searchTerm ||
-              sedeOrigenFilter !== "todos" ||
-              sedeDestinoFilter !== "todos") && (
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setSearchTerm("");
-                  setSedeOrigenFilter("todos");
-                  setSedeDestinoFilter("todos");
-                }}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <Select
+                value={sedeOrigenFilter}
+                onValueChange={setSedeOrigenFilter}
               >
-                Limpiar
-              </Button>
-            )}
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Sede origen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas las sedes origen</SelectItem>
+                  {sedes.map((sede) => (
+                    <SelectItem key={sede.id} value={String(sede.id)}>
+                      {sede.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={sedeDestinoFilter}
+                onValueChange={setSedeDestinoFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Sede destino" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas las sedes destino</SelectItem>
+                  {sedes.map((sede) => (
+                    <SelectItem key={sede.id} value={String(sede.id)}>
+                      {sede.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {(searchTerm ||
+                sedeOrigenFilter !== "todos" ||
+                sedeDestinoFilter !== "todos") && (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSedeOrigenFilter("todos");
+                    setSedeDestinoFilter("todos");
+                  }}
+                  className="sm:col-span-2 lg:col-span-1"
+                >
+                  Limpiar Filtros
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {filteredTraslados.length === 0 ? (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
-              <div className="text-center">
-                <ArrowLeftRight className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-lg font-medium">
+            <div className="flex items-center justify-center h-48 sm:h-64 text-muted-foreground">
+              <div className="text-center px-4">
+                <ArrowLeftRight className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-gray-400" />
+                <p className="text-base sm:text-lg font-medium mb-2">
                   {traslados.length === 0
                     ? "No hay traslados registrados"
                     : "No se encontraron traslados con los filtros aplicados"}
                 </p>
-                <p className="text-sm mb-4">
+                <p className="text-sm sm:text-base mb-4">
                   {traslados.length === 0
                     ? "Comienza creando un nuevo traslado"
                     : "Intenta ajustar los filtros de búsqueda"}
                 </p>
                 {traslados.length === 0 && (
-                  <Button onClick={handleCreate}>
+                  <Button onClick={handleCreate} size="sm">
                     <Plus className="mr-2 h-4 w-4" />
                     Crear Primer Traslado
                   </Button>
@@ -270,22 +276,70 @@ export default function TrasladosPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {filteredTraslados.map((traslado) => (
                 <div
                   key={traslado.id}
-                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="border rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors cursor-pointer relative"
                   onClick={() => handleView(traslado)}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 space-y-3">
+                  {/* Botón de acciones - esquina superior derecha */}
+                  <div className="absolute top-2 right-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        asChild
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleView(traslado);
+                          }}
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          Ver Detalles
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(traslado);
+                          }}
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(traslado);
+                          }}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Contenido principal */}
+                  <div className="pr-12">
+                    <div className="space-y-2 sm:space-y-3">
                       {/* Header con fecha y ID */}
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="font-mono">
+                      <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:gap-3 sm:space-y-0">
+                        <Badge variant="outline" className="font-mono w-fit">
                           #{traslado.id}
                         </Badge>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Calendar className="h-4 w-4" />
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                           {format(
                             new Date(traslado.fecha),
                             "dd 'de' MMMM, yyyy",
@@ -541,51 +595,6 @@ export default function TrasladosPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* Acciones */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        asChild
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleView(traslado);
-                          }}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          Ver Detalles
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(traslado);
-                          }}
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(traslado);
-                          }}
-                          className="text-red-600 focus:text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </div>
                 </div>
               ))}

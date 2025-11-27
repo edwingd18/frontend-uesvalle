@@ -1422,3 +1422,41 @@ Todas las sugerencias son revisadas mensualmente por el equipo de desarrollo.
 | Versión | Fecha          | Autor              | Cambios                    |
 | ------- | -------------- | ------------------ | -------------------------- |
 | 1.0     | Noviembre 2025 | Equipo TI UESVALLE | Versión inicial del manual |
+
+---
+
+## NOTAS FINALES
+
+Este manual ha sido diseñado para facilitar el uso del Sistema de Gestión de Activos Tecnológicos de UESVALLE. Se recomienda:
+
+1. **Mantener este manual accesible** para consultas rápidas
+2. **Revisar las actualizaciones** cuando se publiquen nuevas versiones
+3. **Compartir con nuevos usuarios** como material de inducción
+4. **Reportar errores o inconsistencias** en el manual al equipo de TI
+5. **Sugerir mejoras** basadas en su experiencia de uso
+
+### Agradecimientos
+
+Agradecemos a todo el personal de UESVALLE que participó en el desarrollo, pruebas y retroalimentación de este sistema. Su colaboración ha sido fundamental para crear una herramienta que responde a las necesidades reales de la universidad.
+
+### Compromiso de mejora continua
+
+El equipo de TI de UESVALLE se compromete a:
+
+- Mantener el sistema actualizado y funcional
+- Responder oportunamente a reportes de problemas
+- Implementar mejoras basadas en retroalimentación de usuarios
+- Proporcionar capacitación continua
+- Garantizar la seguridad y privacidad de la información
+
+---
+
+**Universidad del Valle de México - UESVALLE**  
+**Departamento de Tecnologías de la Información**  
+**Sistema de Gestión de Activos Tecnológicos**
+
+_Versión 1.0 - Noviembre 2025_
+
+---
+
+**FIN DEL MANUAL**

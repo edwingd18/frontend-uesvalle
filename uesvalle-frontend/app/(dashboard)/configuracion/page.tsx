@@ -20,6 +20,7 @@ import {
   Save,
   Loader2,
   RefreshCw,
+  Phone,
 } from "lucide-react";
 import { usePerfil } from "@/shared/hooks/use-perfil";
 import { sedes } from "@/mocks/inventario";
@@ -47,6 +48,7 @@ export default function ConfiguracionPage() {
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
+    celular: "",
   });
 
   useEffect(() => {
@@ -54,6 +56,7 @@ export default function ConfiguracionPage() {
       setFormData({
         nombre: usuario.nombre,
         correo: usuario.correo,
+        celular: usuario.celular || "",
       });
     }
   }, [usuario]);
@@ -77,6 +80,7 @@ export default function ConfiguracionPage() {
       setFormData({
         nombre: usuario.nombre,
         correo: usuario.correo,
+        celular: usuario.celular || "",
       });
     }
     setIsEditing(false);
@@ -113,8 +117,8 @@ export default function ConfiguracionPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-8">
+    <div className="container mx-auto py-1 px-4 max-w-4xl">
+      <div className="mb-3">
         <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
         <p className="text-gray-500 mt-2">
           Administra tu información personal y preferencias
@@ -188,6 +192,31 @@ export default function ConfiguracionPage() {
             ) : (
               <p className="text-gray-900 font-medium px-3 py-2 bg-gray-50 rounded-md">
                 {usuario.correo}
+              </p>
+            )}
+          </div>
+
+          <Separator />
+
+          {/* Teléfono */}
+          <div className="space-y-2">
+            <Label htmlFor="celular" className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-gray-500" />
+              Número de Teléfono
+            </Label>
+            {isEditing ? (
+              <Input
+                id="celular"
+                type="tel"
+                value={formData.celular}
+                onChange={(e) =>
+                  setFormData({ ...formData, celular: e.target.value })
+                }
+                placeholder="Ingresa tu número de teléfono"
+              />
+            ) : (
+              <p className="text-gray-900 font-medium px-3 py-2 bg-gray-50 rounded-md">
+                {usuario.celular || "No especificado"}
               </p>
             )}
           </div>

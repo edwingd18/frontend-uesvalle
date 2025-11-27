@@ -2,6 +2,7 @@ export interface Usuario {
   id: number;
   nombre: string;
   correo: string;
+  celular?: string;
   rol: "ADMIN" | "SYSMAN" | "RESPONSABLE" | "TECNICO";
   estado: "ACTIVO" | "INACTIVO";
   sede_id: number;

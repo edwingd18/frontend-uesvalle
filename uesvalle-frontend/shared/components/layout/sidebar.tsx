@@ -64,12 +64,6 @@ const menuItems = [
     icon: Users,
     roles: ["ADMIN"],
   },
-  {
-    title: "Reportes",
-    href: "/reportes",
-    icon: FileText,
-    roles: ["ADMIN", "SYSMAN"],
-  },
 ];
 
 const getRoleDisplayName = (role: string) => {

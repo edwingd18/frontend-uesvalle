@@ -61,41 +61,257 @@ export class ReportesTrasladosService {
       return usuario ? usuario.nombre : `ID: ${usuarioId}`;
     };
 
-    // Tabla de traslados
-    autoTable(doc, {
-      startY: fechaInicio ? 45 : 40,
-      head: [
-        [
-          "Activo",
-          "Fecha",
-          "Sede Origen",
-          "Sede Destino",
-          "Solicitado Por",
-          "Motivo",
+    // Función para detectar tipo de traslado
+    const getTipoTraslado = (tras: Traslado) => {
+      const tieneUsuarios =
+        (tras.usuario_uso_destino && tras.usuario_uso_destino.trim() !== "") ||
+        (tras.usuario_sysman_destino &&
+          tras.usuario_sysman_destino.trim() !== "");
+      const cambioSede = tras.sede_origen_id !== tras.sede_destino_id;
+
+      if (tieneUsuarios && cambioSede) return "ambos";
+      if (tieneUsuarios) return "usuarios";
+      return "ubicacion";
+    };
+
+    // Función para abreviar nombres de sedes
+    const abreviarSede = (nombre: string) => {
+      return nombre
+        .replace(/Sede\s+/gi, "")
+        .replace(/Principal/gi, "Princ.")
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
+    // Separar traslados por tipo
+    const trasladosUbicacion = traslados.filter(
+      (t) => getTipoTraslado(t) === "ubicacion"
+    );
+    const trasladosUsuarios = traslados.filter(
+      (t) => getTipoTraslado(t) === "usuarios"
+    );
+    const trasladosAmbos = traslados.filter(
+      (t) => getTipoTraslado(t) === "ambos"
+    );
+
+    let currentY = fechaInicio ? 45 : 40;
+
+    // TABLA 1: Traslados de Ubicación
+    if (trasladosUbicacion.length > 0) {
+      doc.setFontSize(12);
+      doc.setTextColor(234, 88, 12);
+      doc.text("Traslados de Ubicación", 14, currentY);
+      currentY += 7;
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [
+          [
+            "ID",
+            "Activo",
+            "Fecha",
+            "Origen",
+            "Destino",
+            "Solicitado",
+            "Motivo",
+          ],
         ],
-      ],
-      body: traslados.map((tras) => [
-        getActivoInfo(tras.activo_id),
-        new Date(tras.fecha).toLocaleDateString(),
-        getSedeNombre(tras.sede_origen_id),
-        getSedeNombre(tras.sede_destino_id),
-        getUsuarioNombre(tras.solicitado_por_id),
-        tras.motivo.substring(0, 30) + (tras.motivo.length > 30 ? "..." : ""),
-      ]),
-      styles: {
-        fontSize: 8,
-        cellPadding: 3,
-      },
-      headStyles: {
-        fillColor: [234, 88, 12],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-      },
-      alternateRowStyles: {
-        fillColor: [249, 250, 251],
-      },
-      margin: { top: 10 },
-    });
+        body: trasladosUbicacion.map((tras) => [
+          tras.id,
+          getActivoInfo(tras.activo_id),
+          new Date(tras.fecha).toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "2-digit",
+          }),
+          abreviarSede(getSedeNombre(tras.sede_origen_id)),
+          abreviarSede(getSedeNombre(tras.sede_destino_id)),
+          getUsuarioNombre(tras.solicitado_por_id),
+          tras.motivo.substring(0, 40) + (tras.motivo.length > 40 ? "..." : ""),
+        ]),
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+          overflow: "linebreak",
+          halign: "left",
+          valign: "middle",
+        },
+        headStyles: {
+          fillColor: [234, 88, 12],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 8,
+          halign: "center",
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251],
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: "center" },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 18, halign: "center" },
+          3: { cellWidth: 30 },
+          4: { cellWidth: 30 },
+          5: { cellWidth: 25 },
+          6: { cellWidth: 58 },
+        },
+        margin: { left: 8, right: 8 },
+      });
+
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // TABLA 2: Traslados de Usuarios
+    if (trasladosUsuarios.length > 0) {
+      doc.setFontSize(12);
+      doc.setTextColor(234, 88, 12);
+      doc.text("Traslados de Usuarios", 14, currentY);
+      currentY += 7;
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [
+          [
+            "ID",
+            "Activo",
+            "Fecha",
+            "Uso Anterior",
+            "Uso Nuevo",
+            "Sysman Anterior",
+            "Sysman Nuevo",
+            "Solicitado",
+            "Motivo",
+          ],
+        ],
+        body: trasladosUsuarios.map((tras) => {
+          return [
+            tras.id,
+            getActivoInfo(tras.activo_id),
+            new Date(tras.fecha).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+            }),
+            tras.usuario_uso_origen || "-",
+            tras.usuario_uso_destino || "-",
+            tras.usuario_sysman_origen || "-",
+            tras.usuario_sysman_destino || "-",
+            getUsuarioNombre(tras.solicitado_por_id),
+            tras.motivo.substring(0, 25) +
+              (tras.motivo.length > 25 ? "..." : ""),
+          ];
+        }),
+        styles: {
+          fontSize: 7,
+          cellPadding: 2,
+          overflow: "linebreak",
+          halign: "left",
+          valign: "middle",
+        },
+        headStyles: {
+          fillColor: [234, 88, 12],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 7,
+          halign: "center",
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251],
+        },
+        columnStyles: {
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 15, halign: "center" },
+          3: { cellWidth: 23 },
+          4: { cellWidth: 23 },
+          5: { cellWidth: 23 },
+          6: { cellWidth: 23 },
+          7: { cellWidth: 18 },
+          8: { cellWidth: 43 },
+        },
+        margin: { left: 8, right: 8 },
+      });
+
+      currentY = (doc as any).lastAutoTable.finalY + 10;
+    }
+
+    // TABLA 3: Traslados de Ubicación y Usuarios
+    if (trasladosAmbos.length > 0) {
+      doc.setFontSize(12);
+      doc.setTextColor(234, 88, 12);
+      doc.text("Traslados de Ubicación y Usuarios", 14, currentY);
+      currentY += 7;
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [
+          [
+            "ID",
+            "Activo",
+            "Fecha",
+            "Origen",
+            "Destino",
+            "Uso Ant.",
+            "Uso Nuevo",
+            "Sys Ant.",
+            "Sys Nuevo",
+            "Solicitado",
+            "Motivo",
+          ],
+        ],
+        body: trasladosAmbos.map((tras) => {
+          return [
+            tras.id,
+            getActivoInfo(tras.activo_id),
+            new Date(tras.fecha).toLocaleDateString("es-ES", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+            }),
+            abreviarSede(getSedeNombre(tras.sede_origen_id)),
+            abreviarSede(getSedeNombre(tras.sede_destino_id)),
+            tras.usuario_uso_origen || "-",
+            tras.usuario_uso_destino || "-",
+            tras.usuario_sysman_origen || "-",
+            tras.usuario_sysman_destino || "-",
+            getUsuarioNombre(tras.solicitado_por_id),
+            tras.motivo.substring(0, 20) +
+              (tras.motivo.length > 20 ? "..." : ""),
+          ];
+        }),
+        styles: {
+          fontSize: 6.5,
+          cellPadding: 1.5,
+          overflow: "linebreak",
+          halign: "left",
+          valign: "middle",
+        },
+        headStyles: {
+          fillColor: [234, 88, 12],
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 7,
+          halign: "center",
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251],
+        },
+        columnStyles: {
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 14, halign: "center" },
+          3: { cellWidth: 22 },
+          4: { cellWidth: 22 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 18 },
+          7: { cellWidth: 18 },
+          8: { cellWidth: 18 },
+          9: { cellWidth: 16 },
+          10: { cellWidth: 24 },
+        },
+        margin: { left: 8, right: 8 },
+      });
+    }
 
     // Pie de página
     const pageCount = (doc as any).internal.getNumberOfPages();
@@ -148,14 +364,32 @@ export class ReportesTrasladosService {
       return usuario ? usuario.nombre : `ID: ${usuarioId}`;
     };
 
+    // Función para detectar tipo de traslado
+    const getTipoTraslado = (tras: Traslado) => {
+      const tieneUsuarios =
+        (tras.usuario_uso_destino && tras.usuario_uso_destino.trim() !== "") ||
+        (tras.usuario_sysman_destino &&
+          tras.usuario_sysman_destino.trim() !== "");
+      const cambioSede = tras.sede_origen_id !== tras.sede_destino_id;
+
+      if (tieneUsuarios && cambioSede) return "Ubicación y Usuarios";
+      if (tieneUsuarios) return "Usuarios";
+      return "Ubicación";
+    };
+
     // Preparar datos
     const data = traslados.map((tras) => ({
       "ID Traslado": tras.id,
+      "Tipo Traslado": getTipoTraslado(tras),
       "Placa Activo": getActivoInfo(tras.activo_id),
       "Tipo Activo": getActivoTipo(tras.activo_id),
       Fecha: new Date(tras.fecha).toLocaleDateString(),
       "Sede Origen": getSedeNombre(tras.sede_origen_id),
       "Sede Destino": getSedeNombre(tras.sede_destino_id),
+      "Usuario Uso Anterior": tras.usuario_uso_origen || "-",
+      "Usuario Uso Nuevo": tras.usuario_uso_destino || "-",
+      "Usuario Sysman Anterior": tras.usuario_sysman_origen || "-",
+      "Usuario Sysman Nuevo": tras.usuario_sysman_destino || "-",
       "Solicitado Por": getUsuarioNombre(tras.solicitado_por_id),
       Motivo: tras.motivo,
     }));
@@ -168,12 +402,17 @@ export class ReportesTrasladosService {
 
     // Ajustar ancho de columnas
     const colWidths = [
-      { wch: 15 }, // ID Traslado
-      { wch: 20 }, // Placa Activo
+      { wch: 12 }, // ID Traslado
+      { wch: 20 }, // Tipo Traslado
+      { wch: 18 }, // Placa Activo
       { wch: 15 }, // Tipo Activo
-      { wch: 15 }, // Fecha
+      { wch: 12 }, // Fecha
       { wch: 25 }, // Sede Origen
       { wch: 25 }, // Sede Destino
+      { wch: 20 }, // Usuario Uso Anterior
+      { wch: 20 }, // Usuario Uso Nuevo
+      { wch: 20 }, // Usuario Sysman Anterior
+      { wch: 20 }, // Usuario Sysman Nuevo
       { wch: 25 }, // Solicitado Por
       { wch: 50 }, // Motivo
     ];

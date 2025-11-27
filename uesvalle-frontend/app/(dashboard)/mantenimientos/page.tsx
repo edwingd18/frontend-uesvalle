@@ -278,51 +278,51 @@ export default function MantenimientosPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Wrench className="h-8 w-8 text-orange-600" />
-            Mantenimientos
-          </h1>
-          <p className="text-muted-foreground">
-            Gestiona el mantenimiento preventivo y correctivo de activos
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={refreshData}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Actualizar
-          </Button>
-          <Button variant="outline" onClick={() => setReportesModalOpen(true)}>
-            <Download className="mr-2 h-4 w-4" />
-            Generar Reporte
-          </Button>
-          <Button
-            onClick={handleCreate}
-            className="bg-orange-600 hover:bg-orange-700"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Mantenimiento
-          </Button>
+    <div className="w-full px-4 md:px-6 lg:container lg:mx-auto">
+      {/* Header con padding responsive */}
+      <div className="py-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+              <Wrench className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+              Mantenimientos
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Gestiona el mantenimiento preventivo y correctivo de activos
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={refreshData} className="w-full sm:w-auto">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Actualizar
+            </Button>
+            <Button variant="outline" onClick={() => setReportesModalOpen(true)} className="w-full sm:w-auto">
+              <Download className="mr-2 h-4 w-4" />
+              Generar Reporte
+            </Button>
+            <Button
+              onClick={handleCreate}
+              className="bg-orange-600 hover:bg-orange-700 w-full sm:w-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Mantenimiento
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="mt-6">
-        <Card>
+      {/* Card con scroll horizontal */}
+      <div className="animate-fade-in">
+        <Card className="card-hover">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Registros de Mantenimiento</CardTitle>
-                <CardDescription>
-                  Lista completa de mantenimientos programados y realizados (
-                  {data.length} registros)
-                </CardDescription>
-              </div>
-            </div>
+            <CardTitle>Registros de Mantenimiento</CardTitle>
+            <CardDescription>
+              Lista completa de mantenimientos programados y realizados (
+              {data.length} registros)
+            </CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto flex justify-center">
-            <div className="w-[280px] sm:w-full">
+            <div className="w-[280px] sm:w-full md:w-[700px] lg:w-full">
               <DataTable columns={columns} data={data} />
             </div>
           </CardContent>

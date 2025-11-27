@@ -136,56 +136,61 @@ export function DataTable<TData, TValue>({
     <div className="w-full">
       <div className="space-y-4">
         {/* Barra de filtros */}
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Buscar por activo, técnico..."
-              value={globalFilter}
-              onChange={(event) => setGlobalFilter(event.target.value)}
-              className="w-80"
-            />
+        <div className="flex flex-col gap-4">
+          {/* Primera fila: Buscador y fechas */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="relative w-full sm:w-80 md:w-96">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Buscar por activo, técnico..."
+                value={globalFilter}
+                onChange={(event) => setGlobalFilter(event.target.value)}
+                className="pl-10 w-full"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 border rounded-md px-3 py-1.5 bg-white w-full sm:w-auto md:w-auto">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              <Input
+                type="date"
+                value={fechaDesde}
+                onChange={(e) => setFechaDesde(e.target.value)}
+                className="w-[120px] sm:w-[130px] md:w-[140px] border-0 p-0 h-auto focus-visible:ring-0"
+              />
+              <span className="text-gray-400">→</span>
+              <Input
+                type="date"
+                value={fechaHasta}
+                onChange={(e) => setFechaHasta(e.target.value)}
+                className="w-[120px] sm:w-[130px] md:w-[140px] border-0 p-0 h-auto focus-visible:ring-0"
+              />
+            </div>
           </div>
 
-          <Select
-            value={tipoFilter || "all"}
-            onValueChange={(value) =>
-              setTipoFilter(value === "all" ? "" : value)
-            }
-          >
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="preventivo">Preventivo</SelectItem>
-              <SelectItem value="correctivo">Correctivo</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Segunda fila: Tipo y Columnas */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Select
+              value={tipoFilter || "all"}
+              onValueChange={(value) =>
+                setTipoFilter(value === "all" ? "" : value)
+              }
+            >
+              <SelectTrigger className="w-[140px] md:w-[160px]">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="preventivo">Preventivo</SelectItem>
+                <SelectItem value="correctivo">Correctivo</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <div className="flex items-center gap-2 border rounded-md px-3 py-1.5 bg-white">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <Input
-              type="date"
-              value={fechaDesde}
-              onChange={(e) => setFechaDesde(e.target.value)}
-              className="w-[130px] border-0 p-0 h-auto focus-visible:ring-0"
-            />
-            <span className="text-gray-400">→</span>
-            <Input
-              type="date"
-              value={fechaHasta}
-              onChange={(e) => setFechaHasta(e.target.value)}
-              className="w-[130px] border-0 p-0 h-auto focus-visible:ring-0"
-            />
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columnas <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[140px] md:w-[160px]">
+                  Columnas <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
@@ -204,6 +209,7 @@ export function DataTable<TData, TValue>({
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
 
         {/* Filtros activos */}
@@ -275,12 +281,12 @@ export function DataTable<TData, TValue>({
 
       <div className="mt-6"></div>
       <div className="rounded-md border">
-        <Table>
+        <Table className="w-full min-w-[800px] md:min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="whitespace-nowrap md:whitespace-normal">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -300,7 +306,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap md:whitespace-normal">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

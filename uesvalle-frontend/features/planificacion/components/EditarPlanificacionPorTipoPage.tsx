@@ -23,15 +23,31 @@ const MESES = [
 ];
 
 const TIPOS_ACTIVO = [
+  { value: "ACCESS POINT", label: "Access Point" },
+  { value: "BIOMETRICO", label: "Biométrico" },
+  { value: "CAMARA", label: "Cámara" },
+  { value: "CELULAR", label: "Celular" },
   { value: "COMPUTADOR", label: "Computador" },
-  { value: "PORTATIL", label: "Portátil" },
-  { value: "TABLET", label: "Tablet" },
+  { value: "DISCO EXTERNO", label: "Disco Externo" },
+  { value: "PATCHPANEL", label: "Patchpanel" },
+  { value: "DVR", label: "DVR" },
+  { value: "ESCANER", label: "Escáner" },
   { value: "IMPRESORA", label: "Impresora" },
-  { value: "ROUTER", label: "Router" },
-  { value: "SWITCH", label: "Switch" },
-  { value: "SERVIDOR", label: "Servidor" },
-  { value: "UPS", label: "UPS" },
+  { value: "IPAD", label: "iPad" },
   { value: "MONITOR", label: "Monitor" },
+  { value: "PLANTA TELEFONICA", label: "Planta Telefónica" },
+  { value: "PORTATIL", label: "Portátil" },
+  { value: "RACK", label: "Rack" },
+  { value: "ROUTER", label: "Router" },
+  { value: "SERVIDOR", label: "Servidor" },
+  { value: "SWITCH", label: "Switch" },
+  { value: "TABLET", label: "Tablet" },
+  { value: "TELEFONO", label: "Teléfono" },
+  { value: "TELEVISOR", label: "Televisor" },
+  { value: "TODO EN UNO", label: "Todo en Uno" },
+  { value: "UPS", label: "UPS" },
+  { value: "XVR", label: "XVR" },
+  { value: "VIDEO BEAM", label: "Video Beam" },
 ];
 
 interface EditarPlanificacionPorTipoPageProps {
@@ -103,18 +119,17 @@ export function EditarPlanificacionPorTipoPage({
   const handleConfirm = () => {
     const planificacionArray = [];
     for (let mes = 1; mes <= 12; mes++) {
+      // Incluir TODOS los tipos de activos, incluso con valor 0
       const cuotas = TIPOS_ACTIVO.map((tipo) => ({
         tipo: tipo.value,
-        planificado: datos[mes][tipo.value],
-        realizado: 0, // Mantener los realizados en 0 al editar
-      })).filter((cuota) => cuota.planificado > 0);
+        planificado: datos[mes][tipo.value] || 0,
+        realizados: 0,
+      }));
 
-      if (cuotas.length > 0) {
-        planificacionArray.push({
-          mes,
-          cuotas,
-        });
-      }
+      planificacionArray.push({
+        mes,
+        cuotas,
+      });
     }
 
     onConfirm({
@@ -155,11 +170,7 @@ export function EditarPlanificacionPorTipoPage({
             <Trash2 className="mr-2 h-4 w-4" />
             Limpiar
           </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={calcularTotalGeneral() === 0}
-            size="lg"
-          >
+          <Button onClick={handleConfirm} size="lg">
             <Save className="mr-2 h-4 w-4" />
             Guardar Cambios
           </Button>

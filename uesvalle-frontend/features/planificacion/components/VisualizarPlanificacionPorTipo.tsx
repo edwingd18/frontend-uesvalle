@@ -571,9 +571,9 @@ export function VisualizarPlanificacionPorTipo({
             <CardHeader>
               <CardTitle>Planificación Mensual por Tipo de Activo</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="w-full">
-                <table className="w-full border-collapse table-fixed">
+            <CardContent className="overflow-x-auto flex justify-center">
+              <div className="w-[280px] sm:w-full md:w-[700px] lg:w-full">
+                <table className="w-full border-collapse table-fixed min-w-[800px] md:min-w-full">
                   <thead>
                     <tr>
                       <th className="border p-2 bg-muted font-semibold text-left w-[10%]">
@@ -606,7 +606,7 @@ export function VisualizarPlanificacionPorTipo({
 
                       return (
                         <tr key={tipo} className="hover:bg-muted/50">
-                          <td className="border p-1 sm:p-2 font-medium bg-muted/30 text-xs sm:text-sm sticky left-0 z-10">
+                          <td className="border p-1 sm:p-2 font-medium bg-muted/30 text-xs sm:text-sm">
                             <span className="break-words">{tipo}</span>
                           </td>
                           {MESES.map((mes, index) => {
@@ -643,7 +643,7 @@ export function VisualizarPlanificacionPorTipo({
                               </td>
                             );
                           })}
-                          <td className="border p-2 text-center font-semibold bg-muted/30 sticky right-0 z-10 bg-muted/30">
+                          <td className="border p-2 text-center font-semibold bg-muted/30">
                             <div className="flex flex-col items-center gap-1">
                               <Badge
                                 variant={
@@ -669,7 +669,7 @@ export function VisualizarPlanificacionPorTipo({
                   </tbody>
                   <tfoot>
                     <tr className="bg-muted font-bold">
-                      <td className="border p-1 sm:p-2 text-xs sm:text-sm sticky left-0 z-10 bg-muted">
+                      <td className="border p-1 sm:p-2 text-xs sm:text-sm bg-muted">
                         Total
                       </td>
                       {MESES.map((mes, index) => {
@@ -683,7 +683,7 @@ export function VisualizarPlanificacionPorTipo({
                           </td>
                         );
                       })}
-                      <td className="border p-1 sm:p-2 text-center sticky right-0 z-10 bg-muted">
+                      <td className="border p-1 sm:p-2 text-center bg-muted">
                         <Badge variant="default" className="text-xs sm:text-sm">
                           {totalesGenerales.realizado}/
                           {totalesGenerales.planificado}

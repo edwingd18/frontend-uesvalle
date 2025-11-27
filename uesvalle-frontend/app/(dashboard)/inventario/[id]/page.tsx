@@ -59,7 +59,11 @@ const getEstadoBadge = (estado: string) => {
 export default function ActivoDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { getUsuarioNombre, usuarios, loading: usuariosLoading } = useUsuarios();
+  const {
+    getUsuarioNombre,
+    usuarios,
+    loading: usuariosLoading,
+  } = useUsuarios();
   const [activo, setActivo] = useState<Activo | null>(null);
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
   const [traslados, setTraslados] = useState<any[]>([]);
@@ -170,8 +174,8 @@ export default function ActivoDetailPage() {
     // Especificaciones Técnicas (si existen)
     if (
       activo.especificaciones &&
-      (activo.tipo.toLowerCase() === "computador" ||
-        activo.tipo.toLowerCase() === "portatil")
+      (activo.tipo.toUpperCase() === "COMPUTADOR" ||
+        activo.tipo.toUpperCase() === "PORTATIL")
     ) {
       doc.setFontSize(14);
       doc.setTextColor(234, 88, 12);
@@ -200,6 +204,7 @@ export default function ActivoDetailPage() {
         ],
         ["Tipo de Disco", activo.especificaciones.tipo_disco || "N/A"],
         ["Sistema Operativo", activo.especificaciones.so || "N/A"],
+        ["Licencia", activo.especificaciones.licencia || "N/A"],
       ];
 
       autoTable(doc, {
@@ -401,7 +406,7 @@ export default function ActivoDetailPage() {
               >
                 <Download className="h-4 w-4" />
               </Button>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -411,7 +416,7 @@ export default function ActivoDetailPage() {
                 <Edit className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Editar</span>
               </Button>
-              
+
               <Button
                 variant="destructive"
                 size="sm"
@@ -471,12 +476,14 @@ export default function ActivoDetailPage() {
                     </p>
                   </div>
                 </div>
-                
-                {/* Separador visual */}
+
+                {/* Separador visual - Ubicación */}
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex items-center gap-2 mb-3">
                     <MapPin className="h-4 w-4 text-orange-600" />
-                    <span className="text-sm font-medium text-gray-700">Ubicación</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Ubicación
+                    </span>
                   </div>
                   <div className="space-y-3">
                     <div>
@@ -497,6 +504,104 @@ export default function ActivoDetailPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Separador visual - Usuarios Asignados */}
+                {(activo.usuario_uso_nombre ||
+                  activo.usuario_uso_id ||
+                  activo.usuario_sysman_nombre ||
+                  activo.usuario_sysman_id) && (
+                  <div className="border-t border-gray-200 pt-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <User className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm font-medium text-gray-700">
+                        Usuarios Asignados
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {(activo.usuario_uso_nombre || activo.usuario_uso_id) && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            Usuario en Uso
+                          </label>
+                          <p className="text-sm mt-0.5 font-medium">
+                            {activo.usuario_uso_nombre ||
+                              (activo.usuario_uso_id
+                                ? getUsuarioNombre(activo.usuario_uso_id)
+                                : "No asignado")}
+                          </p>
+                        </div>
+                      )}
+                      {(activo.usuario_sysman_nombre ||
+                        activo.usuario_sysman_id) && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            Usuario Sysman
+                          </label>
+                          <p className="text-sm mt-0.5 font-medium">
+                            {activo.usuario_sysman_nombre ||
+                              (activo.usuario_sysman_id
+                                ? getUsuarioNombre(activo.usuario_sysman_id)
+                                : "No asignado")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Información de Creación */}
+            <Card
+              className="animate-fade-in card-hover border-blue-200 bg-blue-50"
+              style={{ animationDelay: "0.1s" }}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-700">
+                  <Calendar className="h-5 w-5" />
+                  Información de Registro
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                    Creado por
+                  </label>
+                  <p className="text-sm mt-0.5 font-medium text-blue-800">
+                    {activo.creado_por_nombre ||
+                      (activo.creado_por_id
+                        ? getUsuarioNombre(activo.creado_por_id)
+                        : "No especificado")}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                    Fecha de creación
+                  </label>
+                  <p className="text-sm mt-0.5 font-medium text-blue-800">
+                    {activo.createdAt || activo.fecha_creacion
+                      ? format(
+                          new Date(activo.createdAt || activo.fecha_creacion!),
+                          "dd 'de' MMMM 'de' yyyy 'a las' HH:mm",
+                          { locale: es }
+                        )
+                      : "No especificado"}
+                  </p>
+                </div>
+                {activo.updatedAt && activo.updatedAt !== activo.createdAt && (
+                  <div>
+                    <label className="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                      Última actualización
+                    </label>
+                    <p className="text-sm mt-0.5 font-medium text-blue-800">
+                      {format(
+                        new Date(activo.updatedAt),
+                        "dd 'de' MMMM 'de' yyyy 'a las' HH:mm",
+                        { locale: es }
+                      )}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -518,10 +623,9 @@ export default function ActivoDetailPage() {
                       Dado de baja por
                     </label>
                     <p className="text-sm mt-0.5 font-medium text-red-800">
-                      {activo.eliminado_por_id 
+                      {activo.eliminado_por_id
                         ? getUsuarioNombre(activo.eliminado_por_id)
-                        : "No especificado"
-                      }
+                        : "No especificado"}
                     </p>
                   </div>
                   <div>
@@ -538,8 +642,8 @@ export default function ActivoDetailPage() {
 
             {/* Especificaciones Técnicas (PC/Portátil) */}
             {activo.especificaciones &&
-              (activo.tipo.toLowerCase() === "computador" ||
-                activo.tipo.toLowerCase() === "portatil") && (
+              (activo.tipo.toUpperCase() === "COMPUTADOR" ||
+                activo.tipo.toUpperCase() === "PORTATIL") && (
                 <Card
                   className="animate-fade-in card-hover"
                   style={{ animationDelay: "0.15s" }}
@@ -618,6 +722,17 @@ export default function ActivoDetailPage() {
                         </p>
                       </div>
                     )}
+
+                    {activo.especificaciones.licencia && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Licencia
+                        </label>
+                        <p className="text-sm mt-0.5 font-medium">
+                          {activo.especificaciones.licencia}
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -656,7 +771,9 @@ export default function ActivoDetailPage() {
                       size="sm"
                     >
                       <Wrench className="mr-2 h-4 w-4" />
-                      <span className="hidden sm:inline">Programar Mantenimiento</span>
+                      <span className="hidden sm:inline">
+                        Programar Mantenimiento
+                      </span>
                       <span className="sm:hidden">Programar</span>
                     </Button>
                   </CardHeader>
@@ -679,7 +796,9 @@ export default function ActivoDetailPage() {
                           size="sm"
                         >
                           <Wrench className="mr-2 h-4 w-4" />
-                          <span className="hidden sm:inline">Programar primer mantenimiento</span>
+                          <span className="hidden sm:inline">
+                            Programar primer mantenimiento
+                          </span>
                           <span className="sm:hidden">Programar</span>
                         </Button>
                       </div>

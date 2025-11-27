@@ -129,38 +129,39 @@ export default function TrasladoDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 max-w-5xl">
+    <div className="container mx-auto py-4 sm:py-6 px-4 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-6">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Button
             variant="outline"
-            size="icon"
+            size="sm"
             onClick={() => router.push("/traslados")}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               Traslado #{traslado.id}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm sm:text-base">
               Detalles completos del traslado
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchData}>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button variant="outline" onClick={fetchData} size="sm">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Actualizar
+            <span className="hidden sm:inline">Actualizar</span>
           </Button>
-          <Button onClick={() => setModalOpen(true)}>
+          <Button onClick={() => setModalOpen(true)} size="sm">
             <Pencil className="mr-2 h-4 w-4" />
             Editar
           </Button>
           <Button
             variant="destructive"
             onClick={() => setDeleteDialogOpen(true)}
+            size="sm"
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Eliminar
@@ -168,7 +169,7 @@ export default function TrasladoDetailPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Información Principal */}
         <Card>
           <CardHeader>
@@ -242,8 +243,8 @@ export default function TrasladoDetailPage() {
                   <p className="text-sm font-medium text-gray-600 mb-3">
                     Cambio de Ubicación
                   </p>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div className="flex-1 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
                         <MapPin className="h-5 w-5 text-blue-600" />
                         <span className="text-xs font-medium text-blue-600 uppercase">
@@ -453,29 +454,29 @@ export default function TrasladoDetailPage() {
                 <p className="text-sm font-medium text-gray-600 mb-3">
                   Cambio de Ubicación
                 </p>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-5 w-5 text-blue-600" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                  <div className="flex-1 p-3 sm:p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                    <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                       <span className="text-xs font-medium text-blue-600 uppercase">
                         Origen
                       </span>
                     </div>
-                    <p className="text-lg font-bold text-blue-900">
+                    <p className="text-base sm:text-lg font-bold text-blue-900">
                       {getSedeNombre(traslado.sede_origen_id)}
                     </p>
                   </div>
 
-                  <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+                  <ArrowLeftRight className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0 rotate-90 sm:rotate-0 self-center" />
 
-                  <div className="flex-1 p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-5 w-5 text-green-600" />
+                  <div className="flex-1 p-3 sm:p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                    <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                      <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                       <span className="text-xs font-medium text-green-600 uppercase">
                         Destino
                       </span>
                     </div>
-                    <p className="text-lg font-bold text-green-900">
+                    <p className="text-base sm:text-lg font-bold text-green-900">
                       {getSedeNombre(traslado.sede_destino_id)}
                     </p>
                   </div>
@@ -486,15 +487,15 @@ export default function TrasladoDetailPage() {
             <Separator />
 
             {/* Motivo */}
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <FileText className="h-5 w-5 text-purple-600" />
+            <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-2">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 mb-2">
                   Motivo del Traslado
                 </p>
-                <p className="text-gray-900 bg-gray-50 p-4 rounded-lg border">
+                <p className="text-sm sm:text-base text-gray-900 bg-gray-50 p-3 sm:p-4 rounded-lg border break-words">
                   {traslado.motivo}
                 </p>
               </div>
@@ -513,32 +514,32 @@ export default function TrasladoDetailPage() {
           <CardContent>
             {activo ? (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Placa</p>
-                    <p className="text-lg font-semibold font-mono text-orange-600">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Placa</p>
+                    <p className="text-base sm:text-lg font-semibold font-mono text-orange-600 break-all">
                       {activo.placa}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Serial</p>
-                    <p className="text-lg font-semibold font-mono">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Serial</p>
+                    <p className="text-base sm:text-lg font-semibold font-mono break-all">
                       {activo.serial}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tipo</p>
-                    <p className="text-lg font-semibold capitalize">
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Tipo</p>
+                    <p className="text-base sm:text-lg font-semibold capitalize">
                       {activo.tipo}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Marca</p>
-                    <p className="text-lg font-semibold">{activo.marca}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Marca</p>
+                    <p className="text-base sm:text-lg font-semibold break-words">{activo.marca}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Modelo</p>
-                    <p className="text-lg font-semibold">{activo.modelo}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">Modelo</p>
+                    <p className="text-base sm:text-lg font-semibold break-words">{activo.modelo}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Estado</p>
@@ -582,12 +583,12 @@ export default function TrasladoDetailPage() {
             {solicitante ? (
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Nombre</p>
-                  <p className="text-lg font-semibold">{solicitante.nombre}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Nombre</p>
+                  <p className="text-base sm:text-lg font-semibold break-words">{solicitante.nombre}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Correo</p>
-                  <p className="text-lg">{solicitante.correo}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">Correo</p>
+                  <p className="text-base sm:text-lg break-all">{solicitante.correo}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Rol</p>

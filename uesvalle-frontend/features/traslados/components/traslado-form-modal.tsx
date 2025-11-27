@@ -794,7 +794,7 @@ export function TrasladoFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden w-[85vw] p-3 flex flex-col [&>button]:top-1 [&>button]:right-1">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <ArrowLeftRight className="h-6 w-6 text-orange-600" />
@@ -809,13 +809,14 @@ export function TrasladoFormModal({
 
         {/* Stepper mejorado - Solo mostrar si NO es edición */}
         {!isEditing && (
-          <div className="py-6 px-4 sm:px-8">
+          <div className="py-3">
             <div className="flex items-center justify-between max-w-2xl mx-auto">
               {steps.map((step, index) => (
                 <div
                   key={step.id}
-                  className="flex items-center"
-                  style={{ flex: index < steps.length - 1 ? 1 : "none" }}
+                  className={`flex items-center ${
+                    index < steps.length - 1 ? "flex-1" : "flex-none"
+                  }`}
                 >
                   <div className="flex flex-col items-center">
                     <div
@@ -858,10 +859,9 @@ export function TrasladoFormModal({
                   {index < steps.length - 1 && (
                     <div
                       className={cn(
-                        "h-0.5 flex-1 mx-3 sm:mx-4 transition-all duration-500",
+                        "h-0.5 flex-1 mx-3 sm:mx-4 transition-all duration-500 -mt-5",
                         currentStep > step.id ? "bg-orange-600" : "bg-gray-300"
                       )}
-                      style={{ marginTop: "-20px" }}
                     />
                   )}
                 </div>
@@ -871,14 +871,15 @@ export function TrasladoFormModal({
         )}
 
         {/* Form Content */}
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
-          >
+        <div className="flex-1 overflow-y-auto">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-6"
+            >
             {isEditing ? (
               // Modo edición: Mostrar todo en una sola vista
-              <div className="space-y-6 px-6">
+              <div className="space-y-3">
                 {/* Mostrar tipo de traslado como badge */}
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-600">
@@ -1055,7 +1056,7 @@ export function TrasladoFormModal({
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between pt-4 border-t px-6">
+            <div className="flex justify-between pt-2 border-t">
               {!isEditing && (
                 <Button
                   type="button"
@@ -1095,6 +1096,7 @@ export function TrasladoFormModal({
             </div>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

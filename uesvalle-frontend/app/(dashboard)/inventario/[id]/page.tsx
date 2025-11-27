@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowLeftRight,
   Edit,
   Trash2,
   Package,
@@ -824,27 +825,135 @@ export default function ActivoDetailPage() {
                               key={traslado.id}
                               className="flex items-start gap-4 p-5 border-2 rounded-xl hover:border-orange-300 hover:shadow-md transition-all bg-white card-hover animate-fade-in"
                             >
+                              {/* Icono según tipo de traslado */}
                               <div className="flex-shrink-0">
-                                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-700 border-blue-200">
-                                  <MapPin className="h-6 w-6" />
-                                </div>
+                                {((traslado.usuario_uso_destino &&
+                                  traslado.usuario_uso_destino.trim() !== "") ||
+                                  (traslado.usuario_sysman_destino &&
+                                    traslado.usuario_sysman_destino.trim() !==
+                                      "")) &&
+                                traslado.sede_origen_id !==
+                                  traslado.sede_destino_id ? (
+                                  // Ambos
+                                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-green-100 text-green-700 border-green-200">
+                                    <ArrowLeftRight className="h-6 w-6" />
+                                  </div>
+                                ) : (traslado.usuario_uso_destino &&
+                                    traslado.usuario_uso_destino.trim() !==
+                                      "") ||
+                                  (traslado.usuario_sysman_destino &&
+                                    traslado.usuario_sysman_destino.trim() !==
+                                      "") ? (
+                                  // Solo usuarios
+                                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-purple-100 text-purple-700 border-purple-200">
+                                    <User className="h-6 w-6" />
+                                  </div>
+                                ) : (
+                                  // Solo ubicación
+                                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-700 border-blue-200">
+                                    <MapPin className="h-6 w-6" />
+                                  </div>
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-2">
                                   <h4 className="font-bold text-gray-900 text-lg">
-                                    Traslado de Sede
+                                    {/* Detectar tipo de traslado */}
+                                    {((traslado.usuario_uso_destino &&
+                                      traslado.usuario_uso_destino.trim() !==
+                                        "") ||
+                                      (traslado.usuario_sysman_destino &&
+                                        traslado.usuario_sysman_destino.trim() !==
+                                          "")) &&
+                                    traslado.sede_origen_id !==
+                                      traslado.sede_destino_id
+                                      ? "Traslado de Ubicación y Usuarios"
+                                      : (traslado.usuario_uso_destino &&
+                                          traslado.usuario_uso_destino.trim() !==
+                                            "") ||
+                                        (traslado.usuario_sysman_destino &&
+                                          traslado.usuario_sysman_destino.trim() !==
+                                            "")
+                                      ? "Traslado de Usuarios"
+                                      : "Traslado de Ubicación"}
                                   </h4>
-                                  <Badge
-                                    variant="outline"
-                                    className="capitalize"
-                                  >
-                                    {traslado.sede_origen?.nombre ||
-                                      `Sede ${traslado.sede_origen_id}`}{" "}
-                                    →{" "}
-                                    {traslado.sede_destino?.nombre ||
-                                      `Sede ${traslado.sede_destino_id}`}
-                                  </Badge>
                                 </div>
+
+                                {/* Mostrar cambios de ubicación */}
+                                {traslado.sede_origen_id !==
+                                  traslado.sede_destino_id && (
+                                  <div className="mb-2 flex items-center gap-2 text-sm">
+                                    <MapPin className="h-4 w-4 text-blue-600" />
+                                    <span className="font-medium text-gray-700">
+                                      Ubicación:
+                                    </span>
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-blue-50"
+                                    >
+                                      {traslado.sede_origen?.nombre ||
+                                        `Sede ${traslado.sede_origen_id}`}
+                                    </Badge>
+                                    <span className="text-gray-400">→</span>
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-green-50"
+                                    >
+                                      {traslado.sede_destino?.nombre ||
+                                        `Sede ${traslado.sede_destino_id}`}
+                                    </Badge>
+                                  </div>
+                                )}
+
+                                {/* Mostrar cambios de usuarios */}
+                                {((traslado.usuario_uso_destino &&
+                                  traslado.usuario_uso_destino.trim() !== "") ||
+                                  (traslado.usuario_sysman_destino &&
+                                    traslado.usuario_sysman_destino.trim() !==
+                                      "")) && (
+                                  <div className="mb-2 space-y-1">
+                                    {traslado.usuario_uso_destino &&
+                                      traslado.usuario_uso_destino.trim() !==
+                                        "" && (
+                                        <div className="flex items-center gap-2 text-sm">
+                                          <User className="h-4 w-4 text-purple-600" />
+                                          <span className="font-medium text-gray-700">
+                                            Usuario de Uso:
+                                          </span>
+                                          <span className="text-gray-600">
+                                            {traslado.usuario_uso_origen ||
+                                              "Sin asignar"}
+                                          </span>
+                                          <span className="text-gray-400">
+                                            →
+                                          </span>
+                                          <span className="font-medium text-purple-700">
+                                            {traslado.usuario_uso_destino}
+                                          </span>
+                                        </div>
+                                      )}
+                                    {traslado.usuario_sysman_destino &&
+                                      traslado.usuario_sysman_destino.trim() !==
+                                        "" && (
+                                        <div className="flex items-center gap-2 text-sm">
+                                          <User className="h-4 w-4 text-indigo-600" />
+                                          <span className="font-medium text-gray-700">
+                                            Usuario Sysman:
+                                          </span>
+                                          <span className="text-gray-600">
+                                            {traslado.usuario_sysman_origen ||
+                                              "Sin asignar"}
+                                          </span>
+                                          <span className="text-gray-400">
+                                            →
+                                          </span>
+                                          <span className="font-medium text-indigo-700">
+                                            {traslado.usuario_sysman_destino}
+                                          </span>
+                                        </div>
+                                      )}
+                                  </div>
+                                )}
                                 <div className="space-y-2">
                                   <div className="flex items-center gap-1 text-sm text-gray-600">
                                     <Calendar className="h-4 w-4" />

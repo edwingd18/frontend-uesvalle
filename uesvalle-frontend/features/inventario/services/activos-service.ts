@@ -1,5 +1,6 @@
 import { Activo } from "@/shared/types/inventario";
 import { apiGet, apiPost, apiPatch } from "@/shared/lib/api-client";
+import { useAuthStore } from "@/shared/store/auth-store";
 
 export interface CreateActivoData {
   serial: string;
@@ -27,10 +28,10 @@ class ActivosService {
     const activo = await apiGet<Activo>(`/activos/${id}`);
 
     // Si es PC o Portátil, obtener especificaciones
-    const tipoLower = activo.tipo.toLowerCase();
-    if (tipoLower === "computador" || tipoLower === "portatil") {
+    const tipoUpper = activo.tipo.toUpperCase();
+    if (tipoUpper === "COMPUTADOR" || tipoUpper === "PORTATIL") {
       try {
-        const endpoint = tipoLower === "computador" ? "pcs" : "portatiles";
+        const endpoint = tipoUpper === "COMPUTADOR" ? "pcs" : "portatiles";
         const especificaciones = await apiGet<any>(`/${endpoint}/activo/${id}`);
 
         activo.especificaciones = {
@@ -40,6 +41,7 @@ class ActivosService {
           so: especificaciones.so,
           tipo_disco: especificaciones.tipo_disco,
           velocidad_cpu_ghz: especificaciones.velocidad_cpu_ghz,
+          licencia: especificaciones.licencia,
         };
       } catch (error) {
         // Si no hay especificaciones, continuar sin ellas
@@ -59,9 +61,14 @@ class ActivosService {
   }
 
   async darDeBajaActivo(id: number, observacion_baja: string): Promise<void> {
+    // Obtener el ID del usuario actual
+    const usuario = useAuthStore.getState().usuario;
+    const eliminado_por_id = usuario?.id || null;
+
     await apiPatch<void>(`/activos/${id}`, {
       estado: "BAJA",
       observacion_baja: observacion_baja,
+      eliminado_por_id: eliminado_por_id,
     });
   }
 

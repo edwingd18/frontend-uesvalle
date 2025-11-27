@@ -70,11 +70,6 @@ export default function DashboardPage() {
       ? Math.round((stats.activosDisponibles / stats.totalActivos) * 100)
       : 0;
 
-  const porcentajeEnMantenimiento =
-    stats.totalActivos > 0
-      ? ((stats.activosEnMantenimiento / stats.totalActivos) * 100).toFixed(1)
-      : "0";
-
   // Acciones rápidas según el rol
   const quickActions = [
     {
@@ -177,14 +172,12 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
-                  En Mantenimiento
+                  Mantenimientos
                 </p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
-                  {stats.activosEnMantenimiento}
+                  {stats.totalMantenimientos}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {porcentajeEnMantenimiento}% del total
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Total realizados</p>
               </div>
               <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                 <Wrench className="h-6 w-6 text-blue-600" />

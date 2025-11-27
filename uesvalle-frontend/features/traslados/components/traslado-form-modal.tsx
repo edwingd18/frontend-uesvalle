@@ -342,7 +342,7 @@ export function TrasladoFormModal({
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {/* Tipo de Traslado */}
             <FormField
               control={form.control}
@@ -794,7 +794,7 @@ export function TrasladoFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden w-[85vw] p-3 flex flex-col [&>button]:top-1 [&>button]:right-1">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden w-[93vw] lg:w-[85vw] p-3 flex flex-col [&>button]:top-4 [&>button]:right-4">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <ArrowLeftRight className="h-6 w-6 text-orange-600" />

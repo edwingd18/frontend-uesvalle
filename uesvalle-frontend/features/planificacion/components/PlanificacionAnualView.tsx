@@ -186,24 +186,24 @@ export function PlanificacionAnualView({
 
   // Header con selector de año
   const renderHeader = () => (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0 mb-4 sm:mb-6">
       <div>
-        <h1 className="text-3xl font-bold">Planificación de Mantenimientos</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold">Planificación de Mantenimientos</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Gestiona y visualiza la planificación anual de mantenimientos
         </p>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Label htmlFor="ano" className="text-sm font-medium">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <Label htmlFor="ano" className="text-xs sm:text-sm font-medium">
             Año:
           </Label>
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
-              size="icon"
+              size="sm"
               onClick={() => setAno(ano - 1)}
-              className="h-9 w-9"
+              className="h-8 w-8 sm:h-9 sm:w-9"
             >
               -
             </Button>
@@ -212,15 +212,15 @@ export function PlanificacionAnualView({
               type="number"
               value={ano}
               onChange={(e) => setAno(Number(e.target.value))}
-              className="w-24 text-center h-9 font-semibold"
+              className="w-20 sm:w-24 text-center h-8 sm:h-9 font-semibold text-sm sm:text-base"
               min={2020}
               max={2050}
             />
             <Button
               variant="outline"
-              size="icon"
+              size="sm"
               onClick={() => setAno(ano + 1)}
-              className="h-9 w-9"
+              className="h-8 w-8 sm:h-9 sm:w-9"
             >
               +
             </Button>
@@ -228,8 +228,9 @@ export function PlanificacionAnualView({
         </div>
         <Button
           variant="outline"
+          size="sm"
           onClick={() => setAno(new Date().getFullYear())}
-          className="h-9"
+          className="h-8 sm:h-9 text-xs sm:text-sm px-3 sm:px-4"
         >
           Año Actual
         </Button>
@@ -251,25 +252,25 @@ export function PlanificacionAnualView({
     }
 
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {renderHeader()}
         <Card>
-          <CardContent className="p-12">
+          <CardContent className="p-6 sm:p-12">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-orange-100 rounded-full flex items-center justify-center">
-                <Calendar className="h-8 w-8 text-orange-600" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-orange-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">
                   No existe planificación para el año {ano}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Crea una nueva planificación para comenzar a gestionar los
                   mantenimientos
                 </p>
               </div>
-              <Button onClick={() => setShowCreatePage(true)} size="lg">
-                <Plus className="mr-2 h-5 w-5" />
+              <Button onClick={() => setShowCreatePage(true)} size="default" className="w-full sm:w-auto">
+                <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Crear Planificación {ano}
               </Button>
             </div>
@@ -292,7 +293,7 @@ export function PlanificacionAnualView({
 
   // Si hay planificación, mostrar el componente de visualización
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {renderHeader()}
       <VisualizarPlanificacionPorTipo
         planificacion={planificacion}

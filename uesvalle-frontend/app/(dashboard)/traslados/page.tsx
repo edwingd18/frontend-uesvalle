@@ -582,11 +582,16 @@ export default function TrasladosPage() {
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <div className="flex items-center gap-1">
                           <Package className="h-3 w-3" />
-                          Activo ID: {traslado.activo_id}
+                          Activo:{" "}
+                          {activos.find((a) => a.id === traslado.activo_id)
+                            ?.placa || `ID: ${traslado.activo_id}`}
                         </div>
                         <div className="flex items-center gap-1">
                           <User className="h-3 w-3" />
-                          Solicitado por ID: {traslado.solicitado_por_id}
+                          Solicitado por:{" "}
+                          {usuarios.find(
+                            (u) => u.id === traslado.solicitado_por_id
+                          )?.nombre || `ID: ${traslado.solicitado_por_id}`}
                         </div>
                       </div>
                     </div>

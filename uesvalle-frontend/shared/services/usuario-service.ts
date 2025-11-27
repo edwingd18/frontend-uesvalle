@@ -26,6 +26,8 @@ class UsuarioService {
   async registerUsuario(
     data: RegisterUsuarioData
   ): Promise<{ message: string }> {
+    const API_BASE_URL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: {

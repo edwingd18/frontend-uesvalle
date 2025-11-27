@@ -85,10 +85,12 @@ const MESES_CORTOS = [
 
 interface PlanificacionAnualViewProps {
   anoInicial?: number;
+  readOnly?: boolean;
 }
 
 export function PlanificacionAnualView({
   anoInicial = new Date().getFullYear(),
+  readOnly = false,
 }: PlanificacionAnualViewProps) {
   const [ano, setAno] = useState(anoInicial);
   const [editingMes, setEditingMes] = useState<number | null>(null);
@@ -188,9 +190,11 @@ export function PlanificacionAnualView({
   const renderHeader = () => (
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0 mb-4 sm:mb-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">Planificación de Mantenimientos</h1>
+        <h1 className="text-2xl text-3xl font-bold">Planificación de Mantenimientos</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-          Gestiona y visualiza la planificación anual de mantenimientos
+          {readOnly
+            ? "Visualiza la planificación anual de mantenimientos"
+            : "Gestiona y visualiza la planificación anual de mantenimientos"}
         </p>
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -239,7 +243,7 @@ export function PlanificacionAnualView({
   );
 
   if (error) {
-    if (showCreatePage) {
+    if (showCreatePage && !readOnly) {
       return (
         <div className="container mx-auto p-6">
           <CrearPlanificacionPorTipoPage
@@ -265,14 +269,17 @@ export function PlanificacionAnualView({
                   No existe planificación para el año {ano}
                 </h3>
                 <p className="text-muted-foreground text-sm sm:text-base">
-                  Crea una nueva planificación para comenzar a gestionar los
-                  mantenimientos
+                  {readOnly
+                    ? "No hay planificación disponible para este año"
+                    : "Crea una nueva planificación para comenzar a gestionar los mantenimientos"}
                 </p>
               </div>
-              <Button onClick={() => setShowCreatePage(true)} size="default" className="w-full sm:w-auto">
-                <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                Crear Planificación {ano}
-              </Button>
+              {!readOnly && (
+                <Button onClick={() => setShowCreatePage(true)} size="default" className="w-full sm:w-auto>
+                  <Plus className="mr-2 h-5 w-5" />
+                  Crear Planificación {ano}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -281,7 +288,7 @@ export function PlanificacionAnualView({
   }
 
   // Si está en modo edición
-  if (showEditPage && planificacion) {
+  if (showEditPage && planificacion && !readOnly) {
     return (
       <EditarPlanificacionPorTipoPage
         planificacion={planificacion}
@@ -297,7 +304,8 @@ export function PlanificacionAnualView({
       {renderHeader()}
       <VisualizarPlanificacionPorTipo
         planificacion={planificacion}
-        onEdit={() => setShowEditPage(true)}
+        onEdit={readOnly ? undefined : () => setShowEditPage(true)}
+        readOnly={readOnly}
       />
     </div>
   );

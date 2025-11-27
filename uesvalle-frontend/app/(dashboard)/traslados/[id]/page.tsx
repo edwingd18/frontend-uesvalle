@@ -21,6 +21,7 @@ import {
   User,
   FileText,
   Pencil,
+  Trash2,
   RefreshCw,
   Loader2,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import { sedes } from "@/mocks/inventario";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { TrasladoFormModal } from "@/features/traslados/components/traslado-form-modal";
+import { DeleteTrasladoDialog } from "@/features/traslados/components/delete-traslado-dialog";
 
 const getSedeNombre = (sedeId: number) => {
   return sedes.find((sede) => sede.id === sedeId)?.nombre || "N/A";
@@ -50,6 +52,7 @@ export default function TrasladoDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -95,6 +98,10 @@ export default function TrasladoDetailPage() {
 
   const handleSuccess = () => {
     fetchData();
+  };
+
+  const handleDeleteSuccess = () => {
+    router.push("/traslados");
   };
 
   if (loading) {
@@ -151,6 +158,13 @@ export default function TrasladoDetailPage() {
             <Pencil className="mr-2 h-4 w-4" />
             Editar
           </Button>
+          <Button
+            variant="destructive"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Eliminar
+          </Button>
         </div>
       </div>
 
@@ -162,6 +176,38 @@ export default function TrasladoDetailPage() {
               <ArrowLeftRight className="h-5 w-5 text-orange-600" />
               Información del Traslado
             </CardTitle>
+            <CardDescription>
+              <Badge
+                variant="secondary"
+                className={
+                  ((traslado.usuario_uso_destino &&
+                    traslado.usuario_uso_destino.trim() !== "") ||
+                    (traslado.usuario_sysman_destino &&
+                      traslado.usuario_sysman_destino.trim() !== "")) &&
+                  traslado.sede_origen_id !== traslado.sede_destino_id
+                    ? "bg-green-100 text-green-800 border-green-300"
+                    : (traslado.usuario_uso_destino &&
+                        traslado.usuario_uso_destino.trim() !== "") ||
+                      (traslado.usuario_sysman_destino &&
+                        traslado.usuario_sysman_destino.trim() !== "")
+                    ? "bg-purple-100 text-purple-800 border-purple-300"
+                    : "bg-blue-100 text-blue-800 border-blue-300"
+                }
+              >
+                {((traslado.usuario_uso_destino &&
+                  traslado.usuario_uso_destino.trim() !== "") ||
+                  (traslado.usuario_sysman_destino &&
+                    traslado.usuario_sysman_destino.trim() !== "")) &&
+                traslado.sede_origen_id !== traslado.sede_destino_id
+                  ? "Traslado de Ubicación y Usuarios"
+                  : (traslado.usuario_uso_destino &&
+                      traslado.usuario_uso_destino.trim() !== "") ||
+                    (traslado.usuario_sysman_destino &&
+                      traslado.usuario_sysman_destino.trim() !== "")
+                  ? "Traslado de Usuarios"
+                  : "Traslado de Ubicación"}
+              </Badge>
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Fecha */}
@@ -183,39 +229,259 @@ export default function TrasladoDetailPage() {
 
             <Separator />
 
-            {/* Ruta */}
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-3">
-                Ruta del Traslado
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="flex-1 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="h-5 w-5 text-blue-600" />
-                    <span className="text-xs font-medium text-blue-600 uppercase">
-                      Origen
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-blue-900">
-                    {getSedeNombre(traslado.sede_origen_id)}
+            {/* Contenido según tipo de traslado */}
+            {((traslado.usuario_uso_destino &&
+              traslado.usuario_uso_destino.trim() !== "") ||
+              (traslado.usuario_sysman_destino &&
+                traslado.usuario_sysman_destino.trim() !== "")) &&
+            traslado.sede_origen_id !== traslado.sede_destino_id ? (
+              // TRASLADO DE AMBOS
+              <div className="space-y-6">
+                {/* Cambio de Ubicación */}
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-3">
+                    Cambio de Ubicación
                   </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-5 w-5 text-blue-600" />
+                        <span className="text-xs font-medium text-blue-600 uppercase">
+                          Origen
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-blue-900">
+                        {getSedeNombre(traslado.sede_origen_id)}
+                      </p>
+                    </div>
+
+                    <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+
+                    <div className="flex-1 p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-5 w-5 text-green-600" />
+                        <span className="text-xs font-medium text-green-600 uppercase">
+                          Destino
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-green-900">
+                        {getSedeNombre(traslado.sede_destino_id)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
-
-                <div className="flex-1 p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="h-5 w-5 text-green-600" />
-                    <span className="text-xs font-medium text-green-600 uppercase">
-                      Destino
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-green-900">
-                    {getSedeNombre(traslado.sede_destino_id)}
+                {/* Cambio de Usuarios */}
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-4">
+                    Cambio de Responsables
                   </p>
+
+                  {/* Usuario de Uso */}
+                  {((traslado.usuario_uso_origen &&
+                    traslado.usuario_uso_origen.trim() !== "") ||
+                    (traslado.usuario_uso_destino &&
+                      traslado.usuario_uso_destino.trim() !== "")) && (
+                    <div className="mb-4">
+                      <p className="text-xs font-medium text-gray-500 mb-2 uppercase">
+                        Usuario de Uso
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 p-4 bg-red-50 rounded-lg border-2 border-red-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-red-600" />
+                            <span className="text-xs font-medium text-red-600 uppercase">
+                              Anterior
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-red-900">
+                            {traslado.usuario_uso_origen || "N/A"}
+                          </p>
+                        </div>
+
+                        <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+
+                        <div className="flex-1 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-purple-600" />
+                            <span className="text-xs font-medium text-purple-600 uppercase">
+                              Nuevo
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-purple-900">
+                            {traslado.usuario_uso_destino || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Usuario Sysman */}
+                  {((traslado.usuario_sysman_origen &&
+                    traslado.usuario_sysman_origen.trim() !== "") ||
+                    (traslado.usuario_sysman_destino &&
+                      traslado.usuario_sysman_destino.trim() !== "")) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 mb-2 uppercase">
+                        Usuario Sysman
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-orange-600" />
+                            <span className="text-xs font-medium text-orange-600 uppercase">
+                              Anterior
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-orange-900">
+                            {traslado.usuario_sysman_origen || "N/A"}
+                          </p>
+                        </div>
+
+                        <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+
+                        <div className="flex-1 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-indigo-600" />
+                            <span className="text-xs font-medium text-indigo-600 uppercase">
+                              Nuevo
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-indigo-900">
+                            {traslado.usuario_sysman_destino || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            ) : (traslado.usuario_uso_destino &&
+                traslado.usuario_uso_destino.trim() !== "") ||
+              (traslado.usuario_sysman_destino &&
+                traslado.usuario_sysman_destino.trim() !== "") ? (
+              // TRASLADO DE USUARIOS
+              <div className="space-y-6">
+                {/* Cambio de Usuarios */}
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-4">
+                    Cambio de Responsables
+                  </p>
+
+                  {/* Usuario de Uso */}
+                  {((traslado.usuario_uso_origen &&
+                    traslado.usuario_uso_origen.trim() !== "") ||
+                    (traslado.usuario_uso_destino &&
+                      traslado.usuario_uso_destino.trim() !== "")) && (
+                    <div className="mb-4">
+                      <p className="text-xs font-medium text-gray-500 mb-2 uppercase">
+                        Usuario de Uso
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 p-4 bg-red-50 rounded-lg border-2 border-red-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-red-600" />
+                            <span className="text-xs font-medium text-red-600 uppercase">
+                              Anterior
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-red-900">
+                            {traslado.usuario_uso_origen || "N/A"}
+                          </p>
+                        </div>
+
+                        <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+
+                        <div className="flex-1 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-purple-600" />
+                            <span className="text-xs font-medium text-purple-600 uppercase">
+                              Nuevo
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-purple-900">
+                            {traslado.usuario_uso_destino || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Usuario Sysman */}
+                  {((traslado.usuario_sysman_origen &&
+                    traslado.usuario_sysman_origen.trim() !== "") ||
+                    (traslado.usuario_sysman_destino &&
+                      traslado.usuario_sysman_destino.trim() !== "")) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 mb-2 uppercase">
+                        Usuario Sysman
+                      </p>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-orange-600" />
+                            <span className="text-xs font-medium text-orange-600 uppercase">
+                              Anterior
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-orange-900">
+                            {traslado.usuario_sysman_origen || "N/A"}
+                          </p>
+                        </div>
+
+                        <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+
+                        <div className="flex-1 p-4 bg-indigo-50 rounded-lg border-2 border-indigo-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <User className="h-5 w-5 text-indigo-600" />
+                            <span className="text-xs font-medium text-indigo-600 uppercase">
+                              Nuevo
+                            </span>
+                          </div>
+                          <p className="text-lg font-bold text-indigo-900">
+                            {traslado.usuario_sysman_destino || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              // TRASLADO DE UBICACIÓN
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-3">
+                  Cambio de Ubicación
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-5 w-5 text-blue-600" />
+                      <span className="text-xs font-medium text-blue-600 uppercase">
+                        Origen
+                      </span>
+                    </div>
+                    <p className="text-lg font-bold text-blue-900">
+                      {getSedeNombre(traslado.sede_origen_id)}
+                    </p>
+                  </div>
+
+                  <ArrowLeftRight className="h-8 w-8 text-gray-400 flex-shrink-0" />
+
+                  <div className="flex-1 p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-5 w-5 text-green-600" />
+                      <span className="text-xs font-medium text-green-600 uppercase">
+                        Destino
+                      </span>
+                    </div>
+                    <p className="text-lg font-bold text-green-900">
+                      {getSedeNombre(traslado.sede_destino_id)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <Separator />
 

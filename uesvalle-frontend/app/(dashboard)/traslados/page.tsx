@@ -22,6 +22,7 @@ import {
   User,
   Eye,
   Pencil,
+  Trash2,
   MoreHorizontal,
   Search,
   Filter,
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import { useTraslados } from "@/features/traslados/hooks/use-traslados";
 import { TrasladoFormModal } from "@/features/traslados/components/traslado-form-modal";
+import { DeleteTrasladoDialog } from "@/features/traslados/components/delete-traslado-dialog";
 import { ReportesTrasladosModal } from "@/features/traslados/components/ReportesTrasladosModal";
 import { Traslado } from "@/shared/types/traslado";
 import { sedes } from "@/mocks/inventario";
@@ -62,6 +64,7 @@ export default function TrasladosPage() {
   const { data: activos } = useInventario();
   const { usuarios } = useUsuarios();
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reportesModalOpen, setReportesModalOpen] = useState(false);
   const [selectedTraslado, setSelectedTraslado] = useState<Traslado | null>(
     null
@@ -106,6 +109,11 @@ export default function TrasladosPage() {
 
   const handleView = (traslado: Traslado) => {
     router.push(`/traslados/${traslado.id}`);
+  };
+
+  const handleDelete = (traslado: Traslado) => {
+    setSelectedTraslado(traslado);
+    setDeleteDialogOpen(true);
   };
 
   const handleSuccess = () => {
@@ -288,22 +296,227 @@ export default function TrasladosPage() {
                         </div>
                       </div>
 
-                      {/* Ruta del traslado */}
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
-                          <MapPin className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium text-blue-900">
-                            {getSedeNombre(traslado.sede_origen_id)}
-                          </span>
-                        </div>
-                        <ArrowLeftRight className="h-5 w-5 text-gray-400" />
-                        <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
-                          <MapPin className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-900">
-                            {getSedeNombre(traslado.sede_destino_id)}
-                          </span>
-                        </div>
+                      {/* Tipo de traslado */}
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={
+                            // Determinar el tipo de traslado
+                            ((traslado.usuario_uso_destino &&
+                              traslado.usuario_uso_destino.trim() !== "") ||
+                              (traslado.usuario_sysman_destino &&
+                                traslado.usuario_sysman_destino.trim() !==
+                                  "")) &&
+                            traslado.sede_origen_id !== traslado.sede_destino_id
+                              ? "bg-green-100 text-green-800 border-green-300"
+                              : (traslado.usuario_uso_destino &&
+                                  traslado.usuario_uso_destino.trim() !== "") ||
+                                (traslado.usuario_sysman_destino &&
+                                  traslado.usuario_sysman_destino.trim() !== "")
+                              ? "bg-purple-100 text-purple-800 border-purple-300"
+                              : "bg-blue-100 text-blue-800 border-blue-300"
+                          }
+                        >
+                          {((traslado.usuario_uso_destino &&
+                            traslado.usuario_uso_destino.trim() !== "") ||
+                            (traslado.usuario_sysman_destino &&
+                              traslado.usuario_sysman_destino.trim() !== "")) &&
+                          traslado.sede_origen_id !== traslado.sede_destino_id
+                            ? "Traslado de Ubicación y Usuarios"
+                            : (traslado.usuario_uso_destino &&
+                                traslado.usuario_uso_destino.trim() !== "") ||
+                              (traslado.usuario_sysman_destino &&
+                                traslado.usuario_sysman_destino.trim() !== "")
+                            ? "Traslado de Usuarios"
+                            : "Traslado de Ubicación"}
+                        </Badge>
                       </div>
+
+                      {/* Contenido según tipo de traslado */}
+                      {((traslado.usuario_uso_destino &&
+                        traslado.usuario_uso_destino.trim() !== "") ||
+                        (traslado.usuario_sysman_destino &&
+                          traslado.usuario_sysman_destino.trim() !== "")) &&
+                      traslado.sede_origen_id !== traslado.sede_destino_id ? (
+                        // TRASLADO DE AMBOS - Mostrar ubicación Y usuarios
+                        <div className="space-y-3">
+                          {/* Cambio de ubicación */}
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                              <MapPin className="h-4 w-4 text-blue-600" />
+                              <span className="font-medium text-blue-900">
+                                {getSedeNombre(traslado.sede_origen_id)}
+                              </span>
+                            </div>
+                            <ArrowLeftRight className="h-5 w-5 text-gray-400" />
+                            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
+                              <MapPin className="h-4 w-4 text-green-600" />
+                              <span className="font-medium text-green-900">
+                                {getSedeNombre(traslado.sede_destino_id)}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Cambio de usuarios */}
+                          <div className="space-y-2">
+                            {/* Usuario de Uso */}
+                            {traslado.usuario_uso_destino &&
+                              traslado.usuario_uso_destino.trim() !== "" && (
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg border border-red-200 flex-1">
+                                    <User className="h-4 w-4 text-red-600" />
+                                    <div className="flex flex-col">
+                                      <span className="text-xs text-red-600 font-medium">
+                                        Usuario de Uso Anterior
+                                      </span>
+                                      <span className="text-sm text-red-900 font-medium">
+                                        {traslado.usuario_uso_origen &&
+                                        traslado.usuario_uso_origen.trim() !==
+                                          ""
+                                          ? traslado.usuario_uso_origen
+                                          : "Sin asignar"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <ArrowLeftRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-lg border border-purple-200 flex-1">
+                                    <User className="h-4 w-4 text-purple-600" />
+                                    <div className="flex flex-col">
+                                      <span className="text-xs text-purple-600 font-medium">
+                                        Usuario de Uso Nuevo
+                                      </span>
+                                      <span className="text-sm text-purple-900 font-medium">
+                                        {traslado.usuario_uso_destino}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                            {/* Usuario Sysman */}
+                            {traslado.usuario_sysman_destino &&
+                              traslado.usuario_sysman_destino.trim() !== "" && (
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 rounded-lg border border-orange-200 flex-1">
+                                    <User className="h-4 w-4 text-orange-600" />
+                                    <div className="flex flex-col">
+                                      <span className="text-xs text-orange-600 font-medium">
+                                        Usuario Sysman Anterior
+                                      </span>
+                                      <span className="text-sm text-orange-900 font-medium">
+                                        {traslado.usuario_sysman_origen &&
+                                        traslado.usuario_sysman_origen.trim() !==
+                                          ""
+                                          ? traslado.usuario_sysman_origen
+                                          : "Sin asignar"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <ArrowLeftRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-indigo-50 rounded-lg border border-indigo-200 flex-1">
+                                    <User className="h-4 w-4 text-indigo-600" />
+                                    <div className="flex flex-col">
+                                      <span className="text-xs text-indigo-600 font-medium">
+                                        Usuario Sysman Nuevo
+                                      </span>
+                                      <span className="text-sm text-indigo-900 font-medium">
+                                        {traslado.usuario_sysman_destino}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      ) : (traslado.usuario_uso_destino &&
+                          traslado.usuario_uso_destino.trim() !== "") ||
+                        (traslado.usuario_sysman_destino &&
+                          traslado.usuario_sysman_destino.trim() !== "") ? (
+                        // TRASLADO DE USUARIOS - Solo mostrar cambio de usuarios
+                        <div className="space-y-2">
+                          {/* Usuario de Uso */}
+                          {((traslado.usuario_uso_origen &&
+                            traslado.usuario_uso_origen.trim() !== "") ||
+                            (traslado.usuario_uso_destino &&
+                              traslado.usuario_uso_destino.trim() !== "")) && (
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg border border-red-200 flex-1">
+                                <User className="h-4 w-4 text-red-600" />
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-red-600 font-medium">
+                                    Usuario de Uso Anterior
+                                  </span>
+                                  <span className="text-sm text-red-900 font-medium">
+                                    {traslado.usuario_uso_origen || "N/A"}
+                                  </span>
+                                </div>
+                              </div>
+                              <ArrowLeftRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-lg border border-purple-200 flex-1">
+                                <User className="h-4 w-4 text-purple-600" />
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-purple-600 font-medium">
+                                    Usuario de Uso Nuevo
+                                  </span>
+                                  <span className="text-sm text-purple-900 font-medium">
+                                    {traslado.usuario_uso_destino || "N/A"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Usuario Sysman */}
+                          {((traslado.usuario_sysman_origen &&
+                            traslado.usuario_sysman_origen.trim() !== "") ||
+                            (traslado.usuario_sysman_destino &&
+                              traslado.usuario_sysman_destino.trim() !==
+                                "")) && (
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 rounded-lg border border-orange-200 flex-1">
+                                <User className="h-4 w-4 text-orange-600" />
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-orange-600 font-medium">
+                                    Usuario Sysman Anterior
+                                  </span>
+                                  <span className="text-sm text-orange-900 font-medium">
+                                    {traslado.usuario_sysman_origen || "N/A"}
+                                  </span>
+                                </div>
+                              </div>
+                              <ArrowLeftRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                              <div className="flex items-center gap-2 px-3 py-2 bg-indigo-50 rounded-lg border border-indigo-200 flex-1">
+                                <User className="h-4 w-4 text-indigo-600" />
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-indigo-600 font-medium">
+                                    Usuario Sysman Nuevo
+                                  </span>
+                                  <span className="text-sm text-indigo-900 font-medium">
+                                    {traslado.usuario_sysman_destino || "N/A"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        // TRASLADO DE UBICACIÓN - Solo mostrar cambio de sedes
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
+                            <MapPin className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium text-blue-900">
+                              {getSedeNombre(traslado.sede_origen_id)}
+                            </span>
+                          </div>
+                          <ArrowLeftRight className="h-5 w-5 text-gray-400" />
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
+                            <MapPin className="h-4 w-4 text-green-600" />
+                            <span className="font-medium text-green-900">
+                              {getSedeNombre(traslado.sede_destino_id)}
+                            </span>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Motivo */}
                       <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg line-clamp-2">
@@ -355,6 +568,17 @@ export default function TrasladosPage() {
                           <Pencil className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(traslado);
+                          }}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
@@ -365,10 +589,17 @@ export default function TrasladosPage() {
         </CardContent>
       </Card>
 
-      {/* Modal */}
+      {/* Modales */}
       <TrasladoFormModal
         open={modalOpen}
         onOpenChange={setModalOpen}
+        traslado={selectedTraslado}
+        onSuccess={handleSuccess}
+      />
+
+      <DeleteTrasladoDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
         traslado={selectedTraslado}
         onSuccess={handleSuccess}
       />

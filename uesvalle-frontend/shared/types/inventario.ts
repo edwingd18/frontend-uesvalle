@@ -34,6 +34,8 @@ export interface Activo {
     | "GESTIÓN DE CONTRATACIÓN"
     | "GESTIÓN JURÍDICA Y DISCIPLINARIA"
     | "CONTROL INTERNO A LA GESTIÓN";
+  eliminado_por_id?: number | null; // ID del usuario que dio de baja el activo
+  observacion_baja?: string | null; // Motivo por el cual se dio de baja
   fecha_instalacion?: string | null; // Campo del backend (opcional)
   fecha_creacion?: string; // Fecha de creación del registro
   createdAt?: string; // Timestamp de creación

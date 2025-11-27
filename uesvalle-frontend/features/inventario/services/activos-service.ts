@@ -130,7 +130,7 @@ class ActivosService {
     return await response.json();
   }
 
-  async darDeBajaActivo(id: number, observacion_baja: string): Promise<void> {
+  async darDeBajaActivo(id: number, observacion_baja: string, eliminado_por_id: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/activos/${id}`, {
       method: "PATCH",
       headers: {
@@ -140,7 +140,8 @@ class ActivosService {
       credentials: "include",
       body: JSON.stringify({
         estado: "BAJA",
-        observacion_baja: observacion_baja
+        observacion_baja: observacion_baja,
+        eliminado_por_id: eliminado_por_id
       }),
     });
 

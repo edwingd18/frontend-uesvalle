@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import { activosService } from '../services/activos-service'
 import { Activo } from '@/shared/types/inventario'
 import { showToast } from '@/shared/lib/toast'
+import { useAuthStore } from '@/shared/store/auth-store'
 
 interface DeleteActivoDialogProps {
   open: boolean
@@ -32,13 +33,14 @@ export function DeleteActivoDialog({
 }: DeleteActivoDialogProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [motivo, setMotivo] = useState('')
+  const usuario = useAuthStore((state) => state.usuario)
 
   const handleDarDeBaja = async () => {
-    if (!activo || !motivo.trim()) return
+    if (!activo || !motivo.trim() || !usuario?.id) return
 
     setIsProcessing(true)
     try {
-      await activosService.darDeBajaActivo(activo.id, motivo.trim())
+      await activosService.darDeBajaActivo(activo.id, motivo.trim(), usuario.id)
       showToast.success('Activo dado de baja correctamente')
       onOpenChange(false)
       setMotivo('') // Limpiar el campo

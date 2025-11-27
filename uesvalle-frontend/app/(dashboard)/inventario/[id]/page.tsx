@@ -14,6 +14,7 @@ import {
   Download,
   Cpu,
   Monitor,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +58,7 @@ const getEstadoBadge = (estado: string) => {
 export default function ActivoDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { getUsuarioNombre } = useUsuarios();
+  const { getUsuarioNombre, usuarios, loading: usuariosLoading } = useUsuarios();
   const [activo, setActivo] = useState<Activo | null>(null);
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
   const [traslados, setTraslados] = useState<any[]>([]);
@@ -488,6 +489,42 @@ export default function ActivoDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Información de Baja (solo si el estado es baja) */}
+            {activo.estado?.toLowerCase() === "baja" && (
+              <Card
+                className="animate-fade-in card-hover border-red-200 bg-red-50"
+                style={{ animationDelay: "0.15s" }}
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-700">
+                    <AlertTriangle className="h-5 w-5" />
+                    Estado de Baja
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-red-600 uppercase tracking-wide">
+                      Dado de baja por
+                    </label>
+                    <p className="text-sm mt-0.5 font-medium text-red-800">
+                      {activo.eliminado_por_id 
+                        ? getUsuarioNombre(activo.eliminado_por_id)
+                        : "No especificado"
+                      }
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-red-600 uppercase tracking-wide">
+                      Motivo
+                    </label>
+                    <p className="text-sm mt-0.5 text-red-800 bg-red-100 p-2 rounded border">
+                      {activo.observacion_baja || "No especificado"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Especificaciones Técnicas (PC/Portátil) */}
             {activo.especificaciones &&

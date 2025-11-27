@@ -1,6 +1,5 @@
 import { Activo } from "@/shared/types/inventario";
-import { API_BASE_URL } from "@/shared/config/api";
-import { authService } from "@/shared/services/auth-service";
+import { apiGet, apiPost, apiPatch } from "@/shared/lib/api-client";
 
 export interface CreateActivoData {
   serial: string;
@@ -21,66 +20,27 @@ export interface UpdateActivoData extends Partial<CreateActivoData> {}
 
 class ActivosService {
   async getActivos(): Promise<Activo[]> {
-    const response = await fetch(`${API_BASE_URL}/activos`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...authService.getAuthHeader(),
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    return await response.json();
+    return apiGet<Activo[]>(`/activos`);
   }
 
   async getActivo(id: number): Promise<Activo> {
-    const response = await fetch(`${API_BASE_URL}/activos/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...authService.getAuthHeader(),
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    const activo = await response.json();
+    const activo = await apiGet<Activo>(`/activos/${id}`);
 
     // Si es PC o Portátil, obtener especificaciones
     const tipoLower = activo.tipo.toLowerCase();
     if (tipoLower === "computador" || tipoLower === "portatil") {
       try {
         const endpoint = tipoLower === "computador" ? "pcs" : "portatiles";
-        const especResponse = await fetch(
-          `${API_BASE_URL}/${endpoint}/activo/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              ...authService.getAuthHeader(),
-            },
-            credentials: "include",
-          }
-        );
+        const especificaciones = await apiGet<any>(`/${endpoint}/activo/${id}`);
 
-        if (especResponse.ok) {
-          const especificaciones = await especResponse.json();
-          activo.especificaciones = {
-            procesador: especificaciones.procesador,
-            ram_gb: especificaciones.ram_gb,
-            almacenamiento_gb: especificaciones.almacenamiento_gb,
-            so: especificaciones.so,
-            tipo_disco: especificaciones.tipo_disco,
-            velocidad_cpu_ghz: especificaciones.velocidad_cpu_ghz,
-          };
-        }
+        activo.especificaciones = {
+          procesador: especificaciones.procesador,
+          ram_gb: especificaciones.ram_gb,
+          almacenamiento_gb: especificaciones.almacenamiento_gb,
+          so: especificaciones.so,
+          tipo_disco: especificaciones.tipo_disco,
+          velocidad_cpu_ghz: especificaciones.velocidad_cpu_ghz,
+        };
       } catch (error) {
         // Si no hay especificaciones, continuar sin ellas
         console.warn("No se pudieron cargar las especificaciones:", error);
@@ -91,83 +51,22 @@ class ActivosService {
   }
 
   async createActivo(data: CreateActivoData): Promise<Activo> {
-    const response = await fetch(`${API_BASE_URL}/activos`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...authService.getAuthHeader(),
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || error.error || "Error al crear activo");
-    }
-
-    return await response.json();
+    return apiPost<Activo>(`/activos`, data);
   }
 
   async updateActivo(id: number, data: UpdateActivoData): Promise<Activo> {
-    const response = await fetch(`${API_BASE_URL}/activos/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...authService.getAuthHeader(),
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(
-        error.message || error.error || "Error al actualizar activo"
-      );
-    }
-
-    return await response.json();
+    return apiPatch<Activo>(`/activos/${id}`, data);
   }
 
-  async darDeBajaActivo(id: number, observacion_baja: string, eliminado_por_id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/activos/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...authService.getAuthHeader(),
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        estado: "BAJA",
-        observacion_baja: observacion_baja,
-        eliminado_por_id: eliminado_por_id
-      }),
+  async darDeBajaActivo(id: number, observacion_baja: string): Promise<void> {
+    await apiPatch<void>(`/activos/${id}`, {
+      estado: "BAJA",
+      observacion_baja: observacion_baja,
     });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(
-        error.message || error.error || "Error al dar de baja el activo"
-      );
-    }
   }
 
   async getHojaVida(id: number): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/activos/${id}/hoja-vida`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...authService.getAuthHeader(),
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    return await response.json();
+    return apiGet<any>(`/activos/${id}/hoja-vida`);
   }
 }
 

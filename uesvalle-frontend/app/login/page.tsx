@@ -49,7 +49,15 @@ export default function LoginPage() {
     try {
       setError(null);
       await login(data);
-      router.push("/dashboard");
+
+      // Verificar si hay una URL guardada para redirigir
+      const redirectUrl = sessionStorage.getItem("redirectAfterLogin");
+      if (redirectUrl) {
+        sessionStorage.removeItem("redirectAfterLogin");
+        router.push(redirectUrl);
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     }

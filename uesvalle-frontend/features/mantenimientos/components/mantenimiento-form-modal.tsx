@@ -70,7 +70,7 @@ const mantenimientoFormSchema = z
     }),
     activo_id: z.number().min(1, "Selecciona un activo"),
     fecha_realizado: z.string().min(1, "La fecha es obligatoria"),
-    tipo: z.enum(["preventivo", "correctivo", "predictivo"], {
+    tipo: z.enum(["preventivo", "correctivo"], {
       message: "Selecciona un tipo de mantenimiento",
     }),
     tecnico_id: z.number().min(1, "Selecciona un técnico"),
@@ -184,6 +184,7 @@ export function MantenimientoFormModal({
   const [searchActivo, setSearchActivo] = useState("");
   const [showActivoDropdown, setShowActivoDropdown] = useState(false);
   const isEditing = !!mantenimiento;
+  const showStepper = !isEditing; // Solo mostrar stepper en modo crear
 
   const { data: activos, loading: loadingActivos } = useInventario();
   const {
@@ -192,6 +193,64 @@ export function MantenimientoFormModal({
     getUsuarioNombre,
   } = useUsuarios();
   const usuario = useAuthStore((state) => state.usuario);
+
+  // Detectar el alcance del mantenimiento basándose en los datos existentes
+  const detectarAlcance = (
+    mant: Mantenimiento
+  ): "hardware" | "software" | "ambos" => {
+    const tieneHardware =
+      mant.encargado_harware_id > 0 || !!mant.observacion_hardware;
+    const tieneSoftware =
+      mant.encargado_software_id > 0 || !!mant.observacion_software;
+
+    if (tieneHardware && tieneSoftware) return "ambos";
+    if (tieneHardware) return "hardware";
+    if (tieneSoftware) return "software";
+    return "ambos"; // Por defecto
+  };
+
+  // Extraer los arreglos de la observación guardada
+  const extraerArreglos = (
+    observacion: string | null | undefined
+  ): string[] => {
+    if (!observacion) return [];
+
+    // Buscar la sección "Arreglos realizados:" hasta "Observaciones adicionales:" o fin
+    const match = observacion.match(
+      /Arreglos realizados:\s*\n([\s\S]*?)(?:\n\nObservaciones adicionales:|$)/
+    );
+    if (match && match[1]) {
+      // Extraer cada línea que empiece con "- "
+      const arreglos = match[1]
+        .split("\n")
+        .filter((line) => line.trim().startsWith("- "))
+        .map((line) => line.trim().substring(2).trim())
+        .filter((arreglo) => arreglo.length > 0);
+      return arreglos;
+    }
+
+    return [];
+  };
+
+  // Extraer solo las observaciones adicionales (sin los arreglos comunes)
+  const extraerObservacionesAdicionales = (
+    observacion: string | null | undefined
+  ): string => {
+    if (!observacion) return "";
+
+    // Buscar la sección "Observaciones adicionales:"
+    const match = observacion.match(/Observaciones adicionales:\s*\n([\s\S]*)/);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+
+    // Si no tiene el formato esperado, devolver todo (es observación manual antigua)
+    if (!observacion.includes("Arreglos realizados:")) {
+      return observacion;
+    }
+
+    return "";
+  };
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -213,17 +272,25 @@ export function MantenimientoFormModal({
     resolver: zodResolver(mantenimientoFormSchema),
     defaultValues: mantenimiento
       ? {
-          alcance: "ambos",
+          alcance: detectarAlcance(mantenimiento),
           activo_id: mantenimiento.activo_id,
           fecha_realizado: mantenimiento.fecha_realizado.split("T")[0],
           tipo: mantenimiento.tipo,
           tecnico_id: mantenimiento.tecnico_id,
-          encargado_harware_id: mantenimiento.encargado_harware_id,
-          encargado_software_id: mantenimiento.encargado_software_id,
-          arreglos_hardware: [],
-          arreglos_software: [],
-          observacion_hardware: mantenimiento.observacion_hardware || "",
-          observacion_software: mantenimiento.observacion_software || "",
+          encargado_harware_id: mantenimiento.encargado_harware_id || 0,
+          encargado_software_id: mantenimiento.encargado_software_id || 0,
+          arreglos_hardware: extraerArreglos(
+            mantenimiento.observacion_hardware
+          ),
+          arreglos_software: extraerArreglos(
+            mantenimiento.observacion_software
+          ),
+          observacion_hardware: extraerObservacionesAdicionales(
+            mantenimiento.observacion_hardware
+          ),
+          observacion_software: extraerObservacionesAdicionales(
+            mantenimiento.observacion_software
+          ),
         }
       : {
           alcance: "ambos",
@@ -243,22 +310,38 @@ export function MantenimientoFormModal({
   // Reset form when mantenimiento changes
   useEffect(() => {
     if (mantenimiento) {
+      const alcanceDetectado = detectarAlcance(mantenimiento);
+
       form.reset({
+        alcance: alcanceDetectado,
         activo_id: mantenimiento.activo_id,
         fecha_realizado: mantenimiento.fecha_realizado.split("T")[0],
         tipo: mantenimiento.tipo,
         tecnico_id: mantenimiento.tecnico_id,
-        encargado_harware_id: mantenimiento.encargado_harware_id,
-        encargado_software_id: mantenimiento.encargado_software_id,
+        encargado_harware_id: mantenimiento.encargado_harware_id || 0,
+        encargado_software_id: mantenimiento.encargado_software_id || 0,
+        arreglos_hardware: extraerArreglos(mantenimiento.observacion_hardware),
+        arreglos_software: extraerArreglos(mantenimiento.observacion_software),
+        observacion_hardware: extraerObservacionesAdicionales(
+          mantenimiento.observacion_hardware
+        ),
+        observacion_software: extraerObservacionesAdicionales(
+          mantenimiento.observacion_software
+        ),
       });
     } else {
       form.reset({
+        alcance: "ambos",
         activo_id: 0,
         fecha_realizado: "",
         tipo: "preventivo",
         tecnico_id: 0,
         encargado_harware_id: 0,
         encargado_software_id: 0,
+        arreglos_hardware: [],
+        arreglos_software: [],
+        observacion_hardware: "",
+        observacion_software: "",
       });
     }
     setCurrentStep(0);
@@ -267,68 +350,108 @@ export function MantenimientoFormModal({
   const handleSubmit = async (data: MantenimientoFormValues) => {
     setIsSubmitting(true);
     try {
-      // Construir payload base
-      const basePayload: any = {
-        activo_id: data.activo_id,
-        fecha_realizado: new Date(data.fecha_realizado).toISOString(),
-        tipo: data.tipo,
-        tecnico_id: data.tecnico_id,
-      };
-
-      // Agregar encargados según el alcance
-      if (data.alcance === "hardware" || data.alcance === "ambos") {
-        basePayload.encargado_harware_id = data.encargado_harware_id;
-
-        // Construir observación de hardware con arreglos + texto adicional
-        let observacionHardware = "";
-        if (data.arreglos_hardware && data.arreglos_hardware.length > 0) {
-          observacionHardware =
-            "Arreglos realizados:\n" +
-            data.arreglos_hardware.map((a) => `- ${a}`).join("\n");
-        }
-        if (data.observacion_hardware) {
-          if (observacionHardware)
-            observacionHardware += "\n\nObservaciones adicionales:\n";
-          observacionHardware += data.observacion_hardware;
-        }
-        if (observacionHardware) {
-          basePayload.observacion_hardware = observacionHardware;
-        }
-      }
-
-      if (data.alcance === "software" || data.alcance === "ambos") {
-        basePayload.encargado_software_id = data.encargado_software_id;
-
-        // Construir observación de software con arreglos + texto adicional
-        let observacionSoftware = "";
-        if (data.arreglos_software && data.arreglos_software.length > 0) {
-          observacionSoftware =
-            "Arreglos realizados:\n" +
-            data.arreglos_software.map((a) => `- ${a}`).join("\n");
-        }
-        if (data.observacion_software) {
-          if (observacionSoftware)
-            observacionSoftware += "\n\nObservaciones adicionales:\n";
-          observacionSoftware += data.observacion_software;
-        }
-        if (observacionSoftware) {
-          basePayload.observacion_software = observacionSoftware;
-        }
-      }
-
       if (isEditing && mantenimiento) {
-        // Al editar, incluir actualizado_por_id
+        // MODO EDITAR: Enviar solo los campos según el alcance
         const updatePayload: UpdateMantenimientoData = {
-          ...basePayload,
+          activo_id: data.activo_id,
+          fecha_realizado: new Date(data.fecha_realizado).toISOString(),
+          tipo: data.tipo,
+          tecnico_id: data.tecnico_id,
           actualizado_por_id: usuario?.id || 1,
         };
+
+        // Agregar campos según el alcance seleccionado
+        if (data.alcance === "hardware" || data.alcance === "ambos") {
+          updatePayload.encargado_harware_id = data.encargado_harware_id;
+
+          // Construir observación de hardware con arreglos + texto adicional
+          let observacionHardware = "";
+          if (data.arreglos_hardware && data.arreglos_hardware.length > 0) {
+            observacionHardware =
+              "Arreglos realizados:\n" +
+              data.arreglos_hardware.map((a) => `- ${a}`).join("\n");
+          }
+          if (data.observacion_hardware) {
+            if (observacionHardware)
+              observacionHardware += "\n\nObservaciones adicionales:\n";
+            observacionHardware += data.observacion_hardware;
+          }
+          updatePayload.observacion_hardware = observacionHardware || null;
+        }
+
+        if (data.alcance === "software" || data.alcance === "ambos") {
+          updatePayload.encargado_software_id = data.encargado_software_id;
+
+          // Construir observación de software con arreglos + texto adicional
+          let observacionSoftware = "";
+          if (data.arreglos_software && data.arreglos_software.length > 0) {
+            observacionSoftware =
+              "Arreglos realizados:\n" +
+              data.arreglos_software.map((a) => `- ${a}`).join("\n");
+          }
+          if (data.observacion_software) {
+            if (observacionSoftware)
+              observacionSoftware += "\n\nObservaciones adicionales:\n";
+            observacionSoftware += data.observacion_software;
+          }
+          updatePayload.observacion_software = observacionSoftware || null;
+        }
+
         await mantenimientosService.updateMantenimiento(
           mantenimiento.id,
           updatePayload
         );
         showToast.success("Mantenimiento actualizado correctamente");
       } else {
-        // Al crear, incluir creado_por_id
+        // MODO CREAR: Construir payload con arreglos
+        const basePayload: any = {
+          activo_id: data.activo_id,
+          fecha_realizado: new Date(data.fecha_realizado).toISOString(),
+          tipo: data.tipo,
+          tecnico_id: data.tecnico_id,
+        };
+
+        // Agregar encargados según el alcance
+        if (data.alcance === "hardware" || data.alcance === "ambos") {
+          basePayload.encargado_harware_id = data.encargado_harware_id;
+
+          // Construir observación de hardware con arreglos + texto adicional
+          let observacionHardware = "";
+          if (data.arreglos_hardware && data.arreglos_hardware.length > 0) {
+            observacionHardware =
+              "Arreglos realizados:\n" +
+              data.arreglos_hardware.map((a) => `- ${a}`).join("\n");
+          }
+          if (data.observacion_hardware) {
+            if (observacionHardware)
+              observacionHardware += "\n\nObservaciones adicionales:\n";
+            observacionHardware += data.observacion_hardware;
+          }
+          if (observacionHardware) {
+            basePayload.observacion_hardware = observacionHardware;
+          }
+        }
+
+        if (data.alcance === "software" || data.alcance === "ambos") {
+          basePayload.encargado_software_id = data.encargado_software_id;
+
+          // Construir observación de software con arreglos + texto adicional
+          let observacionSoftware = "";
+          if (data.arreglos_software && data.arreglos_software.length > 0) {
+            observacionSoftware =
+              "Arreglos realizados:\n" +
+              data.arreglos_software.map((a) => `- ${a}`).join("\n");
+          }
+          if (data.observacion_software) {
+            if (observacionSoftware)
+              observacionSoftware += "\n\nObservaciones adicionales:\n";
+            observacionSoftware += data.observacion_software;
+          }
+          if (observacionSoftware) {
+            basePayload.observacion_software = observacionSoftware;
+          }
+        }
+
         const createPayload: CreateMantenimientoData = {
           ...basePayload,
           creado_por_id: usuario?.id || 1,
@@ -386,8 +509,6 @@ export function MantenimientoFormModal({
         return "default";
       case "correctivo":
         return "destructive";
-      case "predictivo":
-        return "secondary";
       default:
         return "outline";
     }
@@ -426,57 +547,59 @@ export function MantenimientoFormModal({
             <DialogDescription className="text-gray-600 text-sm mt-2 ml-14">
               {isEditing
                 ? "Modifica los detalles del mantenimiento programado"
-                : "Completa la información en 2 pasos sencillos"}
+                : "Completa la información en 4 pasos sencillos"}
             </DialogDescription>
           </DialogHeader>
 
-          {/* Stepper personalizado */}
-          <div className="mt-4 sm:mt-6 lg:mt-8 px-0 sm:px-8 lg:px-24">
-            <div className="flex items-center justify-between">
-              {steps.map((step, index) => (
-                <div
-                  key={step.id}
-                  className="flex items-center"
-                  style={{ flex: index < steps.length - 1 ? 1 : "none" }}
-                >
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all ${
-                        index === currentStep
-                          ? "bg-orange-600 text-white ring-4 ring-orange-100 scale-110"
-                          : index < currentStep
-                          ? "bg-orange-600 text-white"
-                          : "bg-white border-2 border-gray-300 text-gray-500"
-                      }`}
-                    >
-                      {index < currentStep ? (
-                        <Check className="h-6 w-6" />
-                      ) : (
-                        index + 1
-                      )}
+          {/* Stepper personalizado - Solo en modo crear */}
+          {showStepper && (
+            <div className="mt-4 sm:mt-6 lg:mt-8 px-0 sm:px-8 lg:px-24">
+              <div className="flex items-center justify-between">
+                {steps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className="flex items-center"
+                    style={{ flex: index < steps.length - 1 ? 1 : "none" }}
+                  >
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all ${
+                          index === currentStep
+                            ? "bg-orange-600 text-white ring-4 ring-orange-100 scale-110"
+                            : index < currentStep
+                            ? "bg-orange-600 text-white"
+                            : "bg-white border-2 border-gray-300 text-gray-500"
+                        }`}
+                      >
+                        {index < currentStep ? (
+                          <Check className="h-6 w-6" />
+                        ) : (
+                          index + 1
+                        )}
+                      </div>
+                      <p
+                        className={`text-sm font-medium mt-3 whitespace-nowrap ${
+                          index === currentStep
+                            ? "text-orange-600"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        {step.title}
+                      </p>
                     </div>
-                    <p
-                      className={`text-sm font-medium mt-3 whitespace-nowrap ${
-                        index === currentStep
-                          ? "text-orange-600"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      {step.title}
-                    </p>
-                  </div>
 
-                  {index < steps.length - 1 && (
-                    <div
-                      className={`h-0.5 flex-1 mx-4 sm:mx-6 transition-all duration-500 ${
-                        index < currentStep ? "bg-orange-600" : "bg-gray-300"
-                      }`}
-                    />
-                  )}
-                </div>
-              ))}
+                    {index < steps.length - 1 && (
+                      <div
+                        className={`h-0.5 flex-1 mx-4 sm:mx-6 transition-all duration-500 ${
+                          index < currentStep ? "bg-orange-600" : "bg-gray-300"
+                        }`}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Contenido scrolleable */}
@@ -486,8 +609,502 @@ export function MantenimientoFormModal({
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
+              {/* MODO EDITAR: Vista simple con todos los campos */}
+              {isEditing && (
+                <div className="space-y-6 animate-in fade-in-50 duration-300">
+                  {/* Información del Activo */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Package className="h-5 w-5 text-orange-600" />
+                      Información del Activo
+                    </h3>
+
+                    <FormField
+                      control={form.control}
+                      name="activo_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold">
+                            Activo *
+                          </FormLabel>
+                          <FormControl>
+                            <div className="h-12 px-3 py-2 border border-gray-200 rounded-md bg-gray-50 flex items-center gap-2">
+                              <Package className="h-4 w-4 text-gray-500" />
+                              <span className="font-mono text-sm font-semibold">
+                                {selectedActivo?.placa}
+                              </span>
+                              <span className="text-gray-600">-</span>
+                              <span className="text-sm">
+                                {selectedActivo?.marca} {selectedActivo?.modelo}
+                              </span>
+                            </div>
+                          </FormControl>
+                          <FormDescription className="text-sm">
+                            No se puede cambiar el activo en modo edición
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Alcance del Mantenimiento */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Wrench className="h-5 w-5 text-orange-600" />
+                      Alcance del Mantenimiento
+                    </h3>
+
+                    <FormField
+                      control={form.control}
+                      name="alcance"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base font-semibold">
+                            Tipo de Servicio *
+                          </FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="h-12 text-base">
+                                <SelectValue placeholder="Selecciona el alcance" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem
+                                value="hardware"
+                                className="text-base py-3"
+                              >
+                                Hardware - Mantenimiento físico del equipo
+                              </SelectItem>
+                              <SelectItem
+                                value="software"
+                                className="text-base py-3"
+                              >
+                                Software - Configuración y programas
+                              </SelectItem>
+                              <SelectItem
+                                value="ambos"
+                                className="text-base py-3"
+                              >
+                                Ambos - Hardware y Software
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormDescription className="text-sm">
+                            Cambia el alcance si necesitas agregar más servicios
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Detalles del Mantenimiento */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-orange-600" />
+                      Detalles del Mantenimiento
+                    </h3>
+
+                    <div className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="tipo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold">
+                              Tipo de Mantenimiento *
+                            </FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-12 text-base">
+                                  <SelectValue placeholder="Selecciona un tipo" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem
+                                  value="preventivo"
+                                  className="text-base py-3"
+                                >
+                                  Preventivo - Mantenimiento rutinario
+                                  programado
+                                </SelectItem>
+                                <SelectItem
+                                  value="correctivo"
+                                  className="text-base py-3"
+                                >
+                                  Correctivo - Reparación de fallas
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="fecha_realizado"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold">
+                              Fecha de Realización *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="date"
+                                {...field}
+                                max={new Date().toISOString().split("T")[0]}
+                                disabled={isSubmitting}
+                                className="h-12 text-base"
+                              />
+                            </FormControl>
+                            <FormDescription className="text-sm">
+                              Fecha en la que se realizó el mantenimiento
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Arreglos y Observaciones - Mostrar según alcance */}
+                  {(form.watch("alcance") === "hardware" ||
+                    form.watch("alcance") === "ambos") && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <Wrench className="h-5 w-5 text-blue-600" />
+                        Trabajos de Hardware
+                      </h3>
+
+                      <div className="space-y-6">
+                        <FormField
+                          control={form.control}
+                          name="arreglos_hardware"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Arreglos Comunes de Hardware
+                              </FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={(value) => {
+                                    const current = field.value || [];
+                                    if (!current.includes(value)) {
+                                      field.onChange([...current, value]);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-12">
+                                    <SelectValue placeholder="Selecciona arreglos realizados" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ARREGLOS_HARDWARE.map((arreglo) => (
+                                      <SelectItem key={arreglo} value={arreglo}>
+                                        {arreglo}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              {field.value && field.value.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                  {field.value.map((arreglo) => (
+                                    <Badge
+                                      key={arreglo}
+                                      variant="secondary"
+                                      className="gap-1 pr-1"
+                                    >
+                                      {arreglo}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          field.onChange(
+                                            field.value?.filter(
+                                              (a) => a !== arreglo
+                                            )
+                                          );
+                                        }}
+                                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                                      >
+                                        ✕
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="observacion_hardware"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Observaciones Adicionales de Hardware
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Describe otros trabajos de hardware o detalles adicionales..."
+                                  className="min-h-[100px]"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription className="text-sm">
+                                Opcional: Agrega detalles que no estén en la
+                                lista de arreglos comunes
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {(form.watch("alcance") === "software" ||
+                    form.watch("alcance") === "ambos") && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <Package className="h-5 w-5 text-green-600" />
+                        Trabajos de Software
+                      </h3>
+
+                      <div className="space-y-6">
+                        <FormField
+                          control={form.control}
+                          name="arreglos_software"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Arreglos Comunes de Software
+                              </FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={(value) => {
+                                    const current = field.value || [];
+                                    if (!current.includes(value)) {
+                                      field.onChange([...current, value]);
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-12">
+                                    <SelectValue placeholder="Selecciona arreglos realizados" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {ARREGLOS_SOFTWARE.map((arreglo) => (
+                                      <SelectItem key={arreglo} value={arreglo}>
+                                        {arreglo}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              {field.value && field.value.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                  {field.value.map((arreglo) => (
+                                    <Badge
+                                      key={arreglo}
+                                      variant="secondary"
+                                      className="gap-1 pr-1"
+                                    >
+                                      {arreglo}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          field.onChange(
+                                            field.value?.filter(
+                                              (a) => a !== arreglo
+                                            )
+                                          );
+                                        }}
+                                        className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
+                                      >
+                                        ✕
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="observacion_software"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Observaciones Adicionales de Software
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Describe otros trabajos de software o detalles adicionales..."
+                                  className="min-h-[100px]"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription className="text-sm">
+                                Opcional: Agrega detalles que no estén en la
+                                lista de arreglos comunes
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Personal Asignado */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-orange-600" />
+                      Personal Asignado
+                    </h3>
+
+                    <div className="space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="tecnico_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-base font-semibold">
+                              Técnico Responsable *
+                            </FormLabel>
+                            <Select
+                              onValueChange={(value) =>
+                                field.onChange(Number(value))
+                              }
+                              defaultValue={String(field.value)}
+                              disabled={loadingUsuarios}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-12 text-base">
+                                  <SelectValue placeholder="Selecciona un técnico" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="max-h-[300px]">
+                                {tecnicos.map((user) => (
+                                  <SelectItem
+                                    key={user.id}
+                                    value={String(user.id)}
+                                    className="text-base py-3"
+                                  >
+                                    {user.nombre} - {user.correo}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {(form.watch("alcance") === "hardware" ||
+                        form.watch("alcance") === "ambos") && (
+                        <FormField
+                          control={form.control}
+                          name="encargado_harware_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Encargado Hardware *
+                              </FormLabel>
+                              <Select
+                                onValueChange={(value) =>
+                                  field.onChange(Number(value))
+                                }
+                                defaultValue={String(field.value)}
+                                disabled={loadingUsuarios}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="h-12 text-base">
+                                    <SelectValue placeholder="Selecciona un encargado" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="max-h-[300px]">
+                                  {tecnicos.map((user) => (
+                                    <SelectItem
+                                      key={user.id}
+                                      value={String(user.id)}
+                                      className="text-base py-3"
+                                    >
+                                      {user.nombre} - {user.correo}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormDescription className="text-sm">
+                                Responsable de componentes físicos
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      {(form.watch("alcance") === "software" ||
+                        form.watch("alcance") === "ambos") && (
+                        <FormField
+                          control={form.control}
+                          name="encargado_software_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-base font-semibold">
+                                Encargado Software *
+                              </FormLabel>
+                              <Select
+                                onValueChange={(value) =>
+                                  field.onChange(Number(value))
+                                }
+                                defaultValue={String(field.value)}
+                                disabled={loadingUsuarios}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="h-12 text-base">
+                                    <SelectValue placeholder="Selecciona un encargado" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="max-h-[300px]">
+                                  {tecnicos.map((user) => (
+                                    <SelectItem
+                                      key={user.id}
+                                      value={String(user.id)}
+                                      className="text-base py-3"
+                                    >
+                                      {user.nombre} - {user.correo}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormDescription className="text-sm">
+                                Responsable de sistemas y aplicaciones
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* MODO CREAR: Stepper con pasos */}
               {/* PASO 0: Alcance del Mantenimiento */}
-              {currentStep === 0 && (
+              {!isEditing && currentStep === 0 && (
                 <div className="space-y-6 animate-in fade-in-50 duration-300">
                   <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-2 border-orange-200 rounded-xl p-8 shadow-sm">
                     <h3 className="text-2xl font-bold text-orange-900 mb-3 flex items-center gap-3">
@@ -599,7 +1216,7 @@ export function MantenimientoFormModal({
               )}
 
               {/* PASO 1: Información del Mantenimiento */}
-              {currentStep === 1 && (
+              {!isEditing && currentStep === 1 && (
                 <div className="space-y-6 animate-in fade-in-50 duration-300">
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
@@ -829,12 +1446,6 @@ export function MantenimientoFormModal({
                                 >
                                   Correctivo - Reparación de fallas
                                 </SelectItem>
-                                <SelectItem
-                                  value="predictivo"
-                                  className="text-base py-3"
-                                >
-                                  Predictivo - Diagnóstico preventivo
-                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -873,7 +1484,7 @@ export function MantenimientoFormModal({
               )}
 
               {/* PASO 2: Arreglos Realizados */}
-              {currentStep === 2 && (
+              {!isEditing && currentStep === 2 && (
                 <div className="space-y-6 animate-in fade-in-50 duration-300">
                   <div className="bg-white border border-gray-200 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
@@ -1073,7 +1684,7 @@ export function MantenimientoFormModal({
               )}
 
               {/* PASO 3: Asignación de Personal */}
-              {currentStep === 3 && (
+              {!isEditing && currentStep === 3 && (
                 <div className="space-y-8 animate-in fade-in-50 slide-in-from-right-5 duration-300">
                   <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 border-2 border-orange-200 rounded-xl p-6 shadow-sm">
                     <h3 className="text-lg font-bold text-orange-900 mb-2 flex items-center gap-3">
@@ -1249,15 +1860,14 @@ export function MantenimientoFormModal({
                           Fecha:
                         </span>
                         <p className="text-base font-semibold mt-1">
-                          {form.watch("fecha")
-                            ? new Date(form.watch("fecha")).toLocaleDateString(
-                                "es-ES",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
+                          {form.watch("fecha_realizado")
+                            ? new Date(
+                                form.watch("fecha_realizado")
+                              ).toLocaleDateString("es-ES", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
                             : "No definida"}
                         </p>
                       </div>
@@ -1279,23 +1889,9 @@ export function MantenimientoFormModal({
 
         {/* Footer fijo con botones */}
         <div className="border-t bg-white px-4 sm:px-8 lg:px-16 py-4 sm:py-6 flex-none">
-          <div className="flex gap-4 justify-between">
-            <div className="flex gap-2">
-              {currentStep > 0 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={prevStep}
-                  disabled={isSubmitting}
-                  className="h-12 px-6 font-medium text-base"
-                >
-                  <ChevronLeft className="mr-2 h-5 w-5" />
-                  Anterior
-                </Button>
-              )}
-            </div>
-
-            <div className="flex gap-3">
+          {isEditing ? (
+            // Modo editar: Solo botones de cancelar y guardar
+            <div className="flex gap-3 justify-end">
               <Button
                 type="button"
                 variant="outline"
@@ -1305,34 +1901,74 @@ export function MantenimientoFormModal({
               >
                 Cancelar
               </Button>
+              <Button
+                type="submit"
+                onClick={form.handleSubmit(handleSubmit)}
+                disabled={isSubmitting}
+                className="h-12 px-8 font-medium text-base bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/30"
+              >
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {!isSubmitting && <Check className="mr-2 h-4 w-4" />}
+                Actualizar Mantenimiento
+              </Button>
+            </div>
+          ) : (
+            // Modo crear: Navegación del stepper
+            <div className="flex gap-4 justify-between">
+              <div className="flex gap-2">
+                {currentStep > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={isSubmitting}
+                    className="h-12 px-6 font-medium text-base"
+                  >
+                    <ChevronLeft className="mr-2 h-5 w-5" />
+                    Anterior
+                  </Button>
+                )}
+              </div>
 
-              {currentStep < steps.length - 1 ? (
+              <div className="flex gap-3">
                 <Button
                   type="button"
-                  onClick={nextStep}
-                  className="h-12 px-8 font-medium text-base bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/30"
-                >
-                  Siguiente
-                  <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  onClick={form.handleSubmit(handleSubmit)}
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
                   disabled={isSubmitting}
-                  className="h-12 px-8 font-medium text-base bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/30"
+                  className="h-12 px-6 font-medium text-base"
                 >
-                  {isSubmitting && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {!isSubmitting && <Check className="mr-2 h-4 w-4" />}
-                  {isEditing
-                    ? "Actualizar Mantenimiento"
-                    : "Programar Mantenimiento"}
+                  Cancelar
                 </Button>
-              )}
+
+                {currentStep < steps.length - 1 ? (
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    className="h-12 px-8 font-medium text-base bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-600/30"
+                  >
+                    Siguiente
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    onClick={form.handleSubmit(handleSubmit)}
+                    disabled={isSubmitting}
+                    className="h-12 px-8 font-medium text-base bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/30"
+                  >
+                    {isSubmitting && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    {!isSubmitting && <Check className="mr-2 h-4 w-4" />}
+                    Programar Mantenimiento
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

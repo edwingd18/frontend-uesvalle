@@ -117,7 +117,15 @@ export async function apiPost<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.error || "Error en la petición");
+    // Intentar obtener el mensaje de error más descriptivo
+    const errorMsg =
+      error.message ||
+      error.error ||
+      error.msg ||
+      error.detail ||
+      (error.errors && JSON.stringify(error.errors)) ||
+      `Error ${response.status}: ${response.statusText}`;
+    throw new Error(errorMsg);
   }
 
   return response.json();

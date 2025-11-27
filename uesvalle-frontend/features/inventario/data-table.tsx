@@ -153,19 +153,19 @@ export function DataTable<TData, TValue>({
               }
             >
               <SelectTrigger className="w-full sm:w-[140px]">
-                <SelectValue placeholder="Tipo" />
+                <SelectValue placeholder="Filtrar por tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="computador">Computador</SelectItem>
-                <SelectItem value="portatil">Portátil</SelectItem>
-                <SelectItem value="tablet">Tablet</SelectItem>
-                <SelectItem value="impresora">Impresora</SelectItem>
-                <SelectItem value="router">Router</SelectItem>
-                <SelectItem value="switch">Switch</SelectItem>
-                <SelectItem value="servidor">Servidor</SelectItem>
-                <SelectItem value="ups">UPS</SelectItem>
-                <SelectItem value="monitor">Monitor</SelectItem>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="COMPUTADOR">Computador</SelectItem>
+                <SelectItem value="PORTATIL">Portátil</SelectItem>
+                <SelectItem value="TABLET">Tablet</SelectItem>
+                <SelectItem value="IMPRESORA">Impresora</SelectItem>
+                <SelectItem value="ROUTER">Router</SelectItem>
+                <SelectItem value="SWITCH">Switch</SelectItem>
+                <SelectItem value="SERVIDOR">Servidor</SelectItem>
+                <SelectItem value="UPS">UPS</SelectItem>
+                <SelectItem value="MONITOR">Monitor</SelectItem>
               </SelectContent>
             </Select>
 
@@ -176,15 +176,15 @@ export function DataTable<TData, TValue>({
               }
             >
               <SelectTrigger className="w-full sm:w-[140px]">
-                <SelectValue placeholder="Estado" />
+                <SelectValue placeholder="Filtrar por estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="bueno">Bueno</SelectItem>
-                <SelectItem value="regular">Regular</SelectItem>
-                <SelectItem value="malo">Malo</SelectItem>
-                <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
-                <SelectItem value="baja">Baja</SelectItem>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="BUENO">Bueno</SelectItem>
+                <SelectItem value="REGULAR">Regular</SelectItem>
+                <SelectItem value="MALO">Malo</SelectItem>
+                <SelectItem value="MANTENIMIENTO">Mantenimiento</SelectItem>
+                <SelectItem value="BAJA">Baja</SelectItem>
               </SelectContent>
             </Select>
 
@@ -194,18 +194,56 @@ export function DataTable<TData, TValue>({
                 updateFilter("proceso", value === "all" ? "" : value)
               }
             >
-              <SelectTrigger className="w-full sm:w-[140px]">
-                <SelectValue placeholder="Proceso" />
+              <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectValue placeholder="Filtrar por proceso" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="sistemas">Sistemas</SelectItem>
-                <SelectItem value="contabilidad">Contabilidad</SelectItem>
-                <SelectItem value="administracion">Administración</SelectItem>
-                <SelectItem value="gerencia">Gerencia</SelectItem>
-                <SelectItem value="juridica">Jurídica</SelectItem>
-                <SelectItem value="financiera">Financiera</SelectItem>
-                <SelectItem value="tecnica">Técnica</SelectItem>
+              <SelectContent className="max-h-[400px] overflow-y-auto">
+                <SelectItem value="all">Todos los procesos</SelectItem>
+                <SelectItem value="DIRECCIONAMIENTO ESTRATEGICO">
+                  Direccionamiento Estratégico
+                </SelectItem>
+                <SelectItem value="PLANEACIÓN E INFORMACIÓN INSTITUCIONAL">
+                  Planeación e Información Institucional
+                </SelectItem>
+                <SelectItem value="GESTIÓN DE CALIDAD">
+                  Gestión de Calidad
+                </SelectItem>
+                <SelectItem value="AGUA PARA CONSUMO HUMANO Y SANEAMIENTO BÁSICO">
+                  Agua para Consumo Humano y Saneamiento Básico
+                </SelectItem>
+                <SelectItem value="ALIMENTOS Y MEDICAMENTOS">
+                  Alimentos y Medicamentos
+                </SelectItem>
+                <SelectItem value="ESTABLECIMIENTO DE INTERÉS SANITARIO">
+                  Establecimiento de Interés Sanitario
+                </SelectItem>
+                <SelectItem value="ZOONOSIS Y ENFERMEDADES DE TRANSMISIÓN VECTORIAL">
+                  Zoonosis y Enfermedades de Transmisión Vectorial
+                </SelectItem>
+                <SelectItem value="GESTIÓN FINANCIERA">
+                  Gestión Financiera
+                </SelectItem>
+                <SelectItem value="GESTIÓN DE RECURSOS FÍSICOS">
+                  Gestión de Recursos Físicos
+                </SelectItem>
+                <SelectItem value="GESTIÓN DEL TALENTO HUMANO">
+                  Gestión del Talento Humano
+                </SelectItem>
+                <SelectItem value="GESTIÓN INFORMÁTICA">
+                  Gestión Informática
+                </SelectItem>
+                <SelectItem value="GESTIÓN DOCUMENTAL Y ATENCIÓN AL CIUDADANO">
+                  Gestión Documental y Atención al Ciudadano
+                </SelectItem>
+                <SelectItem value="GESTIÓN DE CONTRATACIÓN">
+                  Gestión de Contratación
+                </SelectItem>
+                <SelectItem value="GESTIÓN JURÍDICA Y DISCIPLINARIA">
+                  Gestión Jurídica y Disciplinaria
+                </SelectItem>
+                <SelectItem value="CONTROL INTERNO A LA GESTIÓN">
+                  Control Interno a la Gestión
+                </SelectItem>
               </SelectContent>
             </Select>
 

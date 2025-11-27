@@ -33,22 +33,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Activo } from "@/shared/types/inventario";
-import { sedes, usuarios } from "@/mocks/inventario";
 import { ActivoFormModal } from "@/features/inventario/components/activo-form-modal";
 import { DeleteActivoDialog } from "@/features/inventario/components/delete-activo-dialog";
 import { ReportesModal } from "@/features/inventario/components/ReportesModal";
 
-const getSedeNombre = (sedeId: number) => {
-  return sedes.find((sede) => sede.id === sedeId)?.nombre || "N/A";
-};
-
-const getUsuarioNombre = (usuarioId: number | null) => {
-  if (!usuarioId) return "N/A";
-  return usuarios.find((usuario) => usuario.id === usuarioId)?.nombre || "N/A";
-};
-
 const getEstadoBadgeVariant = (estado: string) => {
-  switch (estado) {
+  const estadoLower = estado.toLowerCase();
+  switch (estadoLower) {
     case "bueno":
       return "default";
     case "regular":
@@ -179,19 +170,19 @@ export default function InventarioPage() {
         cell: ({ row }) => <div>{row.getValue("modelo")}</div>,
       },
       {
-        accessorKey: "sede_id",
-        header: "Sede",
+        accessorKey: "usuario_uso_nombre",
+        header: "Usuario en Uso",
         cell: ({ row }) => {
-          const sedeId = row.getValue("sede_id") as number;
-          return <div>{getSedeNombre(sedeId)}</div>;
+          const nombre = row.getValue("usuario_uso_nombre") as string | null;
+          return <div>{nombre || "N/A"}</div>;
         },
       },
       {
-        accessorKey: "usuario_uso_id",
-        header: "Usuario en Uso",
+        accessorKey: "usuario_sysman_nombre",
+        header: "Usuario Sysman",
         cell: ({ row }) => {
-          const usuarioId = row.getValue("usuario_uso_id") as number | null;
-          return <div>{getUsuarioNombre(usuarioId)}</div>;
+          const nombre = row.getValue("usuario_sysman_nombre") as string | null;
+          return <div>{nombre || "N/A"}</div>;
         },
       },
       {
@@ -199,9 +190,11 @@ export default function InventarioPage() {
         header: "Estado",
         cell: ({ row }) => {
           const estado = row.getValue("estado") as string;
+          const estadoCapitalizado =
+            estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase();
           return (
             <Badge variant={getEstadoBadgeVariant(estado) as any}>
-              {estado}
+              {estadoCapitalizado}
             </Badge>
           );
         },
@@ -211,10 +204,21 @@ export default function InventarioPage() {
         header: "Proceso",
         cell: ({ row }) => {
           const proceso = row.getValue("proceso") as string;
+          // Crear versión abreviada del proceso
+          const procesoAbreviado = proceso
+            .split(" ")
+            .map((word) => word.charAt(0))
+            .join("");
+
           return (
-            <Badge variant={getProcesoBadgeVariant(proceso) as any}>
-              {proceso}
-            </Badge>
+            <div className="max-w-[200px]" title={proceso}>
+              <Badge
+                variant={getProcesoBadgeVariant(proceso) as any}
+                className="truncate max-w-full"
+              >
+                {procesoAbreviado}
+              </Badge>
+            </div>
           );
         },
       },

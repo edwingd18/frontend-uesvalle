@@ -32,31 +32,31 @@ const menuItems = [
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["ADMIN", "SYSMAN", "RESPONSABLE"],
+    roles: ["ADMIN", "SYSMAN", "TECNICO"],
   },
   {
     title: "Inventario",
     href: "/inventario",
     icon: Package,
-    roles: ["ADMIN", "SYSMAN", "RESPONSABLE"],
+    roles: ["ADMIN", "SYSMAN", "TECNICO"],
   },
   {
     title: "Mantenimientos",
     href: "/mantenimientos",
     icon: Wrench,
-    roles: ["ADMIN", "SYSMAN"],
+    roles: ["ADMIN", "SYSMAN", "TECNICO"],
   },
   {
     title: "Planificación",
     href: "/planificacion",
     icon: Calendar,
-    roles: ["ADMIN", "SYSMAN"],
+    roles: ["ADMIN", "SYSMAN", "TECNICO"],
   },
   {
     title: "Traslados",
     href: "/traslados",
     icon: ArrowLeftRight,
-    roles: ["ADMIN", "SYSMAN"],
+    roles: ["ADMIN", "SYSMAN", "TECNICO"],
   },
   {
     title: "Usuarios",
@@ -69,8 +69,8 @@ const menuItems = [
 const getRoleDisplayName = (role: string) => {
   const roleMap: Record<string, string> = {
     ADMIN: "Administrador",
-    SYSMAN: "Técnico",
-    RESPONSABLE: "Responsable",
+    SYSMAN: "Sysman",
+    TECNICO: "Técnico",
   };
   return roleMap[role] || role;
 };
@@ -85,7 +85,7 @@ export function Sidebar({
   const usuario = useAuthStore((state) => state.usuario);
   const logout = useAuthStore((state) => state.logout);
 
-  const userRole = usuario?.rol || "RESPONSABLE";
+  const userRole = usuario?.rol || "TECNICO";
 
   const filteredMenuItems = menuItems.filter((item) =>
     item.roles.includes(userRole)

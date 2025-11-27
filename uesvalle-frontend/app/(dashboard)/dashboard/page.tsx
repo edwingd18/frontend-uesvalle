@@ -36,6 +36,9 @@ export default function DashboardPage() {
   const [activoModalOpen, setActivoModalOpen] = useState(false);
   const [mantenimientoModalOpen, setMantenimientoModalOpen] = useState(false);
 
+  // Si es técnico, mostrar dashboard simplificado
+  const isTecnico = usuario?.rol === "TECNICO";
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -115,14 +118,255 @@ export default function DashboardPage() {
       title: "Inventario",
       description: "Ver todo",
       color: "bg-gradient-to-br from-slate-500 to-slate-600",
-      roles: ["ADMIN", "SYSMAN", "RESPONSABLE"],
+      roles: ["ADMIN", "SYSMAN", "TECNICO"],
     },
-  ].filter((action) => action.roles.includes(usuario?.rol || "RESPONSABLE"));
+  ].filter((action) => action.roles.includes(usuario?.rol || "TECNICO"));
 
   const handleSuccess = () => {
     refetch();
   };
 
+  // Dashboard para técnicos
+  if (isTecnico) {
+    return (
+      <div className="space-y-6 pb-8">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Panel de Técnico
+            </h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">
+              Bienvenido,{" "}
+              <span className="font-medium text-orange-600">
+                {usuario?.nombre}
+              </span>
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetch}
+            className="w-full sm:w-auto"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualizar
+          </Button>
+        </div>
+
+        {/* Métricas simplificadas para técnicos */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Mantenimientos Activos
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">
+                    {stats.activosEnMantenimiento}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">En proceso</p>
+                </div>
+                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Wrench className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Activos
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">
+                    {stats.totalActivos}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">En inventario</p>
+                </div>
+                <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Package className="h-6 w-6 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">
+                    Disponibles
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">
+                    {stats.activosDisponibles}
+                  </p>
+                  <p className="text-xs text-green-600 font-medium mt-1">
+                    {porcentajeDisponibles}% operativos
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Acciones rápidas para técnicos */}
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-blue-900">Accesos Rápidos</CardTitle>
+            <CardDescription className="text-blue-700">
+              Funciones principales para técnicos
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <Link href="/mantenimientos">
+                <div className="group cursor-pointer">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 sm:p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1">
+                    <Wrench className="h-6 w-6 sm:h-8 sm:w-8 mb-2 sm:mb-3" />
+                    <h3 className="font-semibold text-xs sm:text-sm mb-1">
+                      Mantenimientos
+                    </h3>
+                    <p className="text-xs opacity-90 hidden sm:block">
+                      Ver servicios
+                    </p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/inventario">
+                <div className="group cursor-pointer">
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 sm:p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1">
+                    <Package className="h-6 w-6 sm:h-8 sm:w-8 mb-2 sm:mb-3" />
+                    <h3 className="font-semibold text-xs sm:text-sm mb-1">
+                      Inventario
+                    </h3>
+                    <p className="text-xs opacity-90 hidden sm:block">
+                      Ver activos
+                    </p>
+                  </div>
+                </div>
+              </Link>
+
+              <Link href="/planificacion">
+                <div className="group cursor-pointer">
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 sm:p-6 text-white shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1">
+                    <Calendar className="h-6 w-6 sm:h-8 sm:w-8 mb-2 sm:mb-3" />
+                    <h3 className="font-semibold text-xs sm:text-sm mb-1">
+                      Planificación
+                    </h3>
+                    <p className="text-xs opacity-90 hidden sm:block">
+                      Ver calendario
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Estado de activos */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Estado de los Activos</CardTitle>
+            <CardDescription>Condición actual del inventario</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.distribucionPorEstado
+                .sort((a, b) => b.cantidad - a.cantidad)
+                .map((item) => {
+                  const porcentaje =
+                    stats.totalActivos > 0
+                      ? Math.round((item.cantidad / stats.totalActivos) * 100)
+                      : 0;
+
+                  const colorClasses =
+                    item.estado.toLowerCase() === "bueno"
+                      ? "bg-green-500"
+                      : item.estado.toLowerCase() === "regular"
+                      ? "bg-yellow-500"
+                      : item.estado.toLowerCase() === "malo"
+                      ? "bg-red-500"
+                      : item.estado.toLowerCase() === "mantenimiento"
+                      ? "bg-blue-500"
+                      : "bg-gray-500";
+
+                  return (
+                    <div key={item.estado} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium capitalize">
+                          {item.estado}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {item.cantidad} ({porcentaje}%)
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${colorClasses} transition-all`}
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Distribución por Sede */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-orange-600" />
+              Distribución por Sede
+            </CardTitle>
+            <CardDescription>
+              {stats.distribucionPorSede.length} sedes activas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.distribucionPorSede
+                .sort((a, b) => b.cantidad - a.cantidad)
+                .map((item) => {
+                  const porcentaje =
+                    stats.totalActivos > 0
+                      ? Math.round((item.cantidad / stats.totalActivos) * 100)
+                      : 0;
+
+                  return (
+                    <div key={item.sede} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">{item.sede}</span>
+                        <span className="text-muted-foreground">
+                          {item.cantidad} ({porcentaje}%)
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all"
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Dashboard para administradores y SYSMAN
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}

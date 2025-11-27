@@ -60,11 +60,13 @@ const MESES = [
 interface VisualizarPlanificacionPorTipoProps {
   planificacion: any;
   onEdit?: () => void;
+  readOnly?: boolean;
 }
 
 export function VisualizarPlanificacionPorTipo({
   planificacion,
   onEdit,
+  readOnly = false,
 }: VisualizarPlanificacionPorTipoProps) {
   if (!planificacion) return null;
 
@@ -228,10 +230,12 @@ export function VisualizarPlanificacionPorTipo({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Editar
-          </Button>
+          {!readOnly && onEdit && (
+            <Button variant="outline" onClick={onEdit}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={() => {

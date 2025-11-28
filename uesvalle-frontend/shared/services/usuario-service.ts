@@ -65,6 +65,29 @@ class UsuarioService {
 
     return response.json();
   }
+
+  async eliminarUsuario(id: number): Promise<void> {
+    const API_BASE_URL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(
+        error.error || error.message || "Error al eliminar usuario"
+      );
+    }
+  }
+
+  async actualizarRol(id: number, rol: string): Promise<Usuario> {
+    return apiPatch<Usuario>(`/usuarios/${id}/rol`, { rol });
+  }
 }
 
 export const usuarioService = new UsuarioService();

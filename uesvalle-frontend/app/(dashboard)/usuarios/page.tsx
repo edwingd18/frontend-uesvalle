@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Usuario } from "@/shared/types/auth";
 import { UsuarioFormModal } from "@/features/usuarios/components/usuario-form-modal";
+import { EditUsuarioModal } from "@/features/usuarios/components/edit-usuario-modal";
+import { DeleteUsuarioDialog } from "@/features/usuarios/components/delete-usuario-dialog";
 
 const getRolBadgeVariant = (rol: string) => {
   switch (rol) {
@@ -48,18 +50,30 @@ const getRolBadgeVariant = (rol: string) => {
   }
 };
 
+const getSedeNombre = (sedeId: number): string => {
+  const sedes: Record<number, string> = {
+    1: "Cali - Sede Principal",
+    2: "Palmira",
+    3: "Tuluá",
+    4: "Buga",
+    5: "Cartago",
+  };
+  return sedes[sedeId] || `Sede ${sedeId}`;
+};
+
 export default function UsuariosPage() {
   const { usuarios, loading, refreshUsuarios } = useUsuarios();
 
   // Estados para los modales
   const [formModalOpen, setFormModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState<Usuario | null>(null);
 
   // Handlers para las acciones
   const handleEdit = (usuario: Usuario) => {
     setSelectedUsuario(usuario);
-    setFormModalOpen(true);
+    setEditModalOpen(true);
   };
 
   const handleDelete = (usuario: Usuario) => {
@@ -85,7 +99,9 @@ export default function UsuariosPage() {
           <div className="text-center">
             <Button
               variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
             >
               ID
               <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -93,7 +109,9 @@ export default function UsuariosPage() {
           </div>
         ),
         cell: ({ row }) => (
-          <div className="font-medium whitespace-nowrap px-6 py-3 text-center">#{row.getValue("id")}</div>
+          <div className="font-medium whitespace-nowrap px-6 py-3 text-center">
+            #{row.getValue("id")}
+          </div>
         ),
         size: 120,
         minSize: 120,
@@ -105,7 +123,9 @@ export default function UsuariosPage() {
           <div className="text-center">
             <Button
               variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
             >
               Nombre
               <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -113,16 +133,16 @@ export default function UsuariosPage() {
           </div>
         ),
         cell: ({ row }) => (
-          <div className="font-semibold whitespace-nowrap px-8 py-3 text-center">{row.getValue("nombre")}</div>
+          <div className="font-semibold whitespace-nowrap px-8 py-3 text-center">
+            {row.getValue("nombre")}
+          </div>
         ),
         size: 200,
         minSize: 200,
       },
       {
         accessorKey: "correo",
-        header: () => (
-          <div className="text-center">Correo Electrónico</div>
-        ),
+        header: () => <div className="text-center">Correo Electrónico</div>,
         cell: ({ row }) => (
           <div className="flex items-center justify-center gap-2 whitespace-nowrap">
             <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
@@ -134,9 +154,7 @@ export default function UsuariosPage() {
       },
       {
         accessorKey: "rol",
-        header: () => (
-          <div className="text-center">Rol</div>
-        ),
+        header: () => <div className="text-center">Rol</div>,
         cell: ({ row }) => {
           const rol = row.getValue("rol") as string;
           const badge = getRolBadgeVariant(rol);
@@ -153,10 +171,47 @@ export default function UsuariosPage() {
         maxSize: 100,
       },
       {
+        accessorKey: "estado",
+        header: () => <div className="text-center">Estado</div>,
+        cell: ({ row }) => {
+          const estado = row.getValue("estado") as string;
+          const isActivo = estado === "ACTIVO";
+          return (
+            <div className="whitespace-nowrap text-center">
+              <Badge
+                variant={isActivo ? "default" : "secondary"}
+                className={
+                  isActivo
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-gray-500 hover:bg-gray-600"
+                }
+              >
+                {isActivo ? "Activo" : "Inactivo"}
+              </Badge>
+            </div>
+          );
+        },
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+      {
+        accessorKey: "sede_id",
+        header: () => <div className="text-center">Sede</div>,
+        cell: ({ row }) => {
+          const sedeId = row.getValue("sede_id") as number;
+          return (
+            <div className="whitespace-nowrap text-center">
+              <span className="text-sm">{getSedeNombre(sedeId)}</span>
+            </div>
+          );
+        },
+        size: 180,
+        minSize: 180,
+      },
+      {
         id: "actions",
-        header: () => (
-          <div className="text-center">Acciones</div>
-        ),
+        header: () => <div className="text-center">Acciones</div>,
         enableHiding: false,
         cell: ({ row }) => {
           const usuario = row.original;
@@ -173,7 +228,9 @@ export default function UsuariosPage() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                   <DropdownMenuItem
-                    onClick={() => navigator.clipboard.writeText(usuario.correo)}
+                    onClick={() =>
+                      navigator.clipboard.writeText(usuario.correo)
+                    }
                   >
                     Copiar correo
                   </DropdownMenuItem>
@@ -185,10 +242,10 @@ export default function UsuariosPage() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => handleDelete(usuario)}
-                    className="text-red-600 focus:text-red-600"
+                    className="text-orange-600 focus:text-orange-600"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Eliminar
+                    {usuario.estado === "ACTIVO" ? "Desactivar" : "Activar"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -228,7 +285,11 @@ export default function UsuariosPage() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={refreshUsuarios} className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={refreshUsuarios}
+              className="w-full sm:w-auto"
+            >
               <RefreshCw className="mr-2 h-4 w-4" />
               Actualizar
             </Button>
@@ -268,7 +329,19 @@ export default function UsuariosPage() {
         onSuccess={handleSuccess}
       />
 
-      {/* TODO: Agregar modal de eliminación */}
+      <EditUsuarioModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        usuario={selectedUsuario}
+        onSuccess={handleSuccess}
+      />
+
+      <DeleteUsuarioDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        usuario={selectedUsuario}
+        onSuccess={handleSuccess}
+      />
     </div>
   );
 }

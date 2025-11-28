@@ -498,9 +498,9 @@ export function MantenimientoFormModal({
     }
   };
 
-  // Filtrar solo usuarios técnicos (SYSMAN) para el técnico
+  // Filtrar usuarios que pueden realizar mantenimientos (todos los roles)
   const tecnicos = usuarios.filter(
-    (u) => u.rol === "SYSMAN" || u.rol === "ADMIN"
+    (u) => u.rol === "ADMIN" || u.rol === "SYSMAN" || u.rol === "TECNICO"
   );
 
   const getTipoBadgeVariant = (tipo: string) => {

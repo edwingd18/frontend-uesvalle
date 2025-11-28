@@ -23,6 +23,8 @@ interface DeleteMantenimientoDialogProps {
   onOpenChange: (open: boolean) => void;
   mantenimiento: Mantenimiento | null;
   onSuccess: () => void;
+  activoPlaca?: string;
+  tecnicoNombre?: string;
 }
 
 const getTipoBadgeVariant = (tipo: string) => {
@@ -41,6 +43,8 @@ export function DeleteMantenimientoDialog({
   onOpenChange,
   mantenimiento,
   onSuccess,
+  activoPlaca,
+  tecnicoNombre,
 }: DeleteMantenimientoDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -67,7 +71,9 @@ export function DeleteMantenimientoDialog({
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return "N/A";
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: es });
+      return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", {
+        locale: es,
+      });
     } catch {
       return dateString;
     }
@@ -81,51 +87,49 @@ export function DeleteMantenimientoDialog({
             <AlertTriangle className="h-5 w-5" />
             ¿Eliminar mantenimiento?
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              Esta acción no se puede deshacer. El mantenimiento será eliminado
-              permanentemente del sistema.
-            </p>
-            {mantenimiento && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">
-                    ID:
-                  </span>
-                  <span className="text-sm text-gray-900">
-                    #{mantenimiento.id}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">
-                    Tipo:
-                  </span>
-                  <Badge
-                    variant={getTipoBadgeVariant(mantenimiento.tipo) as any}
-                    className="capitalize"
-                  >
-                    {mantenimiento.tipo}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">
-                    Activo:
-                  </span>
-                  <span className="text-sm text-gray-900">
-                    #{mantenimiento.activo_id}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-700">
-                    Fecha:
-                  </span>
-                  <span className="text-sm text-gray-900">
-                    {formatDate(mantenimiento.fecha)}
-                  </span>
-                </div>
-              </div>
-            )}
+          <AlertDialogDescription>
+            Esta acción no se puede deshacer. El mantenimiento será eliminado
+            permanentemente del sistema.
           </AlertDialogDescription>
+          {mantenimiento && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">
+                  Tipo:
+                </span>
+                <Badge
+                  variant={getTipoBadgeVariant(mantenimiento.tipo) as any}
+                  className="capitalize"
+                >
+                  {mantenimiento.tipo}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">
+                  Activo:
+                </span>
+                <span className="text-sm text-gray-900">
+                  {activoPlaca || `#${mantenimiento.activo_id}`}
+                </span>
+              </div>
+              {tecnicoNombre && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-700">
+                    Técnico:
+                  </span>
+                  <span className="text-sm text-gray-900">{tecnicoNombre}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">
+                  Fecha de realización:
+                </span>
+                <span className="text-sm text-gray-900">
+                  {formatDate(mantenimiento.fecha_realizado)}
+                </span>
+              </div>
+            </div>
+          )}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <Button

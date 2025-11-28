@@ -292,11 +292,19 @@ export default function MantenimientosPage() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={refreshData} className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={refreshData}
+              className="w-full sm:w-auto"
+            >
               <RefreshCw className="mr-2 h-4 w-4" />
               Actualizar
             </Button>
-            <Button variant="outline" onClick={() => setReportesModalOpen(true)} className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => setReportesModalOpen(true)}
+              className="w-full sm:w-auto"
+            >
               <Download className="mr-2 h-4 w-4" />
               Generar Reporte
             </Button>
@@ -342,6 +350,16 @@ export default function MantenimientosPage() {
         onOpenChange={setDeleteDialogOpen}
         mantenimiento={selectedMantenimiento}
         onSuccess={handleSuccess}
+        activoPlaca={
+          selectedMantenimiento
+            ? getActivoPlaca(selectedMantenimiento.activo_id)
+            : undefined
+        }
+        tecnicoNombre={
+          selectedMantenimiento
+            ? getUsuarioNombre(selectedMantenimiento.tecnico_id)
+            : undefined
+        }
       />
 
       <ReportesMantenimientosModal

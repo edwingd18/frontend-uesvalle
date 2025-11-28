@@ -405,6 +405,10 @@ export default function MantenimientoDetailPage() {
         onOpenChange={setShowDeleteDialog}
         mantenimiento={mantenimiento}
         onSuccess={handleDelete}
+        activoPlaca={activo?.placa}
+        tecnicoNombre={
+          mantenimiento ? getUsuarioNombre(mantenimiento.tecnico_id) : undefined
+        }
       />
     </div>
   );

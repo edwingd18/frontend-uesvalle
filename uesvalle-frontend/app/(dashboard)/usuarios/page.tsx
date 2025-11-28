@@ -36,6 +36,7 @@ import { Usuario } from "@/shared/types/auth";
 import { UsuarioFormModal } from "@/features/usuarios/components/usuario-form-modal";
 import { EditUsuarioModal } from "@/features/usuarios/components/edit-usuario-modal";
 import { DeleteUsuarioDialog } from "@/features/usuarios/components/delete-usuario-dialog";
+import { RoleGuard } from "@/shared/components/auth/role-guard";
 
 const getRolBadgeVariant = (rol: string) => {
   switch (rol) {
@@ -271,77 +272,79 @@ export default function UsuariosPage() {
   }
 
   return (
-    <div className="w-full">
-      {/* Header con padding responsive */}
-      <div className="py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
-              <UsersIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
-              Usuarios
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Gestiona los usuarios del sistema UESVALLE
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              variant="outline"
-              onClick={refreshUsuarios}
-              className="w-full sm:w-auto"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Actualizar
-            </Button>
-            <Button
-              onClick={handleCreate}
-              className="bg-orange-600 hover:bg-orange-700 w-full sm:w-auto"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo Usuario
-            </Button>
+    <RoleGuard allowedRoles={["ADMIN", "SYSMAN"]} redirectTo="/dashboard">
+      <div className="w-full">
+        {/* Header con padding responsive */}
+        <div className="py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+                <UsersIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+                Usuarios
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Gestiona los usuarios del sistema UESVALLE
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                onClick={refreshUsuarios}
+                className="w-full sm:w-auto"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Actualizar
+              </Button>
+              <Button
+                onClick={handleCreate}
+                className="bg-orange-600 hover:bg-orange-700 w-full sm:w-auto"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo Usuario
+              </Button>
+            </div>
           </div>
         </div>
+
+        {/* Card con scroll horizontal */}
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Usuarios del Sistema</CardTitle>
+              <CardDescription>
+                Lista completa de usuarios registrados ({usuarios.length}{" "}
+                usuarios)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="overflow-x-auto flex justify-center">
+              <div className="w-[280px] sm:w-full">
+                <DataTable columns={columns} data={usuarios} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Modales */}
+        <UsuarioFormModal
+          open={formModalOpen}
+          onOpenChange={setFormModalOpen}
+          onSuccess={handleSuccess}
+        />
+
+        <EditUsuarioModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          usuario={selectedUsuario}
+          onSuccess={handleSuccess}
+        />
+
+        <DeleteUsuarioDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          usuario={selectedUsuario}
+          onSuccess={handleSuccess}
+        />
       </div>
-
-      {/* Card con scroll horizontal */}
-      <div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Usuarios del Sistema</CardTitle>
-            <CardDescription>
-              Lista completa de usuarios registrados ({usuarios.length}{" "}
-              usuarios)
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="overflow-x-auto flex justify-center">
-            <div className="w-[280px] sm:w-full">
-              <DataTable columns={columns} data={usuarios} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Modales */}
-      <UsuarioFormModal
-        open={formModalOpen}
-        onOpenChange={setFormModalOpen}
-        onSuccess={handleSuccess}
-      />
-
-      <EditUsuarioModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        usuario={selectedUsuario}
-        onSuccess={handleSuccess}
-      />
-
-      <DeleteUsuarioDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        usuario={selectedUsuario}
-        onSuccess={handleSuccess}
-      />
-    </div>
+    </RoleGuard>
   );
 }

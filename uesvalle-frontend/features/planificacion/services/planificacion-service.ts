@@ -22,7 +22,6 @@ class PlanificacionService {
     }
 
     const result = await response.json();
-    console.log("Respuesta del backend al obtener planificación:", result);
 
     // Transformar la respuesta del backend al formato esperado por el frontend
     const planificacionTransformada = {
@@ -38,17 +37,11 @@ class PlanificacionService {
       })),
     };
 
-    console.log("Planificación transformada:", planificacionTransformada);
     return planificacionTransformada;
   }
 
   async createPlanificacionAnual(data: any): Promise<any> {
     try {
-      console.log(
-        "Enviando POST a /planificacion:",
-        JSON.stringify(data, null, 2)
-      );
-
       const response = await fetch(`${API_BASE_URL}/planificacion`, {
         method: "POST",
         headers: {
@@ -59,12 +52,8 @@ class PlanificacionService {
         body: JSON.stringify(data),
       });
 
-      console.log("Status de respuesta:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Error del backend:", errorText);
-
         let errorData;
         try {
           errorData = JSON.parse(errorText);
@@ -80,18 +69,13 @@ class PlanificacionService {
       }
 
       const result = await response.json();
-      console.log("Respuesta del backend al crear:", result);
-
       return result;
     } catch (error) {
-      console.error("Error completo al crear planificación:", error);
       throw error;
     }
   }
 
   async updatePlanificacionAnual(ano: number, data: any): Promise<any> {
-    console.log("Enviando PUT a /planificacion:", data);
-
     const response = await fetch(`${API_BASE_URL}/planificacion/${ano}`, {
       method: "PUT",
       headers: {
@@ -110,8 +94,6 @@ class PlanificacionService {
     }
 
     const result = await response.json();
-    console.log("Respuesta del backend al actualizar:", result);
-
     return result;
   }
 }

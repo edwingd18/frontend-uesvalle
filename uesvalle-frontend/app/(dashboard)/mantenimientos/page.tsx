@@ -144,9 +144,6 @@ export default function MantenimientosPage() {
         cell: ({ row }) => {
           const activoId = row.getValue("activo_id") as number;
           const placa = getActivoPlaca(activoId);
-          console.log(
-            `Mantenimiento #${row.original.id} -> Activo ID: ${activoId} -> Placa: ${placa}`
-          );
           return (
             <div className="font-mono font-semibold text-orange-600">
               {placa}

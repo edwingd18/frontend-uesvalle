@@ -14,7 +14,6 @@ export function useTraslados() {
       const traslados = await trasladosService.getTraslados();
       setData(traslados);
     } catch (err) {
-      console.error("Error al cargar traslados:", err);
       setError(
         err instanceof Error ? err.message : "Error al cargar traslados"
       );

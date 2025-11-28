@@ -465,7 +465,6 @@ export function MantenimientoFormModal({
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      console.error("Error completo:", error);
       showToast.error(
         error instanceof Error
           ? error.message

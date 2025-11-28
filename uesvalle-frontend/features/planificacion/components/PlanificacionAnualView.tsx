@@ -148,32 +148,20 @@ export function PlanificacionAnualView({
 
   const handleUpdatePlanificacion = async (planificacionData: any) => {
     try {
-      console.log("Datos a actualizar:", planificacionData);
-
       await updatePlanificacion(planificacionData);
-
-      console.log("Planificación actualizada");
       setShowEditPage(false);
       toast.success("Planificación actualizada correctamente");
     } catch (err) {
-      console.error("Error al actualizar planificación:", err);
       toast.error("Error al actualizar la planificación");
     }
   };
 
   const handleCreatePlanificacion = async (planificacionData: any) => {
     try {
-      console.log("Datos a enviar al backend:", planificacionData);
-
-      // Por ahora, mostrar el JSON que se enviaría
-      // TODO: Actualizar cuando el backend esté listo
       const nuevaPlanificacion = await createPlanificacion(planificacionData);
-
-      console.log("Planificación creada:", nuevaPlanificacion);
       setShowCreatePage(false);
       toast.success("Planificación creada correctamente");
     } catch (err) {
-      console.error("Error al crear planificación:", err);
       toast.error("Error al crear la planificación");
     }
   };
@@ -190,7 +178,9 @@ export function PlanificacionAnualView({
   const renderHeader = () => (
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0 mb-4 sm:mb-6">
       <div>
-        <h1 className="text-2xl text-3xl font-bold">Planificación de Mantenimientos</h1>
+        <h1 className="text-2xl text-3xl font-bold">
+          Planificación de Mantenimientos
+        </h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           {readOnly
             ? "Visualiza la planificación anual de mantenimientos"
@@ -275,7 +265,11 @@ export function PlanificacionAnualView({
                 </p>
               </div>
               {!readOnly && (
-                <Button onClick={() => setShowCreatePage(true)} size="default" className="w-full sm:w-auto">
+                <Button
+                  onClick={() => setShowCreatePage(true)}
+                  size="default"
+                  className="w-full sm:w-auto"
+                >
                   <Plus className="mr-2 h-5 w-5" />
                   Crear Planificación {ano}
                 </Button>
@@ -356,18 +350,6 @@ export function PlanificacionAnualView({
   const chartKey = `chart-${ano}-${Date.now()}-${chartData
     .map((d) => d.mesNumero)
     .join("-")}`;
-
-  console.log("=== DEBUG ORDEN DE MESES ===");
-  console.log(
-    "Meses originales del backend:",
-    planificacion?.meses?.map((m) => `${m.mes}`)
-  );
-  console.log(
-    "ChartData ordenado:",
-    chartData.map((d) => `${d.mesNumero}-${d.mes}`)
-  );
-  console.log("Chart Key:", chartKey);
-  console.log("===========================");
 
   const pieData = [
     {

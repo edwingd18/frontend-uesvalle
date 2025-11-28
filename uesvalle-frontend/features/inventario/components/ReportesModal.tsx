@@ -69,7 +69,6 @@ export function ReportesModal({
         `Reporte PDF generado con ${activosFiltrados.length} activos`
       );
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       toast.error("Error al generar el reporte PDF");
     } finally {
       setGenerando(false);
@@ -98,7 +97,6 @@ export function ReportesModal({
         `Reporte Excel generado con ${activosFiltrados.length} activos`
       );
     } catch (error) {
-      console.error("Error al generar Excel:", error);
       toast.error("Error al generar el reporte Excel");
     } finally {
       setGenerando(false);

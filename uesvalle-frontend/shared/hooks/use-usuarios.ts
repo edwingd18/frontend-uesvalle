@@ -30,7 +30,6 @@ export function useUsuarios() {
       setUsuarios(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar usuarios");
-      console.error("Error fetching usuarios:", err);
     } finally {
       setLoading(false);
     }

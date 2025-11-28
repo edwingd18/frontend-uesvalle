@@ -10,7 +10,6 @@ export default function PlanificacionTestPage() {
   const [planificacionCreada, setPlanificacionCreada] = useState<any>(null);
 
   const handleConfirm = (planificacion: any) => {
-    console.log("Planificación creada:", planificacion);
     setPlanificacionCreada(planificacion);
     setModalOpen(false);
   };

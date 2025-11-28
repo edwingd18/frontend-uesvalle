@@ -70,7 +70,7 @@ export default function TrasladoDetailPage() {
         );
         setActivo(activoData);
       } catch (err) {
-        console.error("Error al cargar activo:", err);
+        // Error al cargar activo
       }
 
       // Obtener solicitante
@@ -80,10 +80,9 @@ export default function TrasladoDetailPage() {
         );
         setSolicitante(solicitanteData);
       } catch (err) {
-        console.error("Error al cargar solicitante:", err);
+        // Error al cargar solicitante
       }
     } catch (err) {
-      console.error("Error al cargar traslado:", err);
       setError(
         err instanceof Error ? err.message : "Error al cargar el traslado"
       );
@@ -516,30 +515,44 @@ export default function TrasladoDetailPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Placa</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                      Placa
+                    </p>
                     <p className="text-base sm:text-lg font-semibold font-mono text-orange-600 break-all">
                       {activo.placa}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Serial</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                      Serial
+                    </p>
                     <p className="text-base sm:text-lg font-semibold font-mono break-all">
                       {activo.serial}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Tipo</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                      Tipo
+                    </p>
                     <p className="text-base sm:text-lg font-semibold capitalize">
                       {activo.tipo}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Marca</p>
-                    <p className="text-base sm:text-lg font-semibold break-words">{activo.marca}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                      Marca
+                    </p>
+                    <p className="text-base sm:text-lg font-semibold break-words">
+                      {activo.marca}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-600">Modelo</p>
-                    <p className="text-base sm:text-lg font-semibold break-words">{activo.modelo}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">
+                      Modelo
+                    </p>
+                    <p className="text-base sm:text-lg font-semibold break-words">
+                      {activo.modelo}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Estado</p>
@@ -583,12 +596,20 @@ export default function TrasladoDetailPage() {
             {solicitante ? (
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600">Nombre</p>
-                  <p className="text-base sm:text-lg font-semibold break-words">{solicitante.nombre}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">
+                    Nombre
+                  </p>
+                  <p className="text-base sm:text-lg font-semibold break-words">
+                    {solicitante.nombre}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-600">Correo</p>
-                  <p className="text-base sm:text-lg break-all">{solicitante.correo}</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-600">
+                    Correo
+                  </p>
+                  <p className="text-base sm:text-lg break-all">
+                    {solicitante.correo}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Rol</p>

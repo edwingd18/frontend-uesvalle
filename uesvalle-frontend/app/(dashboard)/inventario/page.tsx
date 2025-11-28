@@ -94,12 +94,13 @@ export default function InventarioPage() {
   const handleEdit = async (activo: Activo) => {
     try {
       // Obtener el activo completo con especificaciones
-      const { activosService } = await import("@/features/inventario/services/activos-service");
+      const { activosService } = await import(
+        "@/features/inventario/services/activos-service"
+      );
       const activoCompleto = await activosService.getActivo(activo.id);
       setSelectedActivo(activoCompleto);
       setFormModalOpen(true);
     } catch (error) {
-      console.error("Error al cargar activo para editar:", error);
       // Fallback: usar el activo sin especificaciones
       setSelectedActivo(activo);
       setFormModalOpen(true);

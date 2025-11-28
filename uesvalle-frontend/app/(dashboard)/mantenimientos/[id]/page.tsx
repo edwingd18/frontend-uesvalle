@@ -72,7 +72,6 @@ export default function MantenimientoDetailPage() {
       }
     } catch (error) {
       showToast.error("Error al cargar los datos");
-      console.error(error);
     } finally {
       setLoading(false);
     }

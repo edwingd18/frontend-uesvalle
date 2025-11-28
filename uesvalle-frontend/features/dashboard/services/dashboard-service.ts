@@ -185,7 +185,6 @@ class DashboardService {
         distribucionPorSede,
       };
     } catch (error) {
-      console.error("Error al obtener estadísticas:", error);
       throw error;
     }
   }

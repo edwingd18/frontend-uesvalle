@@ -327,7 +327,6 @@ export function TrasladoFormModal({
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      console.error("Error al guardar traslado:", error);
       showToast.error(
         error instanceof Error ? error.message : "Error al guardar el traslado"
       );
@@ -877,225 +876,227 @@ export function TrasladoFormModal({
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
-            {isEditing ? (
-              // Modo edición: Mostrar todo en una sola vista
-              <div className="space-y-3">
-                {/* Mostrar tipo de traslado como badge */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-600">
-                    Tipo de traslado:
-                  </span>
-                  <Badge
-                    variant="secondary"
-                    className={
-                      form.watch("tipo_traslado") === "ambos"
-                        ? "bg-green-100 text-green-800"
-                        : form.watch("tipo_traslado") === "usuario"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-blue-100 text-blue-800"
-                    }
-                  >
-                    {form.watch("tipo_traslado") === "sede"
-                      ? "Solo Ubicación"
-                      : form.watch("tipo_traslado") === "usuario"
-                      ? "Solo Usuarios"
-                      : "Ubicación y Usuarios"}
-                  </Badge>
-                </div>
-
-                {/* Mostrar activo seleccionado */}
-                <div className="p-4 bg-gray-50 rounded-lg border">
-                  <p className="text-sm font-medium text-gray-600 mb-2">
-                    Activo
-                  </p>
+              {isEditing ? (
+                // Modo edición: Mostrar todo en una sola vista
+                <div className="space-y-3">
+                  {/* Mostrar tipo de traslado como badge */}
                   <div className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-gray-500" />
-                    <span className="font-mono font-semibold">
-                      {selectedActivo?.placa}
+                    <span className="text-sm font-medium text-gray-600">
+                      Tipo de traslado:
                     </span>
-                    <span className="text-gray-600">
-                      - {selectedActivo?.marca} {selectedActivo?.modelo}
-                    </span>
+                    <Badge
+                      variant="secondary"
+                      className={
+                        form.watch("tipo_traslado") === "ambos"
+                          ? "bg-green-100 text-green-800"
+                          : form.watch("tipo_traslado") === "usuario"
+                          ? "bg-purple-100 text-purple-800"
+                          : "bg-blue-100 text-blue-800"
+                      }
+                    >
+                      {form.watch("tipo_traslado") === "sede"
+                        ? "Solo Ubicación"
+                        : form.watch("tipo_traslado") === "usuario"
+                        ? "Solo Usuarios"
+                        : "Ubicación y Usuarios"}
+                    </Badge>
                   </div>
-                </div>
 
-                {/* Fecha */}
-                <FormField
-                  control={form.control}
-                  name="fecha"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        Fecha del Traslado *
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="date" className="h-12" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Sedes si aplica */}
-                {(form.watch("tipo_traslado") === "sede" ||
-                  form.watch("tipo_traslado") === "ambos") && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-5 w-5 text-blue-600" />
-                      <h3 className="text-base font-semibold">Ubicación</h3>
+                  {/* Mostrar activo seleccionado */}
+                  <div className="p-4 bg-gray-50 rounded-lg border">
+                    <p className="text-sm font-medium text-gray-600 mb-2">
+                      Activo
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Package className="h-5 w-5 text-gray-500" />
+                      <span className="font-mono font-semibold">
+                        {selectedActivo?.placa}
+                      </span>
+                      <span className="text-gray-600">
+                        - {selectedActivo?.marca} {selectedActivo?.modelo}
+                      </span>
                     </div>
+                  </div>
 
-                    <FormField
-                      control={form.control}
-                      name="sede_destino_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Sede Destino *</FormLabel>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(Number(value))
-                            }
-                            value={field.value ? String(field.value) : ""}
-                          >
+                  {/* Fecha */}
+                  <FormField
+                    control={form.control}
+                    name="fecha"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Fecha del Traslado *
+                        </FormLabel>
+                        <FormControl>
+                          <Input type="date" className="h-12" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Sedes si aplica */}
+                  {(form.watch("tipo_traslado") === "sede" ||
+                    form.watch("tipo_traslado") === "ambos") && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-5 w-5 text-blue-600" />
+                        <h3 className="text-base font-semibold">Ubicación</h3>
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="sede_destino_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Sede Destino *</FormLabel>
+                            <Select
+                              onValueChange={(value) =>
+                                field.onChange(Number(value))
+                              }
+                              value={field.value ? String(field.value) : ""}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-11">
+                                  <SelectValue placeholder="Seleccionar sede" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {sedes.map((sede) => (
+                                  <SelectItem
+                                    key={sede.id}
+                                    value={String(sede.id)}
+                                  >
+                                    {sede.nombre}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {/* Usuarios si aplica */}
+                  {(form.watch("tipo_traslado") === "usuario" ||
+                    form.watch("tipo_traslado") === "ambos") && (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-5 w-5 text-purple-600" />
+                        <h3 className="text-base font-semibold">
+                          Responsables
+                        </h3>
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="usuario_uso_destino"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Usuario de Uso</FormLabel>
                             <FormControl>
-                              <SelectTrigger className="h-11">
-                                <SelectValue placeholder="Seleccionar sede" />
-                              </SelectTrigger>
+                              <Input
+                                placeholder="Nombre del usuario de uso"
+                                className="h-12"
+                                {...field}
+                              />
                             </FormControl>
-                            <SelectContent>
-                              {sedes.map((sede) => (
-                                <SelectItem
-                                  key={sede.id}
-                                  value={String(sede.id)}
-                                >
-                                  {sede.nombre}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                {/* Usuarios si aplica */}
-                {(form.watch("tipo_traslado") === "usuario" ||
-                  form.watch("tipo_traslado") === "ambos") && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <User className="h-5 w-5 text-purple-600" />
-                      <h3 className="text-base font-semibold">Responsables</h3>
+                      <FormField
+                        control={form.control}
+                        name="usuario_sysman_destino"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Usuario Sysman</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Nombre del usuario sysman"
+                                className="h-12"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-
-                    <FormField
-                      control={form.control}
-                      name="usuario_uso_destino"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Usuario de Uso</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Nombre del usuario de uso"
-                              className="h-12"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="usuario_sysman_destino"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Usuario Sysman</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Nombre del usuario sysman"
-                              className="h-12"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-
-                {/* Motivo */}
-                <FormField
-                  control={form.control}
-                  name="motivo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        Motivo del Traslado *
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe el motivo del traslado..."
-                          className="min-h-[100px] resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
                   )}
-                />
-              </div>
-            ) : (
-              // Modo creación: Mostrar con stepper
-              <div className="py-2">{renderStepContent()}</div>
-            )}
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-2 border-t">
-              {!isEditing && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevious}
-                  disabled={currentStep === 1 || isSubmitting}
-                >
-                  <ChevronLeft className="mr-2 h-4 w-4" />
-                  Anterior
-                </Button>
+                  {/* Motivo */}
+                  <FormField
+                    control={form.control}
+                    name="motivo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          Motivo del Traslado *
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Describe el motivo del traslado..."
+                            className="min-h-[100px] resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ) : (
+                // Modo creación: Mostrar con stepper
+                <div className="py-2">{renderStepContent()}</div>
               )}
 
-              <div className={cn("flex gap-2", isEditing && "ml-auto")}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </Button>
-
-                {!isEditing && currentStep < steps.length ? (
-                  <Button type="button" onClick={handleNext}>
-                    Siguiente
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    {isEditing ? "Actualizar Traslado" : "Crear Traslado"}
+              {/* Navigation Buttons */}
+              <div className="flex justify-between pt-2 border-t">
+                {!isEditing && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 1 || isSubmitting}
+                  >
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Anterior
                   </Button>
                 )}
+
+                <div className={cn("flex gap-2", isEditing && "ml-auto")}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => onOpenChange(false)}
+                    disabled={isSubmitting}
+                  >
+                    Cancelar
+                  </Button>
+
+                  {!isEditing && currentStep < steps.length ? (
+                    <Button type="button" onClick={handleNext}>
+                      Siguiente
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      {isEditing ? "Actualizar Traslado" : "Crear Traslado"}
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          </form>
-        </Form>
+            </form>
+          </Form>
         </div>
       </DialogContent>
     </Dialog>

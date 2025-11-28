@@ -81,7 +81,6 @@ export function ReportesTrasladosModal({
         `Reporte PDF generado con ${trasladosFiltrados.length} traslados`
       );
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       toast.error("Error al generar el reporte PDF");
     } finally {
       setGenerando(false);
@@ -116,7 +115,6 @@ export function ReportesTrasladosModal({
         `Reporte Excel generado con ${trasladosFiltrados.length} traslados`
       );
     } catch (error) {
-      console.error("Error al generar Excel:", error);
       toast.error("Error al generar el reporte Excel");
     } finally {
       setGenerando(false);

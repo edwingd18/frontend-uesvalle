@@ -20,7 +20,6 @@ export function usePerfil() {
       );
       setUsuario(perfilActualizado);
     } catch (err) {
-      console.error("Error al refrescar perfil:", err);
       setError("No se pudo cargar la información del perfil");
     } finally {
       setIsLoading(false);
@@ -43,7 +42,6 @@ export function usePerfil() {
       setUsuario(perfilActualizado);
       return perfilActualizado;
     } catch (err) {
-      console.error("Error al actualizar perfil:", err);
       setError("No se pudo actualizar el perfil");
       throw err;
     } finally {

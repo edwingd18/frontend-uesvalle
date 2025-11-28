@@ -68,7 +68,6 @@ export default function ConfiguracionPage() {
       setIsEditing(false);
       toast.success("Perfil actualizado correctamente");
     } catch (error) {
-      console.error("Error al actualizar perfil:", error);
       toast.error("Error al actualizar el perfil");
     } finally {
       setIsSaving(false);

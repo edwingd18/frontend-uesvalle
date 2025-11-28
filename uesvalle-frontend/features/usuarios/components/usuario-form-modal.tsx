@@ -4,14 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  Loader2,
-  User,
-  Mail,
-  Lock,
-  Phone,
-  UserPlus,
-} from "lucide-react";
+import { Loader2, User, Mail, Lock, Phone, UserPlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,14 +32,15 @@ const usuarioFormSchema = z.object({
     .string()
     .min(3, "El username debe tener al menos 3 caracteres")
     .max(20, "El username no puede tener más de 20 caracteres")
-    .regex(/^[a-zA-Z0-9_.-]+$/, "Solo se permiten letras, números, guiones, puntos y guiones bajos"),
+    .regex(
+      /^[a-zA-Z0-9_.-]+$/,
+      "Solo se permiten letras, números, guiones, puntos y guiones bajos"
+    ),
   nombre: z
     .string()
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(100, "El nombre no puede tener más de 100 caracteres"),
-  correo: z
-    .string()
-    .email("Debe ser un correo válido"),
+  correo: z.string().email("Debe ser un correo válido"),
   contrasena: z
     .string()
     .min(8, "La contraseña debe tener al menos 8 caracteres")
@@ -55,7 +49,10 @@ const usuarioFormSchema = z.object({
     .string()
     .min(10, "El celular debe tener al menos 10 dígitos")
     .max(15, "El celular no puede tener más de 15 dígitos")
-    .regex(/^[0-9+\-\s()]+$/, "Solo se permiten números, +, -, espacios y paréntesis"),
+    .regex(
+      /^[0-9+\-\s()]+$/,
+      "Solo se permiten números, +, -, espacios y paréntesis"
+    ),
 });
 
 type UsuarioFormValues = z.infer<typeof usuarioFormSchema>;
@@ -87,7 +84,7 @@ export function UsuarioFormModal({
   const onSubmit = async (values: UsuarioFormValues) => {
     try {
       setIsSubmitting(true);
-      
+
       // Preparar data con valores hardcodeados
       const registroData = {
         ...values,
@@ -96,15 +93,18 @@ export function UsuarioFormModal({
       };
 
       await usuarioService.registerUsuario(registroData);
-      
-      showToast.success(`El usuario ${values.nombre} ha sido registrado exitosamente`);
+
+      showToast.success(
+        `El usuario ${values.nombre} ha sido registrado exitosamente`
+      );
 
       onSuccess();
       onOpenChange(false);
       form.reset();
     } catch (error) {
-      console.error("Error al crear usuario:", error);
-      showToast.error(error instanceof Error ? error.message : "Error al crear el usuario");
+      showToast.error(
+        error instanceof Error ? error.message : "Error al crear el usuario"
+      );
     } finally {
       setIsSubmitting(false);
     }

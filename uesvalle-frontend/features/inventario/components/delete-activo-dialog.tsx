@@ -62,13 +62,6 @@ export function DeleteActivoDialog({
     } catch (error: any) {
       toast.dismiss(loadingToast);
 
-      // Log completo del error para debugging
-      console.error("Error al dar de baja activo:", {
-        error,
-        message: error?.message,
-        activo: activo?.placa,
-      });
-
       // Manejar diferentes tipos de errores
       let errorMessage = "Error al dar de baja el activo";
 
@@ -132,26 +125,22 @@ export function DeleteActivoDialog({
 
         {/* Campo para el motivo */}
         <div className="mt-4 space-y-2">
-              <Label
-                htmlFor="motivo"
-                className="text-sm font-medium text-gray-700"
-              >
-                Motivo de la baja <span className="text-red-500">*</span>
-              </Label>
-              <Textarea
-                id="motivo"
-                placeholder="Describe el motivo por el cual se da de baja este activo..."
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                className="min-h-[80px] resize-none"
-                disabled={isProcessing}
-              />
-              {motivo.trim().length === 0 && (
-                <p className="text-xs text-red-600">
-                  * Este campo es obligatorio para proceder con la baja del
-                  activo
-                </p>
-              )}
+          <Label htmlFor="motivo" className="text-sm font-medium text-gray-700">
+            Motivo de la baja <span className="text-red-500">*</span>
+          </Label>
+          <Textarea
+            id="motivo"
+            placeholder="Describe el motivo por el cual se da de baja este activo..."
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+            className="min-h-[80px] resize-none"
+            disabled={isProcessing}
+          />
+          {motivo.trim().length === 0 && (
+            <p className="text-xs text-red-600">
+              * Este campo es obligatorio para proceder con la baja del activo
+            </p>
+          )}
         </div>
         <AlertDialogFooter>
           <Button

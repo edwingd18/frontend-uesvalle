@@ -278,16 +278,25 @@ export function ActivoFormModal({
           form.setValue("ram_gb", activo.especificaciones.ram_gb);
         }
         if (activo.especificaciones?.almacenamiento_gb !== undefined) {
-          form.setValue("almacenamiento_gb", activo.especificaciones.almacenamiento_gb);
+          form.setValue(
+            "almacenamiento_gb",
+            activo.especificaciones.almacenamiento_gb
+          );
         }
         if (activo.especificaciones?.so) {
           form.setValue("so", activo.especificaciones.so);
         }
         if (activo.especificaciones?.tipo_disco) {
-          form.setValue("tipo_disco", activo.especificaciones.tipo_disco as any);
+          form.setValue(
+            "tipo_disco",
+            activo.especificaciones.tipo_disco as any
+          );
         }
         if (activo.especificaciones?.velocidad_cpu_ghz !== undefined) {
-          form.setValue("velocidad_cpu_ghz", activo.especificaciones.velocidad_cpu_ghz);
+          form.setValue(
+            "velocidad_cpu_ghz",
+            activo.especificaciones.velocidad_cpu_ghz
+          );
         }
         if (activo.especificaciones?.licencia) {
           form.setValue("licencia", activo.especificaciones.licencia);
@@ -461,14 +470,6 @@ export function ActivoFormModal({
       onSuccess();
     } catch (error: any) {
       toast.dismiss(loadingToast);
-
-      // Log completo del error para debugging
-      console.error("Error completo al guardar activo:", {
-        error,
-        message: error?.message,
-        response: error?.response,
-        stack: error?.stack,
-      });
 
       // Manejar diferentes tipos de errores
       let errorMessage = "Error desconocido al guardar el activo";

@@ -66,7 +66,6 @@ export function useInventario() {
 
       setData(activos);
     } catch (err) {
-      console.error("Error al cargar activos:", err);
       setError(
         err instanceof Error ? err.message : "Error al cargar los activos"
       );

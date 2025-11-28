@@ -78,7 +78,6 @@ export function ReportesMantenimientosModal({
         `Reporte PDF generado con ${mantenimientosFiltrados.length} mantenimientos`
       );
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       toast.error("Error al generar el reporte PDF");
     } finally {
       setGenerando(false);
@@ -112,7 +111,6 @@ export function ReportesMantenimientosModal({
         `Reporte Excel generado con ${mantenimientosFiltrados.length} mantenimientos`
       );
     } catch (error) {
-      console.error("Error al generar Excel:", error);
       toast.error("Error al generar el reporte Excel");
     } finally {
       setGenerando(false);

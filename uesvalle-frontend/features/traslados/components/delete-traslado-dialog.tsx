@@ -41,7 +41,6 @@ export function DeleteTrasladoDialog({
       onOpenChange(false);
       onSuccess();
     } catch (error) {
-      console.error("Error al eliminar traslado:", error);
       showToast.error(
         error instanceof Error ? error.message : "Error al eliminar el traslado"
       );

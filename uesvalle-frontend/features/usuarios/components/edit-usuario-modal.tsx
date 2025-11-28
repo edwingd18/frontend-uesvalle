@@ -109,7 +109,6 @@ export function EditUsuarioModal({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error("Error al actualizar usuario:", error);
       showToast.error(
         error instanceof Error
           ? error.message

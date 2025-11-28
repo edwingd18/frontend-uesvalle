@@ -78,7 +78,6 @@ export function ReportesPlanificacionModal({
       reportesPlanificacionService.generarPDF(planificacionFiltrada);
       toast.success("Reporte PDF generado exitosamente");
     } catch (error) {
-      console.error("Error al generar PDF:", error);
       toast.error("Error al generar el reporte PDF");
     } finally {
       setGenerando(false);
@@ -108,7 +107,6 @@ export function ReportesPlanificacionModal({
       reportesPlanificacionService.generarExcel(planificacionFiltrada);
       toast.success("Reporte Excel generado exitosamente");
     } catch (error) {
-      console.error("Error al generar Excel:", error);
       toast.error("Error al generar el reporte Excel");
     } finally {
       setGenerando(false);

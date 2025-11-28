@@ -231,7 +231,12 @@ export function VisualizarPlanificacionPorTipo({
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           {!readOnly && onEdit && (
-            <Button variant="outline" onClick={onEdit} size="sm" className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={onEdit}
+              size="sm"
+              className="w-full sm:w-auto"
+            >
               <Edit className="mr-2 h-4 w-4" />
               Editar
             </Button>
@@ -248,7 +253,6 @@ export function VisualizarPlanificacionPorTipo({
                 toast.success("Reporte generado exitosamente");
               } catch (error) {
                 toast.error("Error al generar el reporte");
-                console.error(error);
               }
             }}
           >
@@ -268,7 +272,6 @@ export function VisualizarPlanificacionPorTipo({
                 toast.success("Reporte de estadísticas generado exitosamente");
               } catch (error) {
                 toast.error("Error al generar el reporte");
-                console.error(error);
               }
             }}
           >
@@ -295,7 +298,10 @@ export function VisualizarPlanificacionPorTipo({
         </TabsList>
 
         {/* Pestaña de Estadísticas */}
-        <TabsContent value="estadisticas" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+        <TabsContent
+          value="estadisticas"
+          className="space-y-4 sm:space-y-6 mt-4 sm:mt-6"
+        >
           {/* Cards de resumen */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card>
@@ -309,7 +315,9 @@ export function VisualizarPlanificacionPorTipo({
                   {totalesGenerales.planificado}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  <span className="hidden sm:inline">Mantenimientos programados</span>
+                  <span className="hidden sm:inline">
+                    Mantenimientos programados
+                  </span>
                   <span className="sm:hidden">Programados</span>
                 </p>
               </CardContent>
@@ -325,7 +333,9 @@ export function VisualizarPlanificacionPorTipo({
                   {totalesGenerales.realizado}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  <span className="hidden sm:inline">Mantenimientos completados</span>
+                  <span className="hidden sm:inline">
+                    Mantenimientos completados
+                  </span>
                   <span className="sm:hidden">Completados</span>
                 </p>
               </CardContent>
@@ -366,7 +376,9 @@ export function VisualizarPlanificacionPorTipo({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Mantenimientos por Tipo de Activo</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Mantenimientos por Tipo de Activo
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[250px] sm:h-[300px]">
@@ -392,7 +404,9 @@ export function VisualizarPlanificacionPorTipo({
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Progreso General</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Progreso General
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-[250px] sm:h-[300px]">
@@ -416,7 +430,9 @@ export function VisualizarPlanificacionPorTipo({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                 <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
-                <span className="hidden sm:inline">Tendencia de Cumplimiento Mensual</span>
+                <span className="hidden sm:inline">
+                  Tendencia de Cumplimiento Mensual
+                </span>
                 <span className="sm:hidden">Cumplimiento Mensual</span>
               </CardTitle>
             </CardHeader>
@@ -457,7 +473,9 @@ export function VisualizarPlanificacionPorTipo({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                   <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-                  <span className="hidden sm:inline">Meses con Mejor Cumplimiento</span>
+                  <span className="hidden sm:inline">
+                    Meses con Mejor Cumplimiento
+                  </span>
                   <span className="sm:hidden">Mejores Meses</span>
                 </CardTitle>
               </CardHeader>
@@ -472,13 +490,18 @@ export function VisualizarPlanificacionPorTipo({
                         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-600 text-xs sm:text-sm">
                           {index + 1}
                         </div>
-                        <span className="font-medium text-sm sm:text-base">{mes.mes}</span>
+                        <span className="font-medium text-sm sm:text-base">
+                          {mes.mes}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1 sm:gap-2">
                         <span className="text-xs sm:text-sm text-muted-foreground">
                           {mes.realizado}/{mes.planificado}
                         </span>
-                        <Badge variant="default" className="bg-green-600 text-xs">
+                        <Badge
+                          variant="default"
+                          className="bg-green-600 text-xs"
+                        >
                           {mes.porcentaje}%
                         </Badge>
                       </div>
@@ -492,7 +515,9 @@ export function VisualizarPlanificacionPorTipo({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                   <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
-                  <span className="hidden sm:inline">Meses con Menor Cumplimiento</span>
+                  <span className="hidden sm:inline">
+                    Meses con Menor Cumplimiento
+                  </span>
                   <span className="sm:hidden">Peores Meses</span>
                 </CardTitle>
               </CardHeader>
@@ -507,13 +532,17 @@ export function VisualizarPlanificacionPorTipo({
                         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600 text-xs sm:text-sm">
                           {index + 1}
                         </div>
-                        <span className="font-medium text-sm sm:text-base">{mes.mes}</span>
+                        <span className="font-medium text-sm sm:text-base">
+                          {mes.mes}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1 sm:gap-2">
                         <span className="text-xs sm:text-sm text-muted-foreground">
                           {mes.realizado}/{mes.planificado}
                         </span>
-                        <Badge variant="secondary" className="text-xs">{mes.porcentaje}%</Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {mes.porcentaje}%
+                        </Badge>
                       </div>
                     </div>
                   ))}
@@ -525,7 +554,9 @@ export function VisualizarPlanificacionPorTipo({
           {/* Resumen por Tipo */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Resumen por Tipo de Activo</CardTitle>
+              <CardTitle className="text-base sm:text-lg">
+                Resumen por Tipo de Activo
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
@@ -618,7 +649,13 @@ export function VisualizarPlanificacionPorTipo({
                             const datos = datosTabla[mesNum][tipo];
                             const tieneDatos =
                               datos.planificado > 0 || datos.realizado > 0;
-                            const porcentaje = datos.planificado > 0 ? Math.min((datos.realizado / datos.planificado) * 100, 100) : 0;
+                            const porcentaje =
+                              datos.planificado > 0
+                                ? Math.min(
+                                    (datos.realizado / datos.planificado) * 100,
+                                    100
+                                  )
+                                : 0;
 
                             return (
                               <td
@@ -680,8 +717,14 @@ export function VisualizarPlanificacionPorTipo({
                         const mesNum = index + 1;
                         const totalesMes = calcularTotalMes(mesNum);
                         return (
-                          <td key={mesNum} className="border p-0.5 sm:p-2 text-center">
-                            <Badge variant="default" className="text-[10px] sm:text-xs">
+                          <td
+                            key={mesNum}
+                            className="border p-0.5 sm:p-2 text-center"
+                          >
+                            <Badge
+                              variant="default"
+                              className="text-[10px] sm:text-xs"
+                            >
                               {totalesMes.realizado}/{totalesMes.planificado}
                             </Badge>
                           </td>

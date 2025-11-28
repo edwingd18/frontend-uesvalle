@@ -137,26 +137,6 @@ export function CrearPlanificacionPorTipoModal({
     });
   };
 
-  const autoLlenar = () => {
-    const nuevaPlanificacion: Record<number, Record<string, number>> = {};
-    for (let mes = 1; mes <= 12; mes++) {
-      nuevaPlanificacion[mes] = {};
-      TIPOS_ACTIVO.forEach((tipo) => {
-        // Valores de ejemplo para algunos tipos comunes
-        if (tipo.value === "COMPUTADOR")
-          nuevaPlanificacion[mes][tipo.value] = 10;
-        else if (tipo.value === "PORTATIL")
-          nuevaPlanificacion[mes][tipo.value] = 5;
-        else if (tipo.value === "IMPRESORA")
-          nuevaPlanificacion[mes][tipo.value] = 3;
-        else if (tipo.value === "MONITOR")
-          nuevaPlanificacion[mes][tipo.value] = 4;
-        else nuevaPlanificacion[mes][tipo.value] = 1;
-      });
-    }
-    setPlanificacion(nuevaPlanificacion);
-  };
-
   const limpiar = () => {
     const nuevaPlanificacion: Record<number, Record<string, number>> = {};
     for (let mes = 1; mes <= 12; mes++) {
@@ -182,9 +162,6 @@ export function CrearPlanificacionPorTipoModal({
         </DialogHeader>
 
         <div className="flex gap-2 mb-4">
-          <Button variant="outline" size="sm" onClick={autoLlenar}>
-            Auto-llenar ejemplo
-          </Button>
           <Button variant="outline" size="sm" onClick={limpiar}>
             Limpiar todo
           </Button>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Save, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const MESES = [
@@ -131,26 +131,6 @@ export function CrearPlanificacionPorTipoPage({
     });
   };
 
-  const autoLlenar = () => {
-    const nuevaPlanificacion: Record<number, Record<string, number>> = {};
-    for (let mes = 1; mes <= 12; mes++) {
-      nuevaPlanificacion[mes] = {};
-      TIPOS_ACTIVO.forEach((tipo) => {
-        // Valores de ejemplo para algunos tipos comunes
-        if (tipo.value === "COMPUTADOR")
-          nuevaPlanificacion[mes][tipo.value] = 10;
-        else if (tipo.value === "PORTATIL")
-          nuevaPlanificacion[mes][tipo.value] = 5;
-        else if (tipo.value === "IMPRESORA")
-          nuevaPlanificacion[mes][tipo.value] = 3;
-        else if (tipo.value === "MONITOR")
-          nuevaPlanificacion[mes][tipo.value] = 4;
-        else nuevaPlanificacion[mes][tipo.value] = 1;
-      });
-    }
-    setPlanificacion(nuevaPlanificacion);
-  };
-
   const limpiar = () => {
     const nuevaPlanificacion: Record<number, Record<string, number>> = {};
     for (let mes = 1; mes <= 12; mes++) {
@@ -184,10 +164,6 @@ export function CrearPlanificacionPorTipoPage({
           <Button variant="outline" onClick={limpiar}>
             <Trash2 className="mr-2 h-4 w-4" />
             Limpiar
-          </Button>
-          <Button variant="outline" onClick={autoLlenar}>
-            <Sparkles className="mr-2 h-4 w-4" />
-            Auto-llenar
           </Button>
           <Button onClick={handleConfirm} size="lg">
             <Save className="mr-2 h-4 w-4" />

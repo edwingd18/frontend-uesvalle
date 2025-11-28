@@ -156,12 +156,12 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">
-                    Mantenimientos Activos
+                    Mantenimientos
                   </p>
                   <p className="text-3xl font-bold text-gray-900 mt-1">
-                    {stats.activosEnMantenimiento}
+                    {stats.totalMantenimientos}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">En proceso</p>
+                  <p className="text-xs text-gray-500 mt-1">Total realizados</p>
                 </div>
                 <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <Wrench className="h-6 w-6 text-blue-600" />

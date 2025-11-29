@@ -68,7 +68,7 @@ export function DataTable<TData, TValue>({
       <div className="space-y-4">
         {/* Barra de búsqueda y columnas */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-          <div className="relative flex-1">
+          <div className="relative flex-1 max-w-full sm:max-w-80 md:max-w-96">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Buscar..."
@@ -81,9 +81,8 @@ export function DataTable<TData, TValue>({
           <div className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <span className="hidden sm:inline">Columnas</span>
-                  <span className="sm:hidden">Columnas</span>
+                <Button variant="outline" className="w-[140px] sm:w-auto md:w-[160px]">
+                  <span>Columnas</span>
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -113,7 +112,7 @@ export function DataTable<TData, TValue>({
 
       {/* Tabla */}
       <div className="rounded-md border mt-4">
-        <Table>
+        <Table className="w-full min-w-[800px] md:min-w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -162,7 +161,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between gap-4 py-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
         <div className="text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length} de{" "}
           {table.getCoreRowModel().rows.length} fila(s)
@@ -173,6 +172,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="w-full sm:w-auto"
           >
             Anterior
           </Button>
@@ -181,6 +181,7 @@ export function DataTable<TData, TValue>({
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="w-full sm:w-auto"
           >
             Siguiente
           </Button>

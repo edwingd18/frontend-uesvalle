@@ -273,9 +273,9 @@ export default function UsuariosPage() {
 
   return (
     <RoleGuard allowedRoles={["ADMIN", "SYSMAN"]} redirectTo="/dashboard">
-      <div className="w-full">
+      <div className="w-full px-4 md:px-6 lg:container lg:mx-auto">
         {/* Header con padding responsive */}
-        <div className="py-6">
+        <div className="py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
@@ -317,7 +317,7 @@ export default function UsuariosPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto flex justify-center">
-              <div className="w-[280px] sm:w-full">
+              <div className="w-[280px] sm:w-full md:w-[700px] lg:w-full">
                 <DataTable columns={columns} data={usuarios} />
               </div>
             </CardContent>

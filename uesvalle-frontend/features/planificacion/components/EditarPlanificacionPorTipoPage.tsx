@@ -149,28 +149,28 @@ export function EditarPlanificacionPorTipoPage({
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="w-full min-h-full px-2 sm:px-4 md:px-1 lg:container lg:mx-auto py-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
           <Button variant="ghost" size="icon" onClick={onCancel}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
               Editar Planificación {planificacion.ano}
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Modifica las cantidades planificadas por tipo de activo
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={limpiar}>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" onClick={limpiar} className="w-full sm:w-auto">
             <Trash2 className="mr-2 h-4 w-4" />
             Limpiar
           </Button>
-          <Button onClick={handleConfirm} size="lg">
+          <Button onClick={handleConfirm} size="default" className="w-full sm:w-auto">
             <Save className="mr-2 h-4 w-4" />
             Guardar Cambios
           </Button>
@@ -210,9 +210,9 @@ export function EditarPlanificacionPorTipoPage({
         <CardHeader>
           <CardTitle>Planificación Mensual por Tipo de Activo</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="w-full">
-            <table className="w-full border-collapse table-fixed">
+        <CardContent className="overflow-x-auto flex justify-center">
+          <div className="w-[280px] sm:w-full md:w-[700px] lg:w-full">
+            <table className="w-full border-collapse table-fixed min-w-[800px] md:min-w-full">
               <thead>
                 <tr>
                   <th className="border p-2 bg-muted font-semibold text-left w-[10%]">

@@ -113,8 +113,9 @@ export default function MantenimientoDetailPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="px-1 sm:px-4 md:px-2 lg:container lg:mx-auto py-4 lg:py-6">
+          {/* Desktop layout - one row */}
+          <div className="hidden lg:flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -125,7 +126,7 @@ export default function MantenimientoDetailPage() {
               </Button>
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-3xl font-bold text-gray-900">
+                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
                     Mantenimiento #{mantenimiento.id}
                   </h1>
                   <Badge
@@ -165,14 +166,68 @@ export default function MantenimientoDetailPage() {
               </Button>
             </div>
           </div>
+
+          {/* Mobile/iPad layout - one row */}
+          <div className="flex lg:hidden items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.push("/mantenimientos")}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                    Mantenimiento #{mantenimiento.id}
+                  </h1>
+                  <Badge
+                    variant={tipoBadge.variant}
+                    className={`${tipoBadge.className} capitalize`}
+                  >
+                    {mantenimiento.tipo}
+                  </Badge>
+                </div>
+                <p className="text-gray-600 flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  {format(
+                    new Date(mantenimiento.fecha_realizado),
+                    "d 'de' MMMM 'de' yyyy",
+                    { locale: es }
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-1 sm:gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEditModal(true)}
+                className="px-2 sm:px-3"
+              >
+                <Edit className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Editar</span>
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowDeleteDialog(true)}
+                className="px-2 sm:px-3"
+              >
+                <Trash2 className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Eliminar</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="px-1 sm:px-4 md:px-2 lg:container lg:mx-auto py-4 lg:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 lg:space-y-6">
             {/* Activo */}
             {activo && (
               <Card>
@@ -287,7 +342,7 @@ export default function MantenimientoDetailPage() {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6">
             {/* Información General */}
             <Card>
               <CardHeader>
@@ -297,7 +352,7 @@ export default function MantenimientoDetailPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                   <div>
                     <label className="text-sm font-medium text-gray-500">
                       Tipo de Mantenimiento
@@ -356,15 +411,15 @@ export default function MantenimientoDetailPage() {
                     Detalles y trabajos realizados
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 lg:space-y-6">
                   {mantenimiento.observacion_hardware && (
                     <div>
                       <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                         <Wrench className="h-4 w-4" />
                         Hardware
                       </h4>
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 lg:p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans break-words">
                           {mantenimiento.observacion_hardware}
                         </pre>
                       </div>
@@ -377,8 +432,8 @@ export default function MantenimientoDetailPage() {
                         <Package className="h-4 w-4" />
                         Software
                       </h4>
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 lg:p-4">
+                        <pre className="whitespace-pre-wrap text-sm text-gray-700 font-sans break-words">
                           {mantenimiento.observacion_software}
                         </pre>
                       </div>

@@ -96,6 +96,21 @@ export default function MantenimientosPage() {
     return activo?.placa || `Activo #${activoId}`;
   };
 
+  // Enriquecer los datos con información de búsqueda
+  const enrichedData = useMemo(() => {
+    return data.map((mantenimiento) => ({
+      ...mantenimiento,
+      _searchPlaca: getActivoPlaca(mantenimiento.activo_id),
+      _searchTecnico: getUsuarioNombre(mantenimiento.tecnico_id),
+      _searchEncargadoHardware: getUsuarioNombre(
+        mantenimiento.encargado_harware_id
+      ),
+      _searchEncargadoSoftware: getUsuarioNombre(
+        mantenimiento.encargado_software_id
+      ),
+    }));
+  }, [data, activos, usuarios]);
+
   // Handlers para las acciones
   const handleView = (mantenimiento: Mantenimiento) => {
     router.push(`/mantenimientos/${mantenimiento.id}`);
@@ -328,7 +343,7 @@ export default function MantenimientosPage() {
           </CardHeader>
           <CardContent className="overflow-x-auto flex justify-center">
             <div className="w-[280px] sm:w-full md:w-[700px] lg:w-full">
-              <DataTable columns={columns} data={data} />
+              <DataTable columns={columns} data={enrichedData} />
             </div>
           </CardContent>
         </Card>

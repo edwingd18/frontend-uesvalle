@@ -93,7 +93,25 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: "includesString",
+    globalFilterFn: (row, columnId, filterValue) => {
+      const search = filterValue.toLowerCase();
+
+      // Buscar en todos los valores de la fila
+      const rowValues = Object.values(row.original as any).map((val) =>
+        String(val || "").toLowerCase()
+      );
+
+      // Buscar en los valores renderizados de las celdas
+      const cellValues = row.getVisibleCells().map((cell) => {
+        const rendered = cell.renderValue();
+        return String(rendered || "").toLowerCase();
+      });
+
+      // Combinar todos los valores
+      const allValues = [...rowValues, ...cellValues].join(" ");
+
+      return allValues.includes(search);
+    },
     state: {
       sorting,
       columnFilters,
@@ -263,24 +281,24 @@ export function DataTable<TData, TValue>({
                   Columnas <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -310,7 +328,11 @@ export function DataTable<TData, TValue>({
             {tipoFilter && (
               <Badge variant="secondary" className="gap-1">
                 Tipo: {tipoFilter}
-                <button onClick={() => clearFilter("tipo")} className="ml-1" aria-label="Eliminar filtro de tipo">
+                <button
+                  onClick={() => clearFilter("tipo")}
+                  className="ml-1"
+                  aria-label="Eliminar filtro de tipo"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -361,7 +383,10 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="whitespace-nowrap md:whitespace-normal">
+                  <TableHead
+                    key={header.id}
+                    className="whitespace-nowrap md:whitespace-normal"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -381,7 +406,10 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="whitespace-nowrap md:whitespace-normal">
+                    <TableCell
+                      key={cell.id}
+                      className="whitespace-nowrap md:whitespace-normal"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
